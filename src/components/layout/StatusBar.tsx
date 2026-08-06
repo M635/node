@@ -1,0 +1,90 @@
+import type { FileTab } from "../../types/file";
+import { formatFileSize } from "../../utils/fileUtils";
+import { getEncodingDisplayName } from "../../utils/encodingUtils";
+import { useEditorStore } from "../../stores/editorStore";
+import { EditorToolbar } from "../editor/EditorToolbar";
+
+interface StatusBarProps {
+  activeTab: FileTab | null;
+  onSave: () => void;
+  onOpenFile: () => void;
+  onGotoLine: () => void;
+  onExport: (format: "txt" | "html" | "rtf") => void;
+}
+
+export function StatusBar({
+  activeTab,
+  onSave,
+  onOpenFile,
+  onGotoLine,
+  onExport,
+}: StatusBarProps) {
+  const { isRecordingMacro, startMacroRecording, stopMacroRecording } = useEditorStore();
+
+  const handleToggleMacro = () => {
+    if (isRecordingMacro) {
+      stopMacroRecording();
+    } else {
+      startMacroRecording();
+    }
+  };
+
+  const handleToggleDiff = () => {
+    window.dispatchEvent(new CustomEvent("macpad:toggle-diff"));
+  };
+
+  if (!activeTab) {
+    return (
+      <div className="status-bar">
+        <div className="status-left">
+          <span className="status-item">MacPad</span>
+        </div>
+        <div className="status-right">
+          <EditorToolbar
+            isRecordingMacro={isRecordingMacro}
+            onToggleMacro={handleToggleMacro}
+            onToggleDiff={handleToggleDiff}
+            onExport={onExport}
+          />
+        </div>
+      </div>
+    );
+  }
+
+  const { cursor_position, meta, encoding, language, is_dirty, readonly } = activeTab;
+
+  return (
+    <div className="status-bar">
+      <div className="status-left">
+        <span className="status-item" onClick={onSave} title="保存">
+          {is_dirty ? "● 已修改" : "✓ 已保存"}
+        </span>
+        <span className="status-item">{language}</span>
+        <span className="status-item" onClick={onGotoLine} title="跳转行号">
+          行 {cursor_position.line}, 列 {cursor_position.column}
+        </span>
+        {meta && (
+          <>
+            <span className="status-item">{formatFileSize(meta.size)}</span>
+            <span className="status-item">{meta.line_count} 行</span>
+          </>
+        )}
+        {readonly && <span className="status-item readonly-badge">只读</span>}
+      </div>
+      <div className="status-right">
+        <span className="status-item encoding-badge">
+          {getEncodingDisplayName(encoding)}
+        </span>
+        <span className="status-item">
+          {meta?.line_ending === "Crlf" ? "CRLF" : "LF"}
+        </span>
+        <EditorToolbar
+          isRecordingMacro={isRecordingMacro}
+          onToggleMacro={handleToggleMacro}
+          onToggleDiff={handleToggleDiff}
+          onExport={onExport}
+        />
+      </div>
+    </div>
+  );
+}
