@@ -19,8 +19,8 @@ export function useTheme(mode: ThemeMode): { isDark: boolean } {
         const theme = await win.theme();
         setIsDark(theme === "dark");
 
-        const unlisten = await win.onThemeChanged((newTheme) => {
-          setIsDark(newTheme === "dark");
+        const unlisten = await win.onThemeChanged((newTheme: { payload: string }) => {
+          setIsDark(newTheme.payload === "dark");
         });
         cleanup = unlisten;
       } catch {

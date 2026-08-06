@@ -15,7 +15,7 @@ export function DiffEditorView({
   language = "plaintext",
 }: DiffEditorViewProps) {
   const { isDark } = useEditorStore();
-  const { fontSize, fontFamily, showLineNumbers, readOnly } = useSettingStore() as any;
+  const { fontSize, fontFamily, showLineNumbers } = useSettingStore();
 
   return (
     <div className="diff-editor-wrapper">

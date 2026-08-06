@@ -1,4 +1,5 @@
 import type { MacroAction, Macro } from "../../types/editor";
+import type * as Monaco from "monaco-editor";
 
 export class MacroRecorder {
   private actions: MacroAction[] = [];
@@ -46,7 +47,7 @@ export class MacroRecorder {
 }
 
 export function replayMacro(
-  editor: monaco.editor.IStandaloneCodeEditor,
+  editor: Monaco.editor.IStandaloneCodeEditor,
   macro: Macro
 ): void {
   for (const action of macro.actions) {

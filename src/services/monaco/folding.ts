@@ -63,7 +63,7 @@ export function enableBracketPairColorization(
   editor: Monaco.editor.IStandaloneCodeEditor
 ): void {
   editor.updateOptions({
-    "bracketPairColorization.enabled": true,
-    "guides.bracketPairs": true,
+    bracketPairColorization: { enabled: true },
+    guides: { bracketPairs: true },
   });
 }
