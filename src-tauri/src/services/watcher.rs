@@ -1,4 +1,4 @@
-use notify_debouncer_mini::{new_debouncer, DebouncedEventKind};
+use notify_debouncer_mini::{new_debouncer, DebouncedEvent};
 use parking_lot::Mutex;
 use std::collections::HashMap;
 use std::path::PathBuf;
@@ -25,7 +25,7 @@ impl FileWatcher {
 
         let mut debouncer = new_debouncer(
             Duration::from_millis(300),
-            move |events: Result<Vec<DebouncedEventKind>, _>| {
+            move |events: Result<Vec<DebouncedEvent>, notify::Error>| {
                 if let Ok(evs) = events {
                     if !evs.is_empty() {
                         let _ = app_clone.emit(

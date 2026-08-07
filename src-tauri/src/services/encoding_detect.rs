@@ -1,6 +1,5 @@
 use crate::models::file_meta::Encoding;
 use chardetng::EncodingDetector;
-use encoding_rs::Encoding as RsEncoding;
 
 pub fn detect_encoding(bytes: &[u8]) -> Encoding {
     if bytes.is_empty() {
@@ -21,7 +20,7 @@ pub fn detect_encoding(bytes: &[u8]) -> Encoding {
     detector.feed(bytes, true);
     let guessed = detector.guess(None, true);
 
-    let canonical = guessed.whatwg_name().unwrap_or("utf-8");
+    let canonical = guessed.name();
     match canonical {
         "utf-8" => Encoding::Utf8,
         "gbk" | "gb18030" => Encoding::Gbk,
@@ -40,7 +39,7 @@ pub fn detect_encoding(bytes: &[u8]) -> Encoding {
 }
 
 pub fn decode_bytes(bytes: &[u8], encoding: &Encoding) -> String {
-    let enc = match encoding {
+    let enc: &'static encoding_rs::Encoding = match encoding {
         Encoding::Utf8 | Encoding::Utf8Bom | Encoding::Ascii | Encoding::Unknown => {
             encoding_rs::UTF_8
         }
@@ -60,7 +59,7 @@ pub fn decode_bytes(bytes: &[u8], encoding: &Encoding) -> String {
 }
 
 pub fn encode_string(text: &str, encoding: &Encoding) -> Vec<u8> {
-    let enc: RsEncoding = match encoding {
+    let enc: &'static encoding_rs::Encoding = match encoding {
         Encoding::Utf8 | Encoding::Utf8Bom | Encoding::Ascii | Encoding::Unknown => {
             encoding_rs::UTF_8
         }

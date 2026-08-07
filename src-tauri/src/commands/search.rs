@@ -1,7 +1,6 @@
 use crate::models::file_meta::{SearchResult, SearchSummary};
 use regex::Regex;
 use std::fs;
-use std::path::Path;
 use walkdir::WalkDir;
 
 const MAX_RESULTS: usize = 5000;

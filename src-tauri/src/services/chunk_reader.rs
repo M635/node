@@ -1,6 +1,6 @@
 use memmap2::Mmap;
 use std::fs::File;
-use std::io::{self, Read};
+use std::io::{self, Read, Seek};
 use std::path::Path;
 
 const DEFAULT_CHUNK_SIZE: usize = 8 * 1024 * 1024;
@@ -66,7 +66,7 @@ impl ChunkReader {
             return Ok(Vec::new());
         }
         let end = std::cmp::min(start as usize + length, self.file_size as usize);
-        let actual_length = end - start as usize;
+        let _actual_length = end - start as usize;
 
         let file = File::open(&self.path)?;
         let mmap = unsafe { Mmap::map(&file)? };

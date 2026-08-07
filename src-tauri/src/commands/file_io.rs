@@ -1,5 +1,4 @@
 use crate::models::file_meta::{Encoding, FileMeta, LineEnding};
-use crate::services::chunk_reader;
 use crate::services::encoding_detect;
 use std::fs;
 use std::path::Path;

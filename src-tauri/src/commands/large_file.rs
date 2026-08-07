@@ -14,7 +14,7 @@ pub fn open_large_file(path: String) -> Result<LargeFileInitResult, String> {
     let encoding = encoding_detect::detect_encoding(&first_chunk_bytes);
     let content = encoding_detect::decode_bytes(&first_chunk_bytes, &encoding);
 
-    let line_end = content.rfind('\n').unwrap_or(content.len());
+    let _line_end = content.rfind('\n').unwrap_or(content.len());
     let line_start = content.lines().count() as u64;
 
     let chunk_info = ChunkInfo {

@@ -4,7 +4,7 @@ mod services;
 
 use commands::file_watcher::WatcherState;
 use services::watcher::FileWatcher;
-use tauri::Manager;
+use tauri::{Emitter, Manager};
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
