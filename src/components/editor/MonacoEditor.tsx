@@ -115,7 +115,6 @@ export function MonacoEditor({
     linkedEditing: true,
     trimAutoWhitespace: true,
     renderLineHighlight: "all",
-    renderIndentGuides: true,
     glyphMargin: true,
     fixedOverflowWidgets: true,
     contextmenu: true,
