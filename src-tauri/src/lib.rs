@@ -4,7 +4,7 @@ mod services;
 
 use commands::file_watcher::WatcherState;
 use services::watcher::FileWatcher;
-use tauri::{Emitter, Manager};
+use tauri::Emitter;
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
@@ -19,12 +19,12 @@ pub fn run() {
                 use tauri::menu::{Menu, MenuItem, Submenu};
                 let app_handle = app.handle();
 
-                let new_item = MenuItem::with_id(app_handle, "new", "新建", true, None)?;
-                let open_item = MenuItem::with_id(app_handle, "open", "打开...", true, None)?;
-                let save_item = MenuItem::with_id(app_handle, "save", "保存", true, None)?;
-                let save_as_item = MenuItem::with_id(app_handle, "save_as", "另存为...", true, None)?;
-                let close_item = MenuItem::with_id(app_handle, "close", "关闭标签", true, None)?;
-                let quit_item = MenuItem::with_id(app_handle, "quit", "退出 MacPad", true, None)?;
+                let new_item = MenuItem::with_id(app_handle, "new", "新建", true, None::<&str>)?;
+                let open_item = MenuItem::with_id(app_handle, "open", "打开...", true, None::<&str>)?;
+                let save_item = MenuItem::with_id(app_handle, "save", "保存", true, None::<&str>)?;
+                let save_as_item = MenuItem::with_id(app_handle, "save_as", "另存为...", true, None::<&str>)?;
+                let close_item = MenuItem::with_id(app_handle, "close", "关闭标签", true, None::<&str>)?;
+                let quit_item = MenuItem::with_id(app_handle, "quit", "退出 MacPad", true, None::<&str>)?;
 
                 let file_menu = Submenu::with_items(
                     app_handle,
@@ -33,10 +33,10 @@ pub fn run() {
                     &[&new_item, &open_item, &save_item, &save_as_item, &close_item, &quit_item],
                 )?;
 
-                let find_item = MenuItem::with_id(app_handle, "find", "查找...", true, None)?;
-                let replace_item = MenuItem::with_id(app_handle, "replace", "替换...", true, None)?;
-                let goto_item = MenuItem::with_id(app_handle, "goto", "跳转到行...", true, None)?;
-                let find_in_files_item = MenuItem::with_id(app_handle, "find_in_files", "在文件中查找...", true, None)?;
+                let find_item = MenuItem::with_id(app_handle, "find", "查找...", true, None::<&str>)?;
+                let replace_item = MenuItem::with_id(app_handle, "replace", "替换...", true, None::<&str>)?;
+                let goto_item = MenuItem::with_id(app_handle, "goto", "跳转到行...", true, None::<&str>)?;
+                let find_in_files_item = MenuItem::with_id(app_handle, "find_in_files", "在文件中查找...", true, None::<&str>)?;
 
                 let search_menu = Submenu::with_items(
                     app_handle,
@@ -45,8 +45,8 @@ pub fn run() {
                     &[&find_item, &replace_item, &goto_item, &find_in_files_item],
                 )?;
 
-                let encoding_item = MenuItem::with_id(app_handle, "encoding", "编码...", true, None)?;
-                let settings_item = MenuItem::with_id(app_handle, "settings", "设置...", true, None)?;
+                let encoding_item = MenuItem::with_id(app_handle, "encoding", "编码...", true, None::<&str>)?;
+                let settings_item = MenuItem::with_id(app_handle, "settings", "设置...", true, None::<&str>)?;
                 let tools_menu = Submenu::with_items(
                     app_handle,
                     "工具",
