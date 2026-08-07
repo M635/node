@@ -123,7 +123,6 @@ export function MonacoEditor({
     acceptSuggestionOnEnter: "on",
     tabCompletion: "on",
     wordBasedSuggestions: "allDocuments",
-    semanticHighlighting: { enabled: true },
     maxTokenizationLineLength: 20000,
   };
 
