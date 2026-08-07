@@ -102,7 +102,6 @@ export function MonacoEditor({
     bracketPairColorization: { enabled: bracketPairColorization },
     guides: { bracketPairs: bracketPairColorization, indentation: true },
     autoIndent: autoIndent ? "advanced" : "none",
-    formatOnSave: false,
     cursorBlinking: "blink",
     cursorSmoothCaretAnimation: "on",
     selectOnLineNumbers: true,
