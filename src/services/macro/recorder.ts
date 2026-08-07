@@ -47,7 +47,7 @@ export class MacroRecorder {
 }
 
 export function replayMacro(
-  editor: Monaco.editor.IStandaloneCodeEditor,
+  editor: Monaco.editor.ICodeEditor,
   macro: Macro
 ): void {
   for (const action of macro.actions) {
