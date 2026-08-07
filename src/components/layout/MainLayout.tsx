@@ -14,23 +14,16 @@ interface MainLayoutProps {
   onOpenFile: () => void;
   onGotoLine: () => void;
   onExport: (format: "txt" | "html" | "rtf") => void;
+  onOpenEncoding: () => void;
+  onOpenSettings: () => void;
 }
 
 export function MainLayout({
-  children,
-  onNewTab,
-  onCloseTab,
-  onSave,
-  onOpenFile,
-  onGotoLine,
-  onExport,
+  children, onNewTab, onCloseTab, onSave, onOpenFile, onGotoLine, onExport,
+  onOpenEncoding, onOpenSettings,
 }: MainLayoutProps) {
   const { tabs, activeTabId } = useFileStore();
-  const {
-    isSearchPanelOpen,
-    isFindInFilesOpen,
-  } = useSearchStore();
-
+  const { isSearchPanelOpen, isFindInFilesOpen } = useSearchStore();
   const activeTab = tabs.find((t) => t.id === activeTabId);
 
   return (
@@ -48,6 +41,8 @@ export function MainLayout({
         onOpenFile={onOpenFile}
         onGotoLine={onGotoLine}
         onExport={onExport}
+        onOpenEncoding={onOpenEncoding}
+        onOpenSettings={onOpenSettings}
       />
     </div>
   );

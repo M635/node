@@ -10,23 +10,18 @@ interface StatusBarProps {
   onOpenFile: () => void;
   onGotoLine: () => void;
   onExport: (format: "txt" | "html" | "rtf") => void;
+  onOpenEncoding: () => void;
+  onOpenSettings: () => void;
 }
 
 export function StatusBar({
-  activeTab,
-  onSave,
-  onOpenFile,
-  onGotoLine,
-  onExport,
+  activeTab, onSave, onOpenFile, onGotoLine, onExport, onOpenEncoding, onOpenSettings,
 }: StatusBarProps) {
   const { isRecordingMacro, startMacroRecording, stopMacroRecording } = useEditorStore();
 
   const handleToggleMacro = () => {
-    if (isRecordingMacro) {
-      stopMacroRecording();
-    } else {
-      startMacroRecording();
-    }
+    if (isRecordingMacro) stopMacroRecording();
+    else startMacroRecording();
   };
 
   const handleToggleDiff = () => {
@@ -37,15 +32,11 @@ export function StatusBar({
     return (
       <div className="status-bar">
         <div className="status-left">
-          <span className="status-item">MacPad</span>
+          <span className="status-item" onClick={onOpenFile}>打开文件</span>
+          <span className="status-item" onClick={onOpenSettings}>设置</span>
         </div>
         <div className="status-right">
-          <EditorToolbar
-            isRecordingMacro={isRecordingMacro}
-            onToggleMacro={handleToggleMacro}
-            onToggleDiff={handleToggleDiff}
-            onExport={onExport}
-          />
+          <EditorToolbar isRecordingMacro={isRecordingMacro} onToggleMacro={handleToggleMacro} onToggleDiff={handleToggleDiff} onExport={onExport} />
         </div>
       </div>
     );
@@ -72,18 +63,14 @@ export function StatusBar({
         {readonly && <span className="status-item readonly-badge">只读</span>}
       </div>
       <div className="status-right">
-        <span className="status-item encoding-badge">
+        <span className="status-item encoding-badge" onClick={onOpenEncoding} title="点击切换编码">
           {getEncodingDisplayName(encoding)}
         </span>
         <span className="status-item">
           {meta?.line_ending === "Crlf" ? "CRLF" : "LF"}
         </span>
-        <EditorToolbar
-          isRecordingMacro={isRecordingMacro}
-          onToggleMacro={handleToggleMacro}
-          onToggleDiff={handleToggleDiff}
-          onExport={onExport}
-        />
+        <span className="status-item" onClick={onOpenSettings} title="设置">⚙</span>
+        <EditorToolbar isRecordingMacro={isRecordingMacro} onToggleMacro={handleToggleMacro} onToggleDiff={handleToggleDiff} onExport={onExport} />
       </div>
     </div>
   );
