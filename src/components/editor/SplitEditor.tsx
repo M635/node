@@ -1,4 +1,4 @@
-import { useState, useRef, useCallback } from "react";
+import { useState, useRef, useCallback, type CSSProperties } from "react";
 import Editor, { type OnMount, type OnChange } from "@monaco-editor/react";
 import * as Monaco from "monaco-editor";
 import { useSettingStore } from "../../stores/settingStore";
@@ -76,7 +76,7 @@ export function SplitEditor({
     contextmenu: true,
   };
 
-  const containerStyle: React.CSSProperties = orientation === "horizontal"
+  const containerStyle: CSSProperties = orientation === "horizontal"
     ? { display: "flex", flexDirection: "row", height: "100%", width: "100%" }
     : { display: "flex", flexDirection: "column", height: "100%", width: "100%" };
 
