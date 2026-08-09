@@ -1,13 +1,13 @@
 import type * as Monaco from "monaco-editor";
 
-const BOOKMARK_DECORATION_ID = "macpad-bookmark";
+const BOOKMARK_DECORATION_ID = "markpt-bookmark";
 
 export function createBookmarkDecoration(
   monaco: typeof Monaco,
   isDark: boolean
 ): Monaco.editor.IModelDecorationOptions {
   return {
-    glyphMarginClassName: "macpad-bookmark-glyph",
+    glyphMarginClassName: "markpt-bookmark-glyph",
     glyphMarginHoverMessage: { value: "书签" },
     stickiness: 1,
     linesDecorationsClassName: "",
@@ -34,7 +34,7 @@ export function updateBookmarkDecorations(
     ),
     options: {
       isWholeLine: true,
-      glyphMarginClassName: "macpad-bookmark-glyph",
+      glyphMarginClassName: "markpt-bookmark-glyph",
       glyphMarginHoverMessage: { value: "书签" },
       stickiness: 1,
     },

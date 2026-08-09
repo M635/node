@@ -58,7 +58,7 @@ pnpm tauri build --target x86_64-apple-darwin
 pnpm tauri build --target aarch64-apple-darwin
 ```
 
-产物路径: `src-tauri/target/release/bundle/dmg/MacPad_*.dmg`
+产物路径: `src-tauri/target/release/bundle/dmg/MarkPT_*.dmg`
 
 ### Windows (exe)
 ```bash
@@ -68,7 +68,7 @@ pnpm tauri:build:win
 pnpm tauri build --target x86_64-pc-windows-msvc
 ```
 
-产物路径: `src-tauri/target/release/bundle/nsis/MacPad_*-setup.exe`
+产物路径: `src-tauri/target/release/bundle/nsis/MarkPT_*-setup.exe`
 
 ### Linux (AppImage/deb)
 ```bash
@@ -76,8 +76,8 @@ pnpm tauri build
 ```
 
 产物路径:
-- `src-tauri/target/release/bundle/appimage/MacPad_*.AppImage`
-- `src-tauri/target/release/bundle/deb/MacPad_*.deb`
+- `src-tauri/target/release/bundle/appimage/MarkPT_*.AppImage`
+- `src-tauri/target/release/bundle/deb/MarkPT_*.deb`
 
 ## 体积优化
 

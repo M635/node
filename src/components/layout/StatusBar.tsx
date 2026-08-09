@@ -26,7 +26,7 @@ export function StatusBar({
   };
 
   const handleToggleDiff = () => {
-    window.dispatchEvent(new CustomEvent("macpad:toggle-diff"));
+    window.dispatchEvent(new CustomEvent("markpt:toggle-diff"));
   };
 
   if (!activeTab) {

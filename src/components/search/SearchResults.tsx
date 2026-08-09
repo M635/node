@@ -10,7 +10,7 @@ export function SearchResults() {
 
   const handleResultClick = (path: string, line: number) => {
     window.dispatchEvent(
-      new CustomEvent("macpad:open-search-result", {
+      new CustomEvent("markpt:open-search-result", {
         detail: { path, line },
       })
     );

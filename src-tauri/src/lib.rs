@@ -24,7 +24,7 @@ pub fn run() {
                 let save_item = MenuItem::with_id(app_handle, "save", "保存", true, None::<&str>)?;
                 let save_as_item = MenuItem::with_id(app_handle, "save_as", "另存为...", true, None::<&str>)?;
                 let close_item = MenuItem::with_id(app_handle, "close", "关闭标签", true, None::<&str>)?;
-                let quit_item = MenuItem::with_id(app_handle, "quit", "退出 MacPad", true, None::<&str>)?;
+                let quit_item = MenuItem::with_id(app_handle, "quit", "退出 MarkPT", true, None::<&str>)?;
 
                 let file_menu = Submenu::with_items(
                     app_handle,
@@ -54,7 +54,25 @@ pub fn run() {
                     &[&encoding_item, &settings_item],
                 )?;
 
-                let menu = Menu::with_items(app_handle, &[&file_menu, &search_menu, &tools_menu])?;
+                let sidebar_item = MenuItem::with_id(app_handle, "toggle_sidebar", "切换侧边栏", true, None::<&str>)?;
+                let command_palette_item = MenuItem::with_id(app_handle, "command_palette", "命令面板...", true, None::<&str>)?;
+                let view_menu = Submenu::with_items(
+                    app_handle,
+                    "视图",
+                    true,
+                    &[&sidebar_item, &command_palette_item],
+                )?;
+
+                let shortcuts_item = MenuItem::with_id(app_handle, "shortcuts", "快捷键...", true, None::<&str>)?;
+                let about_item = MenuItem::with_id(app_handle, "about", "关于 MarkPT", true, None::<&str>)?;
+                let help_menu = Submenu::with_items(
+                    app_handle,
+                    "帮助",
+                    true,
+                    &[&shortcuts_item, &about_item],
+                )?;
+
+                let menu = Menu::with_items(app_handle, &[&file_menu, &search_menu, &tools_menu, &view_menu, &help_menu])?;
                 app_handle.set_menu(menu)?;
             }
             Ok(())

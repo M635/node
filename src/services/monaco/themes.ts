@@ -1,7 +1,7 @@
 import type * as Monaco from "monaco-editor";
 
 export function defineThemes(monaco: typeof Monaco): void {
-  monaco.editor.defineTheme("macpad-light", {
+  monaco.editor.defineTheme("markpt-light", {
     base: "vs",
     inherit: true,
     rules: [
@@ -42,7 +42,7 @@ export function defineThemes(monaco: typeof Monaco): void {
     },
   });
 
-  monaco.editor.defineTheme("macpad-dark", {
+  monaco.editor.defineTheme("markpt-dark", {
     base: "vs-dark",
     inherit: true,
     rules: [
@@ -85,5 +85,5 @@ export function defineThemes(monaco: typeof Monaco): void {
 }
 
 export function getThemeName(isDark: boolean): string {
-  return isDark ? "macpad-dark" : "macpad-light";
+  return isDark ? "markpt-dark" : "markpt-light";
 }

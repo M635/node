@@ -1,13 +1,13 @@
 [package]
-name = "macpad"
+name = "markpt"
 version = "1.0.0"
 description = "macOS 轻量化文本编辑器"
-authors = ["MacPad"]
+authors = ["MarkPT"]
 edition = "2021"
 rust-version = "1.75"
 
 [lib]
-name = "macpad_lib"
+name = "markpt_lib"
 crate-type = ["staticlib", "cdylib", "rlib"]
 
 [build-dependencies]

@@ -766,7 +766,7 @@
   font-size: 14px;
 }
 
-.macpad-bookmark-glyph {
+.markpt-bookmark-glyph {
   background: var(--mac-accent);
   border-radius: 50%;
   width: 10px;
@@ -1026,4 +1026,41 @@
 
 .no-tab-content .btn {
   margin: 4px;
+}
+
+.shortcuts-dialog {
+  min-width: 450px;
+  max-width: 550px;
+}
+
+.shortcut-group {
+  margin-bottom: 16px;
+}
+
+.shortcut-group h3 {
+  font-size: 12px;
+  font-weight: 600;
+  margin-bottom: 8px;
+  color: var(--mac-text-secondary);
+}
+
+.shortcut-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 4px 0;
+  font-size: 12px;
+}
+
+.shortcut-desc {
+  color: var(--mac-fg);
+}
+
+.shortcut-key {
+  font-family: var(--mac-mono-font);
+  background: var(--mac-tab-inactive);
+  padding: 2px 8px;
+  border-radius: var(--mac-radius-sm);
+  font-size: 11px;
+  color: var(--mac-text-secondary);
 }

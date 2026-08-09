@@ -17,6 +17,9 @@ interface ShortcutHandlers {
   onToggleDiff?: () => void;
   onEncoding?: () => void;
   onSettings?: () => void;
+  onToggleSidebar?: () => void;
+  onCommandPalette?: () => void;
+  onShortcutsHelp?: () => void;
 }
 
 export function useKeyboardShortcuts(handlers: ShortcutHandlers): void {
@@ -37,6 +40,9 @@ export function useKeyboardShortcuts(handlers: ShortcutHandlers): void {
           case "find_in_files": handlers.onFindInFiles?.(); break;
           case "encoding": handlers.onEncoding?.(); break;
           case "settings": handlers.onSettings?.(); break;
+          case "toggle_sidebar": handlers.onToggleSidebar?.(); break;
+          case "command_palette": handlers.onCommandPalette?.(); break;
+          case "shortcuts": handlers.onShortcutsHelp?.(); break;
         }
       });
     })();
@@ -44,30 +50,30 @@ export function useKeyboardShortcuts(handlers: ShortcutHandlers): void {
     const handleCustomEvent = (e: Event) => {
       const type = (e as CustomEvent).type;
       switch (type) {
-        case "macpad:save": handlers.onSave?.(); break;
-        case "macpad:find": handlers.onFind?.(); break;
-        case "macpad:replace": handlers.onReplace?.(); break;
-        case "macpad:goto-line": handlers.onGotoLine?.(); break;
-        case "macpad:new-file": handlers.onNewFile?.(); break;
-        case "macpad:open-file": handlers.onOpenFile?.(); break;
-        case "macpad:close-tab": handlers.onCloseTab?.(); break;
-        case "macpad:find-in-files": handlers.onFindInFiles?.(); break;
-        case "macpad:toggle-bookmark": handlers.onToggleBookmark?.(); break;
-        case "macpad:next-bookmark": handlers.onNextBookmark?.(); break;
-        case "macpad:toggle-macro": handlers.onToggleMacro?.(); break;
-        case "macpad:play-macro": handlers.onPlayMacro?.(); break;
-        case "macpad:toggle-diff": handlers.onToggleDiff?.(); break;
-        case "macpad:encoding": handlers.onEncoding?.(); break;
-        case "macpad:settings": handlers.onSettings?.(); break;
+        case "markpt:save": handlers.onSave?.(); break;
+        case "markpt:find": handlers.onFind?.(); break;
+        case "markpt:replace": handlers.onReplace?.(); break;
+        case "markpt:goto-line": handlers.onGotoLine?.(); break;
+        case "markpt:new-file": handlers.onNewFile?.(); break;
+        case "markpt:open-file": handlers.onOpenFile?.(); break;
+        case "markpt:close-tab": handlers.onCloseTab?.(); break;
+        case "markpt:find-in-files": handlers.onFindInFiles?.(); break;
+        case "markpt:toggle-bookmark": handlers.onToggleBookmark?.(); break;
+        case "markpt:next-bookmark": handlers.onNextBookmark?.(); break;
+        case "markpt:toggle-macro": handlers.onToggleMacro?.(); break;
+        case "markpt:play-macro": handlers.onPlayMacro?.(); break;
+        case "markpt:toggle-diff": handlers.onToggleDiff?.(); break;
+        case "markpt:encoding": handlers.onEncoding?.(); break;
+        case "markpt:settings": handlers.onSettings?.(); break;
       }
     };
 
     const events = [
-      "macpad:save", "macpad:find", "macpad:replace", "macpad:goto-line",
-      "macpad:new-file", "macpad:open-file", "macpad:close-tab",
-      "macpad:find-in-files", "macpad:toggle-bookmark", "macpad:next-bookmark",
-      "macpad:toggle-macro", "macpad:play-macro", "macpad:toggle-diff",
-      "macpad:encoding", "macpad:settings",
+      "markpt:save", "markpt:find", "markpt:replace", "markpt:goto-line",
+      "markpt:new-file", "markpt:open-file", "markpt:close-tab",
+      "markpt:find-in-files", "markpt:toggle-bookmark", "markpt:next-bookmark",
+      "markpt:toggle-macro", "markpt:play-macro", "markpt:toggle-diff",
+      "markpt:encoding", "markpt:settings",
     ];
 
     events.forEach((evt) => window.addEventListener(evt, handleCustomEvent));

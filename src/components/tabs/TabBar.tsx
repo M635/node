@@ -55,7 +55,7 @@ export function TabBar({ onNewTab, onCloseTab }: TabBarProps) {
     const tab = tabs.find((t) => t.id === id);
     if (tab?.is_dirty) {
       if (window.confirm(`"${tab.name}" 已修改，是否保存？`)) {
-        window.dispatchEvent(new CustomEvent("macpad:save"));
+        window.dispatchEvent(new CustomEvent("markpt:save"));
       }
     }
     closeTab(id);

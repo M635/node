@@ -69,7 +69,7 @@ export function SearchPanel() {
   const handleReplace = useCallback(async () => {
     if (!searchQuery || !replaceQuery) return;
     window.dispatchEvent(
-      new CustomEvent("macpad:execute-replace", {
+      new CustomEvent("markpt:execute-replace", {
         detail: { search: searchQuery, replace: replaceQuery, isRegex, caseSensitive },
       })
     );
@@ -78,7 +78,7 @@ export function SearchPanel() {
   const handleReplaceAll = useCallback(async () => {
     if (!searchQuery) return;
     window.dispatchEvent(
-      new CustomEvent("macpad:execute-replace-all", {
+      new CustomEvent("markpt:execute-replace-all", {
         detail: { search: searchQuery, replace: replaceQuery, isRegex, caseSensitive },
       })
     );

@@ -94,8 +94,8 @@ export function MonacoEditor({
         editorRef.current.focus();
       }
     };
-    window.addEventListener("macpad:goto-line-confirm", handler);
-    return () => window.removeEventListener("macpad:goto-line-confirm", handler);
+    window.addEventListener("markpt:goto-line-confirm", handler);
+    return () => window.removeEventListener("markpt:goto-line-confirm", handler);
   }, []);
 
   // 查找替换
@@ -161,11 +161,11 @@ export function MonacoEditor({
       model.setValue(newText);
     };
 
-    window.addEventListener("macpad:execute-replace", replaceHandler);
-    window.addEventListener("macpad:execute-replace-all", replaceAllHandler);
+    window.addEventListener("markpt:execute-replace", replaceHandler);
+    window.addEventListener("markpt:execute-replace-all", replaceAllHandler);
     return () => {
-      window.removeEventListener("macpad:execute-replace", replaceHandler);
-      window.removeEventListener("macpad:execute-replace-all", replaceAllHandler);
+      window.removeEventListener("markpt:execute-replace", replaceHandler);
+      window.removeEventListener("markpt:execute-replace-all", replaceAllHandler);
     };
   }, []);
 
@@ -180,7 +180,7 @@ export function MonacoEditor({
       range: new monaco.Range(line, 1, line, 1),
       options: {
         isWholeLine: true,
-        glyphMarginClassName: "macpad-bookmark-glyph",
+        glyphMarginClassName: "markpt-bookmark-glyph",
         glyphMarginHoverMessage: { value: "书签" },
         stickiness: 1,
         overviewRuler: {

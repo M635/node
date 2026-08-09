@@ -10,6 +10,7 @@ import { GoToLineDialog } from "./components/dialog/GoToLineDialog";
 import { ReloadConfirmDialog } from "./components/dialog/ReloadConfirmDialog";
 import { MacroPanel } from "./components/macro/MacroPanel";
 import { CommandPalette } from "./components/dialog/CommandPalette";
+import { ShortcutsHelp } from "./components/dialog/ShortcutsHelp";
 import { useFileStore, generateId } from "./stores/fileStore";
 import { useEditorStore } from "./stores/editorStore";
 import { useSearchStore } from "./stores/searchStore";
@@ -40,6 +41,7 @@ export default function App() {
   const [showGoToLineDialog, setShowGoToLineDialog] = useState(false);
   const [showMacroPanel, setShowMacroPanel] = useState(false);
   const [showCommandPalette, setShowCommandPalette] = useState(false);
+  const [showShortcutsHelp, setShowShortcutsHelp] = useState(false);
   const [showDiffView, setShowDiffView] = useState(false);
   const [showSidebar, setShowSidebar] = useState(true);
   const [diffContent, setDiffContent] = useState({ original: "", modified: "" });
@@ -159,7 +161,7 @@ export default function App() {
   }, [getActiveTab, updateTab]);
 
   const handleGotoLineConfirm = useCallback((line: number) => {
-    window.dispatchEvent(new CustomEvent("macpad:goto-line-confirm", { detail: { line } }));
+    window.dispatchEvent(new CustomEvent("markpt:goto-line-confirm", { detail: { line } }));
     setShowGoToLineDialog(false);
   }, []);
 
@@ -236,19 +238,19 @@ export default function App() {
         if (tab) {
           useFileStore.getState().setActiveTab(tab.id);
           setTimeout(() => {
-            window.dispatchEvent(new CustomEvent("macpad:goto-line-confirm", { detail: { line: detail.line } }));
+            window.dispatchEvent(new CustomEvent("markpt:goto-line-confirm", { detail: { line: detail.line } }));
           }, 100);
         } else {
           openFileByPath(detail.path).then(() => {
             setTimeout(() => {
-              window.dispatchEvent(new CustomEvent("macpad:goto-line-confirm", { detail: { line: detail.line } }));
+              window.dispatchEvent(new CustomEvent("markpt:goto-line-confirm", { detail: { line: detail.line } }));
             }, 200);
           });
         }
       }
     };
-    window.addEventListener("macpad:open-search-result", handler);
-    return () => window.removeEventListener("macpad:open-search-result", handler);
+    window.addEventListener("markpt:open-search-result", handler);
+    return () => window.removeEventListener("markpt:open-search-result", handler);
   }, [openFileByPath]);
 
   useEffect(() => {
@@ -260,6 +262,10 @@ export default function App() {
       if ((e.metaKey || e.ctrlKey) && e.key === "\\") {
         e.preventDefault();
         setShowSidebar((v) => !v);
+      }
+      if ((e.metaKey || e.ctrlKey) && e.key === "/") {
+        e.preventDefault();
+        setShowShortcutsHelp(true);
       }
     };
     window.addEventListener("keydown", handler);
@@ -282,6 +288,9 @@ export default function App() {
     onToggleDiff: handleToggleDiff,
     onEncoding: () => setShowEncodingDialog(true),
     onSettings: () => setShowSettingsDialog(true),
+    onToggleSidebar: () => setShowSidebar((v) => !v),
+    onCommandPalette: () => setShowCommandPalette(true),
+    onShortcutsHelp: () => setShowShortcutsHelp(true),
   });
 
   useEffect(() => {
@@ -336,7 +345,7 @@ export default function App() {
           ) : (
             <div className="no-tab">
               <div className="no-tab-content">
-                <h2>MacPad</h2>
+                <h2>MarkPT</h2>
                 <p>轻量化文本编辑器</p>
                 <button className="btn btn-primary" onClick={handleNewFile}>新建文件</button>
                 <button className="btn btn-default" onClick={handleOpenFile}>打开文件</button>
@@ -371,6 +380,7 @@ export default function App() {
         <GoToLineDialog maxLine={activeTab.meta?.line_count || 10000} onConfirm={handleGotoLineConfirm} onClose={() => setShowGoToLineDialog(false)} />
       )}
       {showMacroPanel && <MacroPanel onClose={() => setShowMacroPanel(false)} />}
+      {showShortcutsHelp && <ShortcutsHelp onClose={() => setShowShortcutsHelp(false)} />}
       {reloadDialog && (
         <ReloadConfirmDialog fileName={getFileName(reloadDialog)} onReload={handleReload} onIgnore={() => setReloadDialog(null)} />
       )}

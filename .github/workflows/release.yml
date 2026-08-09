@@ -39,9 +39,9 @@ jobs:
         uses: softprops/action-gh-release@v2
         with:
           tag_name: ${{ steps.get_version.outputs.version }}
-          name: MacPad ${{ steps.get_version.outputs.version }}
+          name: MarkPT ${{ steps.get_version.outputs.version }}
           body: |
-            # MacPad ${{ steps.get_version.outputs.version }}
+            # MarkPT ${{ steps.get_version.outputs.version }}
 
             ## 功能
             - 多标签页文本编辑器
@@ -53,9 +53,9 @@ jobs:
             - macOS 原生风格 + 深浅色
 
             ## 下载
-            - macOS: MacPad-*.dmg
-            - Windows: MacPad-*-setup.exe
-            - Linux: MacPad-*.AppImage
+            - macOS: MarkPT-*.dmg
+            - Windows: MarkPT-*-setup.exe
+            - Linux: MarkPT-*.AppImage
           draft: false
           prerelease: false
 

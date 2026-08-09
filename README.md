@@ -1,4 +1,4 @@
-# MacPad - macOS 轻量化文本编辑器
+# MarkPT - macOS 轻量化文本编辑器
 
 对标 Notepad++ 的 macOS 轻量化文本编辑器，基于 Tauri + Rust + TypeScript + Monaco Editor 构建。
 
@@ -66,7 +66,7 @@ pnpm tauri:build:win
 ## 项目结构
 
 ```
-macpad/
+markpt/
 ├── src-tauri/          # Rust 后端（文件IO、编码、分片、监听）
 │   └── src/
 │       ├── commands/   # Tauri IPC 命令
