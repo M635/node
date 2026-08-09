@@ -1,7 +1,9 @@
 import type * as Monaco from "monaco-editor";
 
+type Editor = Monaco.editor.ICodeEditor;
+
 export class EditOperations {
-  static deleteCurrentLine(editor: Monaco.editor.IStandaloneCodeEditor, monaco: typeof Monaco): void {
+  static deleteCurrentLine(editor: Editor, monaco: typeof Monaco): void {
     const position = editor.getPosition();
     const model = editor.getModel();
     if (!position || !model) return;
@@ -12,7 +14,7 @@ export class EditOperations {
     editor.executeEdits("delete-line", [{ range, text: "" }]);
   }
 
-  static duplicateCurrentLine(editor: Monaco.editor.IStandaloneCodeEditor): void {
+  static duplicateCurrentLine(editor: Editor): void {
     const position = editor.getPosition();
     const model = editor.getModel();
     if (!position || !model) return;
@@ -23,7 +25,7 @@ export class EditOperations {
     }]);
   }
 
-  static moveLineUp(editor: Monaco.editor.IStandaloneCodeEditor): void {
+  static moveLineUp(editor: Editor): void {
     const position = editor.getPosition();
     const model = editor.getModel();
     if (!position || !model || position.lineNumber <= 1) return;
@@ -36,7 +38,7 @@ export class EditOperations {
     editor.setPosition({ lineNumber: position.lineNumber - 1, column: position.column });
   }
 
-  static moveLineDown(editor: Monaco.editor.IStandaloneCodeEditor): void {
+  static moveLineDown(editor: Editor): void {
     const position = editor.getPosition();
     const model = editor.getModel();
     if (!position || !model || position.lineNumber >= model.getLineCount()) return;
@@ -49,7 +51,7 @@ export class EditOperations {
     editor.setPosition({ lineNumber: position.lineNumber + 1, column: position.column });
   }
 
-  static deleteBlankLines(editor: Monaco.editor.IStandaloneCodeEditor): void {
+  static deleteBlankLines(editor: Editor): void {
     const model = editor.getModel();
     if (!model) return;
     const text = model.getValue();
@@ -58,7 +60,7 @@ export class EditOperations {
     model.setValue(filtered.join("\n"));
   }
 
-  static trimTrailingWhitespace(editor: Monaco.editor.IStandaloneCodeEditor): void {
+  static trimTrailingWhitespace(editor: Editor): void {
     const model = editor.getModel();
     if (!model) return;
     const text = model.getValue();
@@ -66,7 +68,7 @@ export class EditOperations {
     model.setValue(lines.join("\n"));
   }
 
-  static trimLeadingWhitespace(editor: Monaco.editor.IStandaloneCodeEditor): void {
+  static trimLeadingWhitespace(editor: Editor): void {
     const model = editor.getModel();
     if (!model) return;
     const text = model.getValue();
@@ -74,7 +76,7 @@ export class EditOperations {
     model.setValue(lines.join("\n"));
   }
 
-  static toUpperCase(editor: Monaco.editor.IStandaloneCodeEditor): void {
+  static toUpperCase(editor: Editor): void {
     const selection = editor.getSelection();
     const model = editor.getModel();
     if (!selection || !model) return;
@@ -83,7 +85,7 @@ export class EditOperations {
     editor.executeEdits("upper", [{ range: selection as any, text: text.toUpperCase() }]);
   }
 
-  static toLowerCase(editor: Monaco.editor.IStandaloneCodeEditor): void {
+  static toLowerCase(editor: Editor): void {
     const selection = editor.getSelection();
     const model = editor.getModel();
     if (!selection || !model) return;
@@ -92,7 +94,7 @@ export class EditOperations {
     editor.executeEdits("lower", [{ range: selection as any, text: text.toLowerCase() }]);
   }
 
-  static toTitleCase(editor: Monaco.editor.IStandaloneCodeEditor): void {
+  static toTitleCase(editor: Editor): void {
     const selection = editor.getSelection();
     const model = editor.getModel();
     if (!selection || !model) return;
@@ -101,7 +103,7 @@ export class EditOperations {
     editor.executeEdits("title", [{ range: selection as any, text: converted }]);
   }
 
-  static invertCase(editor: Monaco.editor.IStandaloneCodeEditor): void {
+  static invertCase(editor: Editor): void {
     const selection = editor.getSelection();
     const model = editor.getModel();
     if (!selection || !model) return;
@@ -112,15 +114,15 @@ export class EditOperations {
     editor.executeEdits("invert", [{ range: selection as any, text: inverted }]);
   }
 
-  static sortLinesAscending(editor: Monaco.editor.IStandaloneCodeEditor): void {
+  static sortLinesAscending(editor: Editor): void {
     this.sortLines(editor, false);
   }
 
-  static sortLinesDescending(editor: Monaco.editor.IStandaloneCodeEditor): void {
+  static sortLinesDescending(editor: Editor): void {
     this.sortLines(editor, true);
   }
 
-  private static sortLines(editor: Monaco.editor.IStandaloneCodeEditor, descending: boolean): void {
+  private static sortLines(editor: Editor, descending: boolean): void {
     const selection = editor.getSelection();
     const model = editor.getModel();
     if (!selection || !model) return;
@@ -143,7 +145,7 @@ export class EditOperations {
     }]);
   }
 
-  static toggleLineComment(editor: Monaco.editor.IStandaloneCodeEditor, monaco: typeof Monaco): void {
+  static toggleLineComment(editor: Editor, monaco: typeof Monaco): void {
     const selection = editor.getSelection();
     const model = editor.getModel();
     if (!selection || !model) return;
@@ -159,7 +161,7 @@ export class EditOperations {
       if (!line.trimStart().startsWith(commentToken)) { allCommented = false; break; }
     }
 
-    const edits: Monaco.editor.IIdentifySingleEditOperation[] = [];
+    const edits: Monaco.editor.IIdentifiedSingleEditOperation[] = [];
     for (let i = startLine; i <= endLine; i++) {
       const line = model.getLineContent(i);
       if (allCommented) {
@@ -173,15 +175,15 @@ export class EditOperations {
     editor.executeEdits("comment", edits);
   }
 
-  static indent(editor: Monaco.editor.IStandaloneCodeEditor): void {
+  static indent(editor: Editor): void {
     editor.trigger("indent", "editor.action.indentLines", null);
   }
 
-  static outdent(editor: Monaco.editor.IStandaloneCodeEditor): void {
+  static outdent(editor: Editor): void {
     editor.trigger("outdent", "editor.action.outdentLines", null);
   }
 
-  static removeDuplicateLines(editor: Monaco.editor.IStandaloneCodeEditor): void {
+  static removeDuplicateLines(editor: Editor): void {
     const model = editor.getModel();
     if (!model) return;
     const text = model.getValue();
@@ -194,7 +196,7 @@ export class EditOperations {
     model.setValue(result.join("\n"));
   }
 
-  static getWordCount(editor: Monaco.editor.IStandaloneCodeEditor): { chars: number; words: number; lines: number; selected: number } {
+  static getWordCount(editor: Editor): { chars: number; words: number; lines: number; selected: number } {
     const model = editor.getModel();
     if (!model) return { chars: 0, words: 0, lines: 0, selected: 0 };
     const text = model.getValue();

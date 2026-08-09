@@ -9,7 +9,7 @@ interface FunctionSymbol {
 }
 
 interface FunctionListPanelProps {
-  editor: Monaco.editor.IStandaloneCodeEditor | null;
+  editor: Monaco.editor.ICodeEditor | null;
   onClose: () => void;
 }
 
