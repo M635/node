@@ -4,6 +4,8 @@ import { MainLayout } from "./components/layout/MainLayout";
 import { SideBar } from "./components/layout/SideBar";
 import { MonacoEditor } from "./components/editor/MonacoEditor";
 import { DiffEditorView } from "./components/editor/DiffEditor";
+import { SplitEditor } from "./components/editor/SplitEditor";
+import { HexViewer } from "./components/editor/HexViewer";
 import { EncodingDialog } from "./components/dialog/EncodingDialog";
 import { SettingsDialog } from "./components/dialog/SettingsDialog";
 import { GoToLineDialog } from "./components/dialog/GoToLineDialog";
@@ -11,6 +13,9 @@ import { ReloadConfirmDialog } from "./components/dialog/ReloadConfirmDialog";
 import { MacroPanel } from "./components/macro/MacroPanel";
 import { CommandPalette } from "./components/dialog/CommandPalette";
 import { ShortcutsHelp } from "./components/dialog/ShortcutsHelp";
+import { CharacterStatsDialog } from "./components/dialog/CharacterStatsDialog";
+import { FunctionListPanel } from "./components/dialog/FunctionListPanel";
+import { MultiDocSearch } from "./components/search/MultiDocSearch";
 import { useFileStore, generateId } from "./stores/fileStore";
 import { useEditorStore } from "./stores/editorStore";
 import { useSearchStore } from "./stores/searchStore";
@@ -26,6 +31,7 @@ import {
 import { exportAsTxt, exportAsHtml, exportAsRtf } from "./services/tauri/exportService";
 import { getLanguageFromPath } from "./services/monaco/languages";
 import { getFileName } from "./utils/fileUtils";
+import { saveSession, loadSession, type SessionData } from "./services/session/sessionService";
 import type { EncodingType } from "./types/file";
 
 export default function App() {
@@ -47,6 +53,11 @@ export default function App() {
   const [diffContent, setDiffContent] = useState({ original: "", modified: "" });
   const [reloadDialog, setReloadDialog] = useState<string | null>(null);
   const [selectionInfo, setSelectionInfo] = useState<{ chars: number; lines: number } | null>(null);
+  const [showCharStats, setShowCharStats] = useState(false);
+  const [showFunctionList, setShowFunctionList] = useState(false);
+  const [showHexViewer, setShowHexViewer] = useState(false);
+  const [showMultiDocSearch, setShowMultiDocSearch] = useState(false);
+  const [splitMode, setSplitMode] = useState<"horizontal" | "vertical" | null>(null);
 
   const themeResult = useTheme(themeMode);
   useEffect(() => { setIsDark(themeResult.isDark); }, [themeResult.isDark, setIsDark]);
@@ -267,6 +278,22 @@ export default function App() {
         e.preventDefault();
         setShowShortcutsHelp(true);
       }
+      if ((e.metaKey || e.ctrlKey) && e.shiftKey && e.key === "F") {
+        e.preventDefault();
+        setShowMultiDocSearch(true);
+      }
+      if ((e.metaKey || e.ctrlKey) && e.shiftKey && e.key === "H") {
+        e.preventDefault();
+        setShowHexViewer(true);
+      }
+      if ((e.metaKey || e.ctrlKey) && e.shiftKey && e.key === "C") {
+        e.preventDefault();
+        setShowCharStats(true);
+      }
+      if ((e.metaKey || e.ctrlKey) && e.shiftKey && e.key === "O") {
+        e.preventDefault();
+        setShowFunctionList(true);
+      }
     };
     window.addEventListener("keydown", handler);
     return () => window.removeEventListener("keydown", handler);
@@ -291,11 +318,75 @@ export default function App() {
     onToggleSidebar: () => setShowSidebar((v) => !v),
     onCommandPalette: () => setShowCommandPalette(true),
     onShortcutsHelp: () => setShowShortcutsHelp(true),
+    onEditAction: (action: string) => {
+      if (action === "undo") { window.dispatchEvent(new CustomEvent("markpt:edit-undo")); return; }
+      if (action === "redo") { window.dispatchEvent(new CustomEvent("markpt:edit-redo")); return; }
+      window.dispatchEvent(new CustomEvent("markpt:edit-action", { detail: { action } }));
+    },
+    onSplitHorizontal: () => setSplitMode(splitMode === "horizontal" ? null : "horizontal"),
+    onSplitVertical: () => setSplitMode(splitMode === "vertical" ? null : "vertical"),
+    onSplitClose: () => setSplitMode(null),
+    onFunctionList: () => setShowFunctionList((v) => !v),
+    onToggleWordWrap: () => useSettingStore.getState().updateConfig({ wordWrap: !useSettingStore.getState().config.wordWrap }),
+    onCharStats: () => setShowCharStats(true),
+    onHexViewer: () => setShowHexViewer(true),
+    onMultiDocSearch: () => setShowMultiDocSearch(true),
   });
 
   useEffect(() => {
     if (tabs.length === 0) handleNewFile();
   }, [tabs.length, handleNewFile]);
+
+  // 会话保存（退出时）
+  useEffect(() => {
+    const saveInterval = setInterval(() => {
+      const sessionData: SessionData = {
+        tabs: tabs.filter((t) => !t.is_new && t.path).map((t) => ({
+          path: t.path,
+          name: t.name,
+          cursor_line: t.cursor_position.line,
+          cursor_column: t.cursor_position.column,
+          scroll_position: t.scroll_position,
+          encoding: t.encoding,
+          language: t.language || "plaintext",
+        })),
+        active_tab_path: activeTab?.path || null,
+        sidebar_visible: showSidebar,
+        window_width: window.innerWidth,
+        window_height: window.innerHeight,
+        saved_at: Date.now(),
+      };
+      saveSession(sessionData).catch(() => {});
+    }, 60000);
+    return () => clearInterval(saveInterval);
+  }, [tabs, activeTab, showSidebar]);
+
+  // 会话恢复（启动时）
+  useEffect(() => {
+    (async () => {
+      const session = await loadSession();
+      if (session && session.tabs.length > 0) {
+        for (const tab of session.tabs) {
+          try {
+            const result = await openFileService(tab.path);
+            openTab({
+              id: generateId(), path: tab.path, name: tab.name, content: result.content,
+              meta: result.meta, is_dirty: false, is_large_file: result.is_large_file,
+              readonly: result.meta.readonly, encoding: tab.encoding as EncodingType,
+              language: tab.language,
+              cursor_position: { line: tab.cursor_line, column: tab.cursor_column },
+              scroll_position: tab.scroll_position, is_new: false,
+            });
+          } catch { /* ignore */ }
+        }
+        if (session.active_tab_path) {
+          const tab = useFileStore.getState().getTabByPath(session.active_tab_path);
+          if (tab) useFileStore.getState().setActiveTab(tab.id);
+        }
+        setShowSidebar(session.sidebar_visible);
+      }
+    })();
+  }, []);
 
   return (
     <div className={`app ${isDark ? "dark" : "light"}`} onDrop={handleDrop} onDragOver={handleDragOver}>
@@ -329,6 +420,15 @@ export default function App() {
           {activeTab ? (
             showDiffView ? (
               <DiffEditorView original={diffContent.original} modified={diffContent.modified} language={activeTab.language} />
+            ) : splitMode ? (
+              <SplitEditor
+                content={activeTab.content}
+                path={activeTab.path}
+                language={activeTab.language}
+                orientation={splitMode}
+                onContentChange={handleContentChange}
+                onClose={() => setSplitMode(null)}
+              />
             ) : (
               <MonacoEditor
                 key={activeTab.id}
@@ -381,6 +481,25 @@ export default function App() {
       )}
       {showMacroPanel && <MacroPanel onClose={() => setShowMacroPanel(false)} />}
       {showShortcutsHelp && <ShortcutsHelp onClose={() => setShowShortcutsHelp(false)} />}
+      {showCharStats && activeTab && (
+        <CharacterStatsDialog
+          content={activeTab.content}
+          selection={selectionInfo ? { text: "", lines: selectionInfo.lines } : null}
+          onClose={() => setShowCharStats(false)}
+        />
+      )}
+      {showFunctionList && (
+        <FunctionListPanel
+          editor={(window as any).monaco?.editor?.getEditors?.()[0] || null}
+          onClose={() => setShowFunctionList(false)}
+        />
+      )}
+      {showHexViewer && activeTab && (
+        <HexViewer content={activeTab.content} onClose={() => setShowHexViewer(false)} />
+      )}
+      {showMultiDocSearch && (
+        <MultiDocSearch onClose={() => setShowMultiDocSearch(false)} />
+      )}
       {reloadDialog && (
         <ReloadConfirmDialog fileName={getFileName(reloadDialog)} onReload={handleReload} onIgnore={() => setReloadDialog(null)} />
       )}

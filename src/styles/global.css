@@ -142,3 +142,428 @@ input, select, textarea {
   color: var(--mac-text-secondary);
   margin-bottom: 20px;
 }
+
+/* ===== Character Stats Dialog ===== */
+.character-stats-dialog {
+  min-width: 400px;
+  max-width: 500px;
+}
+.stats-section {
+  margin-bottom: 16px;
+}
+.stats-section h4 {
+  margin-bottom: 8px;
+  font-size: 13px;
+  color: var(--mac-text-secondary);
+}
+.stats-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+.stat-item {
+  display: flex;
+  justify-content: space-between;
+  padding: 8px 12px;
+  background: var(--mac-tab-inactive);
+  border-radius: var(--mac-radius-sm);
+}
+.stat-label {
+  color: var(--mac-text-secondary);
+}
+.stat-value {
+  font-weight: 600;
+  font-family: var(--mac-mono-font);
+}
+
+/* ===== Function List Panel ===== */
+.function-list-panel {
+  position: absolute;
+  right: 0;
+  top: 0;
+  width: 280px;
+  height: 100%;
+  background: var(--mac-sidebar);
+  border-left: 1px solid var(--mac-border);
+  display: flex;
+  flex-direction: column;
+  z-index: 100;
+  box-shadow: var(--mac-shadow);
+}
+.function-list-header {
+  display: flex;
+  align-items: center;
+  padding: 8px;
+  gap: 8px;
+  border-bottom: 1px solid var(--mac-border);
+}
+.function-list-header h3 {
+  font-size: 13px;
+  flex-shrink: 0;
+}
+.function-list-filter {
+  flex: 1;
+  padding: 4px 8px;
+  border: 1px solid var(--mac-border);
+  border-radius: var(--mac-radius-sm);
+  background: var(--mac-bg);
+  color: var(--mac-fg);
+}
+.function-list-body {
+  flex: 1;
+  overflow-y: auto;
+}
+.function-list-empty {
+  padding: 16px;
+  text-align: center;
+  color: var(--mac-text-secondary);
+}
+.function-list-item {
+  display: flex;
+  align-items: center;
+  padding: 4px 8px;
+  cursor: pointer;
+  gap: 6px;
+}
+.function-list-item:hover {
+  background: var(--mac-hover);
+}
+.function-icon {
+  width: 16px;
+  height: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 10px;
+  font-weight: bold;
+  border-radius: 3px;
+  background: var(--mac-accent);
+  color: white;
+  flex-shrink: 0;
+}
+.icon-class { background: #c62828; }
+.icon-interface { background: #1565c0; }
+.icon-enum { background: #6a1b9a; }
+.function-name {
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.function-line {
+  color: var(--mac-text-secondary);
+  font-size: 11px;
+  font-family: var(--mac-mono-font);
+}
+
+/* ===== Hex Viewer ===== */
+.hex-viewer-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+.hex-viewer {
+  width: 90%;
+  height: 90%;
+  background: var(--mac-bg);
+  border-radius: var(--mac-radius);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+.hex-viewer-header {
+  display: flex;
+  align-items: center;
+  padding: 8px 16px;
+  gap: 12px;
+  border-bottom: 1px solid var(--mac-border);
+}
+.hex-viewer-header h3 {
+  flex-shrink: 0;
+}
+.hex-search {
+  display: flex;
+  gap: 4px;
+  flex: 1;
+}
+.hex-search input {
+  flex: 1;
+  padding: 4px 8px;
+  border: 1px solid var(--mac-border);
+  border-radius: var(--mac-radius-sm);
+  background: var(--mac-bg);
+  color: var(--mac-fg);
+}
+.hex-viewer-info {
+  padding: 4px 16px;
+  font-size: 12px;
+  color: var(--mac-text-secondary);
+  border-bottom: 1px solid var(--mac-border);
+}
+.hex-viewer-body {
+  flex: 1;
+  overflow: auto;
+  font-family: var(--mac-mono-font);
+  font-size: 12px;
+  padding: 8px;
+}
+.hex-line {
+  display: flex;
+  gap: 16px;
+  padding: 2px 0;
+  white-space: pre;
+}
+.hex-header-line {
+  color: var(--mac-text-secondary);
+  border-bottom: 1px solid var(--mac-border);
+  margin-bottom: 4px;
+  padding-bottom: 4px;
+}
+.hex-addr {
+  color: var(--mac-text-secondary);
+  min-width: 80px;
+}
+.hex-bytes {
+  color: var(--mac-fg);
+}
+.hex-ascii {
+  color: var(--mac-accent);
+}
+.hex-viewer-footer {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  padding: 8px;
+  border-top: 1px solid var(--mac-border);
+}
+
+/* ===== Multi-Document Search ===== */
+.multi-doc-search-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+.multi-doc-search {
+  width: 700px;
+  height: 600px;
+  background: var(--mac-bg);
+  border-radius: var(--mac-radius);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+.multi-doc-search-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 16px;
+  border-bottom: 1px solid var(--mac-border);
+}
+.multi-doc-search-input {
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--mac-border);
+}
+.search-row {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+.search-row input {
+  flex: 1;
+  padding: 6px 8px;
+  border: 1px solid var(--mac-border);
+  border-radius: var(--mac-radius-sm);
+  background: var(--mac-bg);
+  color: var(--mac-fg);
+}
+.search-options {
+  display: flex;
+  gap: 16px;
+  font-size: 12px;
+}
+.search-options label {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  cursor: pointer;
+}
+.multi-doc-search-summary {
+  padding: 4px 16px;
+  font-size: 12px;
+  color: var(--mac-text-secondary);
+  border-bottom: 1px solid var(--mac-border);
+}
+.multi-doc-search-results {
+  flex: 1;
+  overflow-y: auto;
+  padding: 8px;
+}
+.multi-doc-result-group {
+  margin-bottom: 4px;
+}
+.multi-doc-result-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 8px;
+  cursor: pointer;
+  border-radius: var(--mac-radius-sm);
+}
+.multi-doc-result-header:hover {
+  background: var(--mac-hover);
+}
+.expand-icon {
+  font-size: 10px;
+  width: 12px;
+}
+.tab-name {
+  flex: 1;
+  font-weight: 500;
+}
+.match-count {
+  color: var(--mac-text-secondary);
+  font-size: 11px;
+}
+.multi-doc-result-items {
+  padding-left: 24px;
+}
+.multi-doc-result-item {
+  display: flex;
+  gap: 8px;
+  padding: 4px 8px;
+  cursor: pointer;
+  border-radius: var(--mac-radius-sm);
+}
+.multi-doc-result-item:hover {
+  background: var(--mac-hover);
+}
+.match-line {
+  color: var(--mac-text-secondary);
+  font-size: 11px;
+  font-family: var(--mac-mono-font);
+  min-width: 60px;
+}
+.match-preview {
+  flex: 1;
+  font-family: var(--mac-mono-font);
+  font-size: 12px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.multi-doc-no-results {
+  padding: 24px;
+  text-align: center;
+  color: var(--mac-text-secondary);
+}
+
+/* ===== Split Editor ===== */
+.split-editor-container {
+  width: 100%;
+  height: 100%;
+}
+.split-editor-pane {
+  flex: 1;
+  overflow: hidden;
+  position: relative;
+}
+.split-divider {
+  flex-shrink: 0;
+}
+.split-editor-toolbar {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 4px 8px;
+  background: var(--mac-tab-inactive);
+  border-radius: var(--mac-radius-sm);
+  font-size: 11px;
+}
+.sync-scroll-toggle {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  cursor: pointer;
+}
+
+/* ===== Common Button Styles ===== */
+.btn {
+  padding: 6px 12px;
+  border-radius: var(--mac-radius-sm);
+  font-size: 13px;
+  transition: background 0.15s;
+}
+.btn:hover {
+  background: var(--mac-hover);
+}
+.btn-primary {
+  background: var(--mac-accent);
+  color: white;
+}
+.btn-primary:hover {
+  opacity: 0.9;
+}
+.btn-small {
+  padding: 3px 8px;
+  font-size: 11px;
+}
+.btn-default {
+  background: var(--mac-tab-inactive);
+  border: 1px solid var(--mac-border);
+}
+
+/* ===== Dialog Common ===== */
+.dialog-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+.dialog {
+  background: var(--mac-bg);
+  border-radius: var(--mac-radius);
+  box-shadow: var(--mac-shadow);
+  overflow: hidden;
+}
+.dialog-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--mac-border);
+}
+.dialog-header h3 {
+  font-size: 15px;
+  font-weight: 500;
+}
+.dialog-close {
+  font-size: 18px;
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+}
+.dialog-close:hover {
+  background: var(--mac-hover);
+}
+.dialog-body {
+  padding: 16px;
+  overflow-y: auto;
+}

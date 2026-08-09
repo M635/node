@@ -33,6 +33,37 @@ pub fn run() {
                     &[&new_item, &open_item, &save_item, &save_as_item, &close_item, &quit_item],
                 )?;
 
+                let undo_item = MenuItem::with_id(app_handle, "edit_undo", "撤销", true, None::<&str>)?;
+                let redo_item = MenuItem::with_id(app_handle, "edit_redo", "重做", true, None::<&str>)?;
+                let delete_line_item = MenuItem::with_id(app_handle, "edit_delete_line", "删除当前行", true, None::<&str>)?;
+                let duplicate_line_item = MenuItem::with_id(app_handle, "edit_duplicate_line", "复制当前行", true, None::<&str>)?;
+                let move_up_item = MenuItem::with_id(app_handle, "edit_move_up", "上移行", true, None::<&str>)?;
+                let move_down_item = MenuItem::with_id(app_handle, "edit_move_down", "下移行", true, None::<&str>)?;
+                let delete_blank_item = MenuItem::with_id(app_handle, "edit_delete_blank", "删除空行", true, None::<&str>)?;
+                let trim_trailing_item = MenuItem::with_id(app_handle, "edit_trim_trailing", "去行尾空格", true, None::<&str>)?;
+                let toggle_comment_item = MenuItem::with_id(app_handle, "edit_toggle_comment", "切换注释", true, None::<&str>)?;
+                let upper_item = MenuItem::with_id(app_handle, "edit_upper", "转大写", true, None::<&str>)?;
+                let lower_item = MenuItem::with_id(app_handle, "edit_lower", "转小写", true, None::<&str>)?;
+                let sort_asc_item = MenuItem::with_id(app_handle, "edit_sort_asc", "行排序(升序)", true, None::<&str>)?;
+                let sort_desc_item = MenuItem::with_id(app_handle, "edit_sort_desc", "行排序(降序)", true, None::<&str>)?;
+                let remove_dup_item = MenuItem::with_id(app_handle, "edit_remove_dup", "去重复行", true, None::<&str>)?;
+
+                let edit_menu = Submenu::with_items(
+                    app_handle,
+                    "编辑",
+                    true,
+                    &[
+                        &undo_item, &redo_item,
+                        &delete_line_item, &duplicate_line_item,
+                        &move_up_item, &move_down_item,
+                        &delete_blank_item, &trim_trailing_item,
+                        &toggle_comment_item,
+                        &upper_item, &lower_item,
+                        &sort_asc_item, &sort_desc_item,
+                        &remove_dup_item,
+                    ],
+                )?;
+
                 let find_item = MenuItem::with_id(app_handle, "find", "查找...", true, None::<&str>)?;
                 let replace_item = MenuItem::with_id(app_handle, "replace", "替换...", true, None::<&str>)?;
                 let goto_item = MenuItem::with_id(app_handle, "goto", "跳转到行...", true, None::<&str>)?;
@@ -47,20 +78,32 @@ pub fn run() {
 
                 let encoding_item = MenuItem::with_id(app_handle, "encoding", "编码...", true, None::<&str>)?;
                 let settings_item = MenuItem::with_id(app_handle, "settings", "设置...", true, None::<&str>)?;
+                let char_stats_item = MenuItem::with_id(app_handle, "char_stats", "字符统计...", true, None::<&str>)?;
+                let hex_viewer_item = MenuItem::with_id(app_handle, "hex_viewer", "十六进制查看...", true, None::<&str>)?;
+                let multi_search_item = MenuItem::with_id(app_handle, "multi_search", "多文档查找替换...", true, None::<&str>)?;
                 let tools_menu = Submenu::with_items(
                     app_handle,
                     "工具",
                     true,
-                    &[&encoding_item, &settings_item],
+                    &[&encoding_item, &settings_item, &char_stats_item, &hex_viewer_item, &multi_search_item],
                 )?;
 
                 let sidebar_item = MenuItem::with_id(app_handle, "toggle_sidebar", "切换侧边栏", true, None::<&str>)?;
                 let command_palette_item = MenuItem::with_id(app_handle, "command_palette", "命令面板...", true, None::<&str>)?;
+                let split_h_item = MenuItem::with_id(app_handle, "split_horizontal", "水平分屏", true, None::<&str>)?;
+                let split_v_item = MenuItem::with_id(app_handle, "split_vertical", "垂直分屏", true, None::<&str>)?;
+                let split_close_item = MenuItem::with_id(app_handle, "split_close", "关闭分屏", true, None::<&str>)?;
+                let function_list_item = MenuItem::with_id(app_handle, "function_list", "函数列表...", true, None::<&str>)?;
+                let word_wrap_item = MenuItem::with_id(app_handle, "toggle_word_wrap", "切换自动换行", true, None::<&str>)?;
                 let view_menu = Submenu::with_items(
                     app_handle,
                     "视图",
                     true,
-                    &[&sidebar_item, &command_palette_item],
+                    &[
+                        &sidebar_item, &command_palette_item,
+                        &split_h_item, &split_v_item, &split_close_item,
+                        &function_list_item, &word_wrap_item,
+                    ],
                 )?;
 
                 let shortcuts_item = MenuItem::with_id(app_handle, "shortcuts", "快捷键...", true, None::<&str>)?;
@@ -72,7 +115,7 @@ pub fn run() {
                     &[&shortcuts_item, &about_item],
                 )?;
 
-                let menu = Menu::with_items(app_handle, &[&file_menu, &search_menu, &tools_menu, &view_menu, &help_menu])?;
+                let menu = Menu::with_items(app_handle, &[&file_menu, &edit_menu, &search_menu, &tools_menu, &view_menu, &help_menu])?;
                 app_handle.set_menu(menu)?;
             }
             Ok(())

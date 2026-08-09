@@ -8,6 +8,7 @@ import { defineThemes, getThemeName } from "../../services/monaco/themes";
 import { configureLanguages, getLanguageFromPath } from "../../services/monaco/languages";
 import { configureFolding } from "../../services/monaco/folding";
 import { registerKeybindings } from "../../services/monaco/keybindings";
+import { EditOperations } from "../../services/monaco/editOperations";
 import { macroRecorder } from "../../services/macro/recorder";
 
 interface MonacoEditorProps {
@@ -82,6 +83,89 @@ export function MonacoEditor({
         }
       }
     });
+
+    editor.addAction({
+      id: "markpt-delete-line",
+      label: "删除当前行",
+      keybindings: [Monaco.KeyMod.CtrlCmd | Monaco.KeyCode.KeyD],
+      run: (ed) => EditOperations.deleteCurrentLine(ed, monaco),
+    });
+    editor.addAction({
+      id: "markpt-duplicate-line",
+      label: "复制当前行",
+      keybindings: [Monaco.KeyMod.Shift | Monaco.KeyMod.Alt | Monaco.KeyCode.KeyD],
+      run: (ed) => EditOperations.duplicateCurrentLine(ed),
+    });
+    editor.addAction({
+      id: "markpt-move-line-up",
+      label: "上移当前行",
+      keybindings: [Monaco.KeyMod.Alt | Monaco.KeyCode.UpArrow],
+      run: (ed) => EditOperations.moveLineUp(ed),
+    });
+    editor.addAction({
+      id: "markpt-move-line-down",
+      label: "下移当前行",
+      keybindings: [Monaco.KeyMod.Alt | Monaco.KeyCode.DownArrow],
+      run: (ed) => EditOperations.moveLineDown(ed),
+    });
+    editor.addAction({
+      id: "markpt-delete-blank-lines",
+      label: "删除空行",
+      run: (ed) => EditOperations.deleteBlankLines(ed),
+    });
+    editor.addAction({
+      id: "markpt-trim-trailing",
+      label: "去除行尾空格",
+      run: (ed) => EditOperations.trimTrailingWhitespace(ed),
+    });
+    editor.addAction({
+      id: "markpt-trim-leading",
+      label: "去除行首空格",
+      run: (ed) => EditOperations.trimLeadingWhitespace(ed),
+    });
+    editor.addAction({
+      id: "markpt-upper-case",
+      label: "转大写",
+      keybindings: [Monaco.KeyMod.CtrlCmd | Monaco.KeyMod.Shift | Monaco.KeyCode.KeyU],
+      run: (ed) => EditOperations.toUpperCase(ed),
+    });
+    editor.addAction({
+      id: "markpt-lower-case",
+      label: "转小写",
+      keybindings: [Monaco.KeyMod.CtrlCmd | Monaco.KeyMod.Shift | Monaco.KeyCode.KeyL],
+      run: (ed) => EditOperations.toLowerCase(ed),
+    });
+    editor.addAction({
+      id: "markpt-title-case",
+      label: "首字母大写",
+      run: (ed) => EditOperations.toTitleCase(ed),
+    });
+    editor.addAction({
+      id: "markpt-invert-case",
+      label: "反转大小写",
+      run: (ed) => EditOperations.invertCase(ed),
+    });
+    editor.addAction({
+      id: "markpt-sort-asc",
+      label: "行排序(升序)",
+      run: (ed) => EditOperations.sortLinesAscending(ed),
+    });
+    editor.addAction({
+      id: "markpt-sort-desc",
+      label: "行排序(降序)",
+      run: (ed) => EditOperations.sortLinesDescending(ed),
+    });
+    editor.addAction({
+      id: "markpt-toggle-comment",
+      label: "切换行注释",
+      keybindings: [Monaco.KeyMod.CtrlCmd | Monaco.KeyCode.Slash],
+      run: (ed) => EditOperations.toggleLineComment(ed, monaco),
+    });
+    editor.addAction({
+      id: "markpt-remove-duplicates",
+      label: "去除重复行",
+      run: (ed) => EditOperations.removeDuplicateLines(ed),
+    });
   }, [onCursorChange, tabId]);
 
   // 行号跳转
@@ -96,6 +180,38 @@ export function MonacoEditor({
     };
     window.addEventListener("markpt:goto-line-confirm", handler);
     return () => window.removeEventListener("markpt:goto-line-confirm", handler);
+  }, []);
+
+  // 编辑操作（菜单触发）
+  useEffect(() => {
+    const handler = (e: Event) => {
+      const action = (e as CustomEvent).detail?.action;
+      const editor = editorRef.current;
+      const monaco = monacoRef.current;
+      if (!editor || !monaco || !action) return;
+      switch (action) {
+        case "delete-line": EditOperations.deleteCurrentLine(editor, monaco); break;
+        case "duplicate-line": EditOperations.duplicateCurrentLine(editor); break;
+        case "move-up": EditOperations.moveLineUp(editor); break;
+        case "move-down": EditOperations.moveLineDown(editor); break;
+        case "delete-blank": EditOperations.deleteBlankLines(editor); break;
+        case "trim-trailing": EditOperations.trimTrailingWhitespace(editor); break;
+        case "trim-leading": EditOperations.trimLeadingWhitespace(editor); break;
+        case "upper": EditOperations.toUpperCase(editor); break;
+        case "lower": EditOperations.toLowerCase(editor); break;
+        case "title": EditOperations.toTitleCase(editor); break;
+        case "invert": EditOperations.invertCase(editor); break;
+        case "sort-asc": EditOperations.sortLinesAscending(editor); break;
+        case "sort-desc": EditOperations.sortLinesDescending(editor); break;
+        case "toggle-comment": EditOperations.toggleLineComment(editor, monaco); break;
+        case "remove-duplicates": EditOperations.removeDuplicateLines(editor); break;
+        case "indent": EditOperations.indent(editor); break;
+        case "outdent": EditOperations.outdent(editor); break;
+      }
+      editor.focus();
+    };
+    window.addEventListener("markpt:edit-action", handler);
+    return () => window.removeEventListener("markpt:edit-action", handler);
   }, []);
 
   // 查找替换

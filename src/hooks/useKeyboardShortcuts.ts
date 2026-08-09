@@ -20,6 +20,15 @@ interface ShortcutHandlers {
   onToggleSidebar?: () => void;
   onCommandPalette?: () => void;
   onShortcutsHelp?: () => void;
+  onEditAction?: (action: string) => void;
+  onSplitHorizontal?: () => void;
+  onSplitVertical?: () => void;
+  onSplitClose?: () => void;
+  onFunctionList?: () => void;
+  onToggleWordWrap?: () => void;
+  onCharStats?: () => void;
+  onHexViewer?: () => void;
+  onMultiDocSearch?: () => void;
 }
 
 export function useKeyboardShortcuts(handlers: ShortcutHandlers): void {
@@ -43,6 +52,28 @@ export function useKeyboardShortcuts(handlers: ShortcutHandlers): void {
           case "toggle_sidebar": handlers.onToggleSidebar?.(); break;
           case "command_palette": handlers.onCommandPalette?.(); break;
           case "shortcuts": handlers.onShortcutsHelp?.(); break;
+          case "edit_delete_line": handlers.onEditAction?.("delete-line"); break;
+          case "edit_duplicate_line": handlers.onEditAction?.("duplicate-line"); break;
+          case "edit_move_up": handlers.onEditAction?.("move-up"); break;
+          case "edit_move_down": handlers.onEditAction?.("move-down"); break;
+          case "edit_delete_blank": handlers.onEditAction?.("delete-blank"); break;
+          case "edit_trim_trailing": handlers.onEditAction?.("trim-trailing"); break;
+          case "edit_toggle_comment": handlers.onEditAction?.("toggle-comment"); break;
+          case "edit_upper": handlers.onEditAction?.("upper"); break;
+          case "edit_lower": handlers.onEditAction?.("lower"); break;
+          case "edit_sort_asc": handlers.onEditAction?.("sort-asc"); break;
+          case "edit_sort_desc": handlers.onEditAction?.("sort-desc"); break;
+          case "edit_remove_dup": handlers.onEditAction?.("remove-duplicates"); break;
+          case "edit_undo": handlers.onEditAction?.("undo"); break;
+          case "edit_redo": handlers.onEditAction?.("redo"); break;
+          case "split_horizontal": handlers.onSplitHorizontal?.(); break;
+          case "split_vertical": handlers.onSplitVertical?.(); break;
+          case "split_close": handlers.onSplitClose?.(); break;
+          case "function_list": handlers.onFunctionList?.(); break;
+          case "toggle_word_wrap": handlers.onToggleWordWrap?.(); break;
+          case "char_stats": handlers.onCharStats?.(); break;
+          case "hex_viewer": handlers.onHexViewer?.(); break;
+          case "multi_search": handlers.onMultiDocSearch?.(); break;
         }
       });
     })();
