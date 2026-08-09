@@ -43,19 +43,53 @@ jobs:
           body: |
             # MarkPT ${{ steps.get_version.outputs.version }}
 
+            对标 Notepad++ 的轻量化跨平台文本编辑器，基于 Tauri + Rust + Monaco Editor。
+
             ## 功能
-            - 多标签页文本编辑器
-            - 语法高亮 (100+ 语言)
-            - 大文件分片加载 (1GB+)
-            - 编码转换 (UTF-8/GBK/GB2312/UTF-16)
-            - 正则查找替换 / 全局检索
-            - 宏录制 / 双文件 Diff
-            - macOS 原生风格 + 深浅色
+            - 多标签页编辑，拖拽排序，右键菜单
+            - 语法高亮 (100+ 语言)，代码折叠，配对括号高亮
+            - 多光标编辑，列块选择
+            - 大文件分片懒加载 (1GB+，mmap)
+            - 编码识别与转换 (UTF-8/GBK/GB2312/UTF-16/ASCII)
+            - 正则查找替换，搜索高亮，全局目录检索
+            - 编辑操作: 删除/复制/移动行、大小写转换、排序、注释、去重
+            - 书签标记，行号跳转
+            - 宏录制与回放
+            - 双文件 Diff 对比
+            - 分屏编辑 (水平/垂直，同步滚动)
+            - 函数列表 (JS/TS/Python/Rust/Java/C/C++/Go 等)
+            - 多文档查找替换
+            - 十六进制查看器
+            - 字符统计面板
+            - 会话保存/恢复 (自动恢复上次打开文件)
+            - 文件变动监听 + 重载提示
+            - 命令面板 (Cmd+P)
+            - 侧边栏文件树浏览器
+            - macOS 原生风格 + 深色/浅色自适应
+            - 导出 txt/html/rtf
+            - 跨平台: macOS / Windows / Linux
+
+            ## 快捷键
+            | 快捷键 | 功能 |
+            |--------|------|
+            | Cmd/Ctrl+P | 命令面板 |
+            | Cmd/Ctrl+S | 保存 |
+            | Cmd/Ctrl+F | 查找 |
+            | Cmd/Ctrl+H | 替换 |
+            | Cmd/Ctrl+G | 跳转行 |
+            | Cmd/Ctrl+D | 删除当前行 |
+            | Cmd/Ctrl+/ | 切换注释 |
+            | Alt+↑/↓ | 上移/下移行 |
+            | Cmd+Shift+U | 转大写 |
+            | Cmd+Shift+L | 转小写 |
+            | Cmd+Shift+F | 多文档搜索 |
+            | Cmd+Shift+O | 函数列表 |
+            | Cmd+Shift+C | 字符统计 |
 
             ## 下载
-            - macOS: MarkPT-*.dmg
+            - macOS: MarkPT-*.dmg (Universal Binary)
             - Windows: MarkPT-*-setup.exe
-            - Linux: MarkPT-*.AppImage
+            - Linux: MarkPT-*.AppImage / *.deb
           draft: false
           prerelease: false
 
