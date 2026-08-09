@@ -484,7 +484,8 @@ export default function App() {
       {showCharStats && activeTab && (
         <CharacterStatsDialog
           content={activeTab.content}
-          selection={selectionInfo ? { text: "", lines: selectionInfo.lines } : null}
+          selectedChars={selectionInfo?.chars || 0}
+          selectedLines={selectionInfo?.lines || 0}
           onClose={() => setShowCharStats(false)}
         />
       )}

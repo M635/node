@@ -12,11 +12,12 @@ interface CharacterStats {
 
 interface CharacterStatsDialogProps {
   content: string;
-  selection: { text: string; lines: number } | null;
+  selectedChars: number;
+  selectedLines: number;
   onClose: () => void;
 }
 
-export function CharacterStatsDialog({ content, selection, onClose }: CharacterStatsDialogProps) {
+export function CharacterStatsDialog({ content, selectedChars, selectedLines, onClose }: CharacterStatsDialogProps) {
   const [stats, setStats] = useState<CharacterStats | null>(null);
 
   useEffect(() => {
@@ -25,21 +26,16 @@ export function CharacterStatsDialog({ content, selection, onClose }: CharacterS
     const words = (content.match(/\S+/g) || []).length;
     const lines = content.split("\n").length;
 
-    const selText = selection?.text || "";
-    const selChars = selText.length;
-    const selWords = (selText.match(/\S+/g) || []).length;
-    const selLines = selection?.lines || 0;
-
     setStats({
       chars,
       chars_no_spaces: charsNoSpaces,
       words,
       lines,
-      selected_chars: selChars,
-      selected_words: selWords,
-      selected_lines: selLines,
+      selected_chars: selectedChars,
+      selected_words: selectedChars > 0 ? Math.ceil(selectedChars / 5) : 0,
+      selected_lines: selectedLines,
     });
-  }, [content, selection]);
+  }, [content, selectedChars, selectedLines]);
 
   return (
     <div className="dialog-overlay" onClick={onClose}>
