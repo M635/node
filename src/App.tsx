@@ -327,7 +327,7 @@ export default function App() {
     onSplitVertical: () => setSplitMode(splitMode === "vertical" ? null : "vertical"),
     onSplitClose: () => setSplitMode(null),
     onFunctionList: () => setShowFunctionList((v) => !v),
-    onToggleWordWrap: () => useSettingStore.getState().updateConfig({ wordWrap: !useSettingStore.getState().config.wordWrap }),
+    onToggleWordWrap: () => useSettingStore.getState().setWordWrap(!useSettingStore.getState().wordWrap),
     onCharStats: () => setShowCharStats(true),
     onHexViewer: () => setShowHexViewer(true),
     onMultiDocSearch: () => setShowMultiDocSearch(true),
