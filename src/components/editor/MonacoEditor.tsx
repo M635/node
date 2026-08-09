@@ -1,6 +1,6 @@
 import { useEffect, useRef, useCallback } from "react";
 import Editor, { type OnMount, type OnChange } from "@monaco-editor/react";
-import type * as Monaco from "monaco-editor";
+import * as Monaco from "monaco-editor";
 import { useEditorStore } from "../../stores/editorStore";
 import { useSettingStore } from "../../stores/settingStore";
 import { useSearchStore } from "../../stores/searchStore";
