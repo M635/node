@@ -54,30 +54,44 @@ export function SideBar({ onOpenFile }: SideBarProps) {
     }
   }, [loadDirectory]);
 
+  const findNode = (nodes: FileNode[], indexPath: number[]): FileNode | null => {
+    let current: FileNode | null = null;
+    let level = nodes;
+    for (const idx of indexPath) {
+      if (idx >= level.length) return null;
+      current = level[idx];
+      if (current.is_dir && current.children) {
+        level = current.children;
+      }
+    }
+    return current;
+  };
+
+  const updateNodeInTree = (nodes: FileNode[], indexPath: number[], updater: (node: FileNode) => FileNode): FileNode[] => {
+    if (indexPath.length === 0) return nodes;
+    const [idx, ...rest] = indexPath;
+    return nodes.map((node, i) => {
+      if (i !== idx) return node;
+      if (rest.length === 0) return updater(node);
+      return { ...node, children: updateNodeInTree(node.children || [], rest, updater) };
+    });
+  };
+
   const toggleNode = useCallback(async (node: FileNode, indexPath: number[]) => {
     if (!node.is_dir) {
       onOpenFile(node.path);
       return;
     }
 
-    const newTree = [...tree];
-    let currentLevel = newTree;
-    for (let i = 0; i < indexPath.length; i++) {
-      const idx = indexPath[i];
-      currentLevel[idx] = { ...currentLevel[idx], expanded: !currentLevel[idx].expanded };
-      if (i < indexPath.length - 1) {
-        currentLevel = currentLevel[idx].children!;
-      }
-    }
+    const target = findNode(tree, indexPath);
+    if (!target) return;
 
-    const targetNode = indexPath.reduce((acc, idx) => acc[idx], tree);
-    if (!targetNode.expanded && (!targetNode.children || targetNode.children.length === 0)) {
-      const children = await loadDirectory(targetNode.path);
-      let current = newTree;
-      for (let i = 0; i < indexPath.length - 1; i++) {
-        current = current[indexPath[i]].children!;
-      }
-      current[indexPath[indexPath.length - 1]].children = children;
+    const newExpanded = !target.expanded;
+    let newTree = updateNodeInTree(tree, indexPath, (n) => ({ ...n, expanded: newExpanded }));
+
+    if (newExpanded && (!target.children || target.children.length === 0)) {
+      const children = await loadDirectory(target.path);
+      newTree = updateNodeInTree(newTree, indexPath, (n) => ({ ...n, children, expanded: true }));
     }
 
     setTree(newTree);

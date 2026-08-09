@@ -215,7 +215,7 @@ export default function App() {
     const files = e.dataTransfer?.files;
     if (files) {
       for (let i = 0; i < files.length; i++) {
-        const file = files[i];
+        const file = files[i] as File & { path?: string };
         if (file.path) {
           openFileByPath(file.path);
         }
