@@ -69,6 +69,8 @@ pub fn run() {
             commands::file_io::save_file_as,
             commands::file_io::create_file,
             commands::file_io::get_file_meta,
+            commands::file_io::list_directory,
+            commands::file_io::get_file_info,
             commands::large_file::open_large_file,
             commands::large_file::read_chunk,
             commands::large_file::read_tail,

@@ -1,6 +1,7 @@
-import { useState, useCallback, useEffect } from "react";
+import { useState, useCallback, useEffect, type DragEvent } from "react";
 import { open, save } from "@tauri-apps/plugin-dialog";
 import { MainLayout } from "./components/layout/MainLayout";
+import { SideBar } from "./components/layout/SideBar";
 import { MonacoEditor } from "./components/editor/MonacoEditor";
 import { DiffEditorView } from "./components/editor/DiffEditor";
 import { EncodingDialog } from "./components/dialog/EncodingDialog";
@@ -8,6 +9,7 @@ import { SettingsDialog } from "./components/dialog/SettingsDialog";
 import { GoToLineDialog } from "./components/dialog/GoToLineDialog";
 import { ReloadConfirmDialog } from "./components/dialog/ReloadConfirmDialog";
 import { MacroPanel } from "./components/macro/MacroPanel";
+import { CommandPalette } from "./components/dialog/CommandPalette";
 import { useFileStore, generateId } from "./stores/fileStore";
 import { useEditorStore } from "./stores/editorStore";
 import { useSearchStore } from "./stores/searchStore";
@@ -23,11 +25,11 @@ import {
 import { exportAsTxt, exportAsHtml, exportAsRtf } from "./services/tauri/exportService";
 import { getLanguageFromPath } from "./services/monaco/languages";
 import { getFileName } from "./utils/fileUtils";
-import type { EncodingType, FileTab } from "./types/file";
+import type { EncodingType } from "./types/file";
 
 export default function App() {
   const {
-    tabs, activeTabId, openTab, closeTab, updateTab, updateContent, markClean, getActiveTab,
+    tabs, activeTabId, openTab, closeTab, updateTab, updateContent, markClean, getActiveTab, addRecentFile, recentFiles,
   } = useFileStore();
   const { isDark, setIsDark, toggleBookmark } = useEditorStore();
   const { toggleSearchPanel, toggleReplacePanel, toggleFindInFiles } = useSearchStore();
@@ -37,29 +39,19 @@ export default function App() {
   const [showSettingsDialog, setShowSettingsDialog] = useState(false);
   const [showGoToLineDialog, setShowGoToLineDialog] = useState(false);
   const [showMacroPanel, setShowMacroPanel] = useState(false);
+  const [showCommandPalette, setShowCommandPalette] = useState(false);
   const [showDiffView, setShowDiffView] = useState(false);
+  const [showSidebar, setShowSidebar] = useState(true);
   const [diffContent, setDiffContent] = useState({ original: "", modified: "" });
   const [reloadDialog, setReloadDialog] = useState<string | null>(null);
+  const [selectionInfo, setSelectionInfo] = useState<{ chars: number; lines: number } | null>(null);
 
   const themeResult = useTheme(themeMode);
   useEffect(() => { setIsDark(themeResult.isDark); }, [themeResult.isDark, setIsDark]);
 
   const activeTab = getActiveTab();
 
-  const handleNewFile = useCallback(() => {
-    const id = generateId();
-    openTab({
-      id, path: "", name: "未命名", content: "", meta: null,
-      is_dirty: false, is_large_file: false, readonly: false,
-      encoding: "UTF-8", language: "plaintext",
-      cursor_position: { line: 1, column: 1 }, scroll_position: 0, is_new: true,
-    });
-  }, [openTab]);
-
-  const handleOpenFile = useCallback(async () => {
-    const selected = await open({ multiple: false, filters: [{ name: "所有文件", extensions: ["*"] }] });
-    if (!selected) return;
-    const path = selected as string;
+  const openFileByPath = useCallback(async (path: string) => {
     try {
       const result = await openFileService(path);
       openTab({
@@ -69,10 +61,29 @@ export default function App() {
         language: getLanguageFromPath(path),
         cursor_position: { line: 1, column: 1 }, scroll_position: 0, is_new: false,
       });
+      addRecentFile(path);
     } catch (err) {
       alert(`打开文件失败: ${err}`);
     }
+  }, [openTab, addRecentFile]);
+
+  const handleNewFile = useCallback(() => {
+    openTab({
+      id: generateId(), path: "", name: "未命名", content: "", meta: null,
+      is_dirty: false, is_large_file: false, readonly: false,
+      encoding: "UTF-8", language: "plaintext",
+      cursor_position: { line: 1, column: 1 }, scroll_position: 0, is_new: true,
+    });
   }, [openTab]);
+
+  const handleOpenFile = useCallback(async () => {
+    const selected = await open({ multiple: true, filters: [{ name: "所有文件", extensions: ["*"] }] });
+    if (!selected) return;
+    const paths = Array.isArray(selected) ? selected : [selected];
+    for (const p of paths) {
+      await openFileByPath(p as string);
+    }
+  }, [openFileByPath]);
 
   const handleSave = useCallback(async () => {
     const tab = getActiveTab();
@@ -92,6 +103,18 @@ export default function App() {
     }
   }, [getActiveTab, updateTab, markClean]);
 
+  useEffect(() => {
+    const interval = setInterval(() => {
+      const tab = getActiveTab();
+      if (tab?.is_dirty && tab.path && !tab.is_new && !tab.readonly) {
+        saveFileService(tab.path, tab.content, tab.encoding).then(() => {
+          markClean(tab.id);
+        }).catch(() => {});
+      }
+    }, 30000);
+    return () => clearInterval(interval);
+  }, [getActiveTab, markClean]);
+
   const handleCloseTab = useCallback(async (id: string) => {
     const tab = tabs.find((t) => t.id === id);
     if (tab?.is_dirty) {
@@ -103,9 +126,7 @@ export default function App() {
           if (!selected) { closeTab(id); return; }
           savePath = selected as string;
         }
-        try {
-          await saveFileService(savePath, tab.content, tab.encoding);
-        } catch { /* ignore */ }
+        try { await saveFileService(savePath, tab.content, tab.encoding); } catch { /* ignore */ }
       }
     }
     closeTab(id);
@@ -120,6 +141,10 @@ export default function App() {
   const handleCursorChange = useCallback((line: number, column: number) => {
     if (activeTabId) updateTab(activeTabId, { cursor_position: { line, column } });
   }, [activeTabId, updateTab]);
+
+  const handleSelectionChange = useCallback((chars: number, lines: number) => {
+    setSelectionInfo(chars > 0 ? { chars, lines } : null);
+  }, []);
 
   const handleEncodingChange = useCallback(async (encoding: EncodingType) => {
     const tab = getActiveTab();
@@ -185,7 +210,24 @@ export default function App() {
     setReloadDialog(null);
   }, [reloadDialog, updateTab]);
 
-  // 搜索结果点击跳转
+  const handleDrop = useCallback((e: DragEvent) => {
+    e.preventDefault();
+    const files = e.dataTransfer?.files;
+    if (files) {
+      for (let i = 0; i < files.length; i++) {
+        const file = files[i];
+        if (file.path) {
+          openFileByPath(file.path);
+        }
+      }
+    }
+  }, [openFileByPath]);
+
+  const handleDragOver = useCallback((e: DragEvent) => {
+    e.preventDefault();
+    e.dataTransfer.dropEffect = "copy";
+  }, []);
+
   useEffect(() => {
     const handler = (e: Event) => {
       const detail = (e as CustomEvent).detail;
@@ -196,11 +238,32 @@ export default function App() {
           setTimeout(() => {
             window.dispatchEvent(new CustomEvent("macpad:goto-line-confirm", { detail: { line: detail.line } }));
           }, 100);
+        } else {
+          openFileByPath(detail.path).then(() => {
+            setTimeout(() => {
+              window.dispatchEvent(new CustomEvent("macpad:goto-line-confirm", { detail: { line: detail.line } }));
+            }, 200);
+          });
         }
       }
     };
     window.addEventListener("macpad:open-search-result", handler);
     return () => window.removeEventListener("macpad:open-search-result", handler);
+  }, [openFileByPath]);
+
+  useEffect(() => {
+    const handler = (e: KeyboardEvent) => {
+      if ((e.metaKey || e.ctrlKey) && e.key === "p") {
+        e.preventDefault();
+        setShowCommandPalette((v) => !v);
+      }
+      if ((e.metaKey || e.ctrlKey) && e.key === "\\") {
+        e.preventDefault();
+        setShowSidebar((v) => !v);
+      }
+    };
+    window.addEventListener("keydown", handler);
+    return () => window.removeEventListener("keydown", handler);
   }, []);
 
   useKeyboardShortcuts({
@@ -226,43 +289,80 @@ export default function App() {
   }, [tabs.length, handleNewFile]);
 
   return (
-    <div className={`app ${isDark ? "dark" : "light"}`}>
-      <MainLayout
-        onNewTab={handleNewFile}
-        onCloseTab={handleCloseTab}
-        onSave={handleSave}
-        onOpenFile={handleOpenFile}
-        onGotoLine={handleGotoLine}
-        onExport={handleExport}
-        onOpenEncoding={() => setShowEncodingDialog(true)}
-        onOpenSettings={() => setShowSettingsDialog(true)}
-      >
-        {activeTab ? (
-          showDiffView ? (
-            <DiffEditorView original={diffContent.original} modified={diffContent.modified} language={activeTab.language} />
-          ) : (
-            <MonacoEditor
-              key={activeTab.id}
-              tabId={activeTab.id}
-              path={activeTab.path}
-              content={activeTab.content}
-              language={activeTab.language}
-              readonly={activeTab.readonly}
-              onContentChange={handleContentChange}
-              onCursorChange={handleCursorChange}
-            />
-          )
-        ) : (
-          <div className="no-tab">
-            <div className="no-tab-content">
-              <h2>MacPad</h2>
-              <p>轻量化文本编辑器</p>
-              <button className="btn btn-primary" onClick={handleNewFile}>新建文件</button>
-            </div>
+    <div className={`app ${isDark ? "dark" : "light"}`} onDrop={handleDrop} onDragOver={handleDragOver}>
+      <div className="app-body">
+        {showSidebar && (
+          <div className="sidebar-container">
+            <SideBar onOpenFile={openFileByPath} />
+            {recentFiles.length > 0 && (
+              <div className="recent-files">
+                <div className="recent-files-header">最近打开</div>
+                {recentFiles.slice(0, 10).map((path) => (
+                  <div key={path} className="recent-file-item" onClick={() => openFileByPath(path)} title={path}>
+                    {getFileName(path)}
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
         )}
-      </MainLayout>
+        <MainLayout
+          onNewTab={handleNewFile}
+          onCloseTab={handleCloseTab}
+          onSave={handleSave}
+          onOpenFile={handleOpenFile}
+          onGotoLine={handleGotoLine}
+          onExport={handleExport}
+          onOpenEncoding={() => setShowEncodingDialog(true)}
+          onOpenSettings={() => setShowSettingsDialog(true)}
+          selectionInfo={selectionInfo}
+        >
+          {activeTab ? (
+            showDiffView ? (
+              <DiffEditorView original={diffContent.original} modified={diffContent.modified} language={activeTab.language} />
+            ) : (
+              <MonacoEditor
+                key={activeTab.id}
+                tabId={activeTab.id}
+                path={activeTab.path}
+                content={activeTab.content}
+                language={activeTab.language}
+                readonly={activeTab.readonly}
+                onContentChange={handleContentChange}
+                onCursorChange={handleCursorChange}
+                onSelectionChange={handleSelectionChange}
+              />
+            )
+          ) : (
+            <div className="no-tab">
+              <div className="no-tab-content">
+                <h2>MacPad</h2>
+                <p>轻量化文本编辑器</p>
+                <button className="btn btn-primary" onClick={handleNewFile}>新建文件</button>
+                <button className="btn btn-default" onClick={handleOpenFile}>打开文件</button>
+                <p className="hint">拖拽文件到此处打开 · Cmd+P 命令面板</p>
+              </div>
+            </div>
+          )}
+        </MainLayout>
+      </div>
 
+      {showCommandPalette && (
+        <CommandPalette
+          onClose={() => setShowCommandPalette(false)}
+          onSave={handleSave}
+          onNewFile={handleNewFile}
+          onOpenFile={handleOpenFile}
+          onGotoLine={handleGotoLine}
+          onFind={toggleSearchPanel}
+          onReplace={toggleReplacePanel}
+          onFindInFiles={toggleFindInFiles}
+          onEncoding={() => setShowEncodingDialog(true)}
+          onSettings={() => setShowSettingsDialog(true)}
+          onToggleDiff={handleToggleDiff}
+          onToggleMacro={() => setShowMacroPanel(true)}
+        />
+      )}
       {showEncodingDialog && activeTab && (
         <EncodingDialog currentEncoding={activeTab.encoding} onConfirm={handleEncodingChange} onClose={() => setShowEncodingDialog(false)} />
       )}

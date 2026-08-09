@@ -12,10 +12,11 @@ interface StatusBarProps {
   onExport: (format: "txt" | "html" | "rtf") => void;
   onOpenEncoding: () => void;
   onOpenSettings: () => void;
+  selectionInfo: { chars: number; lines: number } | null;
 }
 
 export function StatusBar({
-  activeTab, onSave, onOpenFile, onGotoLine, onExport, onOpenEncoding, onOpenSettings,
+  activeTab, onSave, onOpenFile, onGotoLine, onExport, onOpenEncoding, onOpenSettings, selectionInfo,
 }: StatusBarProps) {
   const { isRecordingMacro, startMacroRecording, stopMacroRecording } = useEditorStore();
 
@@ -54,6 +55,11 @@ export function StatusBar({
         <span className="status-item" onClick={onGotoLine} title="跳转行号">
           行 {cursor_position.line}, 列 {cursor_position.column}
         </span>
+        {selectionInfo && (
+          <span className="status-item" title="选中信息">
+            已选 {selectionInfo.chars} 字符, {selectionInfo.lines} 行
+          </span>
+        )}
         {meta && (
           <>
             <span className="status-item">{formatFileSize(meta.size)}</span>

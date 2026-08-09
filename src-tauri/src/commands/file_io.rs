@@ -139,3 +139,43 @@ fn detect_line_ending(content: &str) -> LineEnding {
         LineEnding::Lf
     }
 }
+
+#[tauri::command]
+pub fn list_directory(path: String) -> Result<Vec<(String, bool)>, String> {
+    let mut entries: Vec<(String, bool)> = Vec::new();
+    let dir = fs::read_dir(&path).map_err(|e| e.to_string())?;
+    for entry in dir {
+        let entry = entry.map_err(|e| e.to_string())?;
+        let name = entry.file_name().to_string_lossy().to_string();
+        if name.starts_with('.') && name != ".env" {
+            continue;
+        }
+        let is_dir = entry.file_type().map_err(|e| e.to_string())?.is_dir();
+        entries.push((name, is_dir));
+    }
+    Ok(entries)
+}
+
+#[tauri::command]
+pub fn get_file_info(path: String) -> Result<FileInfo, String> {
+    let metadata = fs::metadata(&path).map_err(|e| e.to_string())?;
+    Ok(FileInfo {
+        size: metadata.len(),
+        is_dir: metadata.is_dir(),
+        is_readonly: metadata.permissions().readonly(),
+        modified: metadata
+            .modified()
+            .ok()
+            .and_then(|t| t.duration_since(std::time::UNIX_EPOCH).ok())
+            .map(|d| d.as_secs())
+            .unwrap_or(0),
+    })
+}
+
+#[derive(serde::Serialize)]
+pub struct FileInfo {
+    pub size: u64,
+    pub is_dir: bool,
+    pub is_readonly: bool,
+    pub modified: u64,
+}

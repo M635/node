@@ -1,0 +1,155 @@
+import { useState, useCallback, useEffect } from "react";
+import { open } from "@tauri-apps/plugin-dialog";
+import { invoke } from "@tauri-apps/api/core";
+import { useFileStore } from "../../stores/fileStore";
+import { getFileName, getFileExtension } from "../../utils/fileUtils";
+import { getLanguageFromPath } from "../../services/monaco/languages";
+
+interface FileNode {
+  name: string;
+  path: string;
+  is_dir: boolean;
+  children?: FileNode[];
+  expanded?: boolean;
+}
+
+interface SideBarProps {
+  onOpenFile: (path: string) => void;
+}
+
+export function SideBar({ onOpenFile }: SideBarProps) {
+  const [rootPath, setRootPath] = useState<string | null>(null);
+  const [tree, setTree] = useState<FileNode[]>([]);
+  const [loading, setLoading] = useState(false);
+  const { tabs, activeTabId, setActiveTab } = useFileStore();
+
+  const loadDirectory = useCallback(async (dirPath: string): Promise<FileNode[]> => {
+    try {
+      const entries = await invoke<[string, boolean][]>("list_directory", { path: dirPath });
+      return entries
+        .sort((a, b) => {
+          if (a[1] !== b[1]) return a[1] ? -1 : 1;
+          return a[0].localeCompare(b[0]);
+        })
+        .map(([name, isDir]) => ({
+          name,
+          path: dirPath + "/" + name,
+          is_dir: isDir,
+          children: isDir ? [] : undefined,
+          expanded: false,
+        }));
+    } catch {
+      return [];
+    }
+  }, []);
+
+  const handleOpenFolder = useCallback(async () => {
+    const selected = await open({ directory: true });
+    if (selected) {
+      setRootPath(selected as string);
+      setLoading(true);
+      const nodes = await loadDirectory(selected as string);
+      setTree(nodes);
+      setLoading(false);
+    }
+  }, [loadDirectory]);
+
+  const toggleNode = useCallback(async (node: FileNode, indexPath: number[]) => {
+    if (!node.is_dir) {
+      onOpenFile(node.path);
+      return;
+    }
+
+    const newTree = [...tree];
+    let currentLevel = newTree;
+    for (let i = 0; i < indexPath.length; i++) {
+      const idx = indexPath[i];
+      currentLevel[idx] = { ...currentLevel[idx], expanded: !currentLevel[idx].expanded };
+      if (i < indexPath.length - 1) {
+        currentLevel = currentLevel[idx].children!;
+      }
+    }
+
+    const targetNode = indexPath.reduce((acc, idx) => acc[idx], tree);
+    if (!targetNode.expanded && (!targetNode.children || targetNode.children.length === 0)) {
+      const children = await loadDirectory(targetNode.path);
+      let current = newTree;
+      for (let i = 0; i < indexPath.length - 1; i++) {
+        current = current[indexPath[i]].children!;
+      }
+      current[indexPath[indexPath.length - 1]].children = children;
+    }
+
+    setTree(newTree);
+  }, [tree, loadDirectory, onOpenFile]);
+
+  const renderTree = (nodes: FileNode[], indexPath: number[] = []): React.ReactNode => {
+    return nodes.map((node, idx) => {
+      const path = [...indexPath, idx];
+      const isActive = tabs.some((t) => t.path === node.path && t.id === activeTabId);
+      const isOpen = tabs.some((t) => t.path === node.path);
+
+      return (
+        <div key={node.path}>
+          <div
+            className={`file-tree-item ${node.is_dir ? "dir" : "file"} ${isActive ? "active" : ""} ${isOpen ? "open" : ""}`}
+            onClick={() => toggleNode(node, path)}
+          >
+            <span className="tree-icon">
+              {node.is_dir ? (node.expanded ? "📂" : "📁") : getFileIcon(node.name)}
+            </span>
+            <span className="tree-name">{node.name}</span>
+          </div>
+          {node.is_dir && node.expanded && node.children && (
+            <div className="file-tree-children">
+              {renderTree(node.children, path)}
+            </div>
+          )}
+        </div>
+      );
+    });
+  };
+
+  return (
+    <div className="sidebar">
+      <div className="sidebar-header">
+        <span className="sidebar-title">资源管理器</span>
+        <button className="sidebar-btn" onClick={handleOpenFolder} title="打开文件夹">
+          📂+
+        </button>
+      </div>
+      <div className="sidebar-content">
+        {loading ? (
+          <div className="sidebar-loading">加载中...</div>
+        ) : tree.length > 0 ? (
+          <div className="file-tree">{renderTree(tree)}</div>
+        ) : (
+          <div className="sidebar-empty">
+            <p>未打开文件夹</p>
+            <button className="btn btn-primary" onClick={handleOpenFolder}>
+              打开文件夹
+            </button>
+          </div>
+        )}
+      </div>
+      {rootPath && (
+        <div className="sidebar-footer" title={rootPath}>
+          {getFileName(rootPath)}
+        </div>
+      )}
+    </div>
+  );
+}
+
+function getFileIcon(name: string): string {
+  const ext = getFileExtension(name);
+  const iconMap: Record<string, string> = {
+    ts: "📘", tsx: "📘", js: "📙", jsx: "📙",
+    json: "📋", html: "🌐", css: "🎨", md: "📝",
+    rs: "🦀", py: "🐍", go: "🐹", java: "☕",
+    c: "🔧", cpp: "🔧", h: "🔧", txt: "📄",
+    log: "📜", sh: "💻", sql: "🗄️", xml: "📄",
+    yml: "⚙️", yaml: "⚙️", toml: "⚙️",
+  };
+  return iconMap[ext] || "📄";
+}

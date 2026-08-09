@@ -18,6 +18,7 @@ interface MonacoEditorProps {
   readonly?: boolean;
   onContentChange?: (value: string) => void;
   onCursorChange?: (line: number, column: number) => void;
+  onSelectionChange?: (chars: number, lines: number) => void;
 }
 
 export function MonacoEditor({
@@ -28,6 +29,7 @@ export function MonacoEditor({
   readonly = false,
   onContentChange,
   onCursorChange,
+  onSelectionChange,
 }: MonacoEditorProps) {
   const editorRef = useRef<Monaco.editor.IStandaloneCodeEditor | null>(null);
   const monacoRef = useRef<typeof Monaco | null>(null);
@@ -52,6 +54,18 @@ export function MonacoEditor({
 
     editor.onDidChangeCursorPosition((e) => {
       onCursorChange?.(e.position.lineNumber, e.position.column);
+    });
+
+    editor.onDidChangeCursorSelection((e) => {
+      const selection = e.selection;
+      if (selection.startLineNumber === selection.endLineNumber &&
+          selection.startColumn === selection.endColumn) {
+        onSelectionChange?.(0, 0);
+      } else {
+        const text = editor.getModel()?.getValueInRange(selection) || "";
+        const lines = Math.abs(selection.endLineNumber - selection.startLineNumber) + 1;
+        onSelectionChange?.(text.length, lines);
+      }
     });
 
     editor.onDidChangeModelContent(() => {

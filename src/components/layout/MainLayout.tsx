@@ -16,11 +16,12 @@ interface MainLayoutProps {
   onExport: (format: "txt" | "html" | "rtf") => void;
   onOpenEncoding: () => void;
   onOpenSettings: () => void;
+  selectionInfo: { chars: number; lines: number } | null;
 }
 
 export function MainLayout({
   children, onNewTab, onCloseTab, onSave, onOpenFile, onGotoLine, onExport,
-  onOpenEncoding, onOpenSettings,
+  onOpenEncoding, onOpenSettings, selectionInfo,
 }: MainLayoutProps) {
   const { tabs, activeTabId } = useFileStore();
   const { isSearchPanelOpen, isFindInFilesOpen } = useSearchStore();
@@ -43,6 +44,7 @@ export function MainLayout({
         onExport={onExport}
         onOpenEncoding={onOpenEncoding}
         onOpenSettings={onOpenSettings}
+        selectionInfo={selectionInfo}
       />
     </div>
   );
