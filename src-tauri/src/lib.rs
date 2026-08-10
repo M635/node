@@ -32,7 +32,7 @@ pub fn run() {
                     app_handle,
                     "文件",
                     true,
-                    &[&new_item, &open_item, &save_item, &save_as_item, &close_item, &file_props_item, &quit_item],
+                    &[&new_item, &open_item, &save_item, &save_as_item, &close_item, &reload_disk_item, &copy_path_item, &file_props_item, &quit_item],
                 )?;
 
                 let undo_item = MenuItem::with_id(app_handle, "edit_undo", "撤销", true, None::<&str>)?;
@@ -58,6 +58,25 @@ pub fn run() {
                 let eol_cr_item = MenuItem::with_id(app_handle, "eol_cr", "行尾: CR (Mac)", true, None::<&str>)?;
                 let tab_to_space_item = MenuItem::with_id(app_handle, "tab_to_space", "Tab 转空格", true, None::<&str>)?;
                 let space_to_tab_item = MenuItem::with_id(app_handle, "space_to_tab", "空格转 Tab", true, None::<&str>)?;
+                let jump_bracket_item = MenuItem::with_id(app_handle, "jump_to_bracket", "跳转到匹配括号", true, None::<&str>)?;
+                let select_bracket_item = MenuItem::with_id(app_handle, "select_to_bracket", "选中到匹配括号", true, None::<&str>)?;
+                let format_json_item = MenuItem::with_id(app_handle, "format_json", "格式化 JSON", true, None::<&str>)?;
+                let format_xml_item = MenuItem::with_id(app_handle, "format_xml", "格式化 XML", true, None::<&str>)?;
+                let format_html_item = MenuItem::with_id(app_handle, "format_html", "格式化 HTML", true, None::<&str>)?;
+                let format_css_item = MenuItem::with_id(app_handle, "format_css", "格式化 CSS", true, None::<&str>)?;
+                let format_sql_item = MenuItem::with_id(app_handle, "format_sql", "格式化 SQL", true, None::<&str>)?;
+                let char_full_item = MenuItem::with_id(app_handle, "char_full_width", "转全角", true, None::<&str>)?;
+                let char_half_item = MenuItem::with_id(app_handle, "char_half_width", "转半角", true, None::<&str>)?;
+                let char_nonprint_item = MenuItem::with_id(app_handle, "char_remove_non_printable", "删除非打印字符", true, None::<&str>)?;
+                let char_nfc_item = MenuItem::with_id(app_handle, "char_normalize_nfc", "Unicode NFC 归一化", true, None::<&str>)?;
+                let char_snake_item = MenuItem::with_id(app_handle, "char_to_snake", "转 snake_case", true, None::<&str>)?;
+                let char_camel_item = MenuItem::with_id(app_handle, "char_to_camel", "转 camelCase", true, None::<&str>)?;
+                let char_pascal_item = MenuItem::with_id(app_handle, "char_to_pascal", "转 PascalCase", true, None::<&str>)?;
+                let char_kebab_item = MenuItem::with_id(app_handle, "char_to_kebab", "转 kebab-case", true, None::<&str>)?;
+                let insert_file_item = MenuItem::with_id(app_handle, "insert_file", "插入文件内容...", true, None::<&str>)?;
+                let copy_path_item = MenuItem::with_id(app_handle, "copy_path", "复制文件路径", true, None::<&str>)?;
+                let reload_disk_item = MenuItem::with_id(app_handle, "reload_from_disk", "从磁盘重载", true, None::<&str>)?;
+                let language_item = MenuItem::with_id(app_handle, "language_selector", "选择语言...", true, None::<&str>)?;
 
                 let edit_menu = Submenu::with_items(
                     app_handle,
@@ -73,9 +92,13 @@ pub fn run() {
                         &sort_asc_item, &sort_desc_item,
                         &remove_dup_item,
                         &format_code_item,
-                        &insert_datetime_item, &special_char_item, &color_picker_item,
+                        &format_json_item, &format_xml_item, &format_html_item, &format_css_item, &format_sql_item,
+                        &insert_datetime_item, &special_char_item, &color_picker_item, &insert_file_item,
                         &eol_lf_item, &eol_crlf_item, &eol_cr_item,
                         &tab_to_space_item, &space_to_tab_item,
+                        &jump_bracket_item, &select_bracket_item,
+                        &char_full_item, &char_half_item, &char_nonprint_item, &char_nfc_item,
+                        &char_snake_item, &char_camel_item, &char_pascal_item, &char_kebab_item,
                     ],
                 )?;
 
@@ -84,12 +107,17 @@ pub fn run() {
                 let goto_item = MenuItem::with_id(app_handle, "goto", "跳转到行...", true, None::<&str>)?;
                 let find_in_files_item = MenuItem::with_id(app_handle, "find_in_files", "在文件中查找...", true, None::<&str>)?;
                 let batch_find_replace_item = MenuItem::with_id(app_handle, "batch_find_replace", "批量查找替换...", true, None::<&str>)?;
+                let find_next_item = MenuItem::with_id(app_handle, "find_next", "查找下一个", true, None::<&str>)?;
+                let find_prev_item = MenuItem::with_id(app_handle, "find_prev", "查找上一个", true, None::<&str>)?;
+                let next_bookmark_item = MenuItem::with_id(app_handle, "next_bookmark", "下一书签", true, None::<&str>)?;
+                let prev_bookmark_item = MenuItem::with_id(app_handle, "prev_bookmark", "上一书签", true, None::<&str>)?;
+                let clear_bookmarks_item = MenuItem::with_id(app_handle, "clear_bookmarks", "清除所有书签", true, None::<&str>)?;
 
                 let search_menu = Submenu::with_items(
                     app_handle,
                     "搜索",
                     true,
-                    &[&find_item, &replace_item, &goto_item, &find_in_files_item, &batch_find_replace_item],
+                    &[&find_item, &replace_item, &find_next_item, &find_prev_item, &goto_item, &find_in_files_item, &batch_find_replace_item, &next_bookmark_item, &prev_bookmark_item, &clear_bookmarks_item],
                 )?;
 
                 let encoding_item = MenuItem::with_id(app_handle, "encoding", "编码...", true, None::<&str>)?;
@@ -113,6 +141,14 @@ pub fn run() {
                 let function_list_item = MenuItem::with_id(app_handle, "function_list", "函数列表...", true, None::<&str>)?;
                 let word_wrap_item = MenuItem::with_id(app_handle, "toggle_word_wrap", "切换自动换行", true, None::<&str>)?;
                 let doc_switcher_item = MenuItem::with_id(app_handle, "doc_switcher", "切换文档...", true, None::<&str>)?;
+                let zoom_in_item = MenuItem::with_id(app_handle, "zoom_in", "放大", true, None::<&str>)?;
+                let zoom_out_item = MenuItem::with_id(app_handle, "zoom_out", "缩小", true, None::<&str>)?;
+                let zoom_reset_item = MenuItem::with_id(app_handle, "zoom_reset", "重置缩放", true, None::<&str>)?;
+                let fullscreen_item = MenuItem::with_id(app_handle, "full_screen", "全屏", true, None::<&str>)?;
+                let always_on_top_item = MenuItem::with_id(app_handle, "always_on_top", "窗口置顶", true, None::<&str>)?;
+                let markdown_preview_item = MenuItem::with_id(app_handle, "markdown_preview", "Markdown 预览...", true, None::<&str>)?;
+                let csv_viewer_item = MenuItem::with_id(app_handle, "csv_viewer", "CSV/TSV 查看...", true, None::<&str>)?;
+                let regex_tester_item = MenuItem::with_id(app_handle, "regex_tester", "正则测试器...", true, None::<&str>)?;
                 let view_menu = Submenu::with_items(
                     app_handle,
                     "视图",
@@ -122,6 +158,10 @@ pub fn run() {
                         &split_h_item, &split_v_item, &split_close_item,
                         &function_list_item, &word_wrap_item,
                         &doc_switcher_item,
+                        &zoom_in_item, &zoom_out_item, &zoom_reset_item,
+                        &fullscreen_item, &always_on_top_item,
+                        &language_item,
+                        &markdown_preview_item, &csv_viewer_item, &regex_tester_item,
                     ],
                 )?;
 

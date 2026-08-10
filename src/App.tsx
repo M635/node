@@ -24,7 +24,13 @@ import { DocumentSwitcher } from "./components/dialog/DocumentSwitcher";
 import { BatchFindReplaceDialog } from "./components/dialog/BatchFindReplaceDialog";
 import { FilePropertiesDialog } from "./components/dialog/FilePropertiesDialog";
 import { ShortcutMapper } from "./components/dialog/ShortcutMapper";
+import { MarkdownPreview } from "./components/editor/MarkdownPreview";
+import { RegexTester } from "./components/dialog/RegexTester";
+import { CsvViewer } from "./components/dialog/CsvViewer";
+import { LanguageSelector } from "./components/dialog/LanguageSelector";
 import { TextTransform } from "./services/text/textTransform";
+import { FormatService } from "./services/text/formatService";
+import { CharConvert } from "./services/text/charConvert";
 import { useFileStore, generateId } from "./stores/fileStore";
 import { useEditorStore } from "./stores/editorStore";
 import { useSearchStore } from "./stores/searchStore";
@@ -75,6 +81,10 @@ export default function App() {
   const [showBatchFindReplace, setShowBatchFindReplace] = useState(false);
   const [showFileProps, setShowFileProps] = useState(false);
   const [showShortcutMapper, setShowShortcutMapper] = useState(false);
+  const [showMarkdownPreview, setShowMarkdownPreview] = useState(false);
+  const [showRegexTester, setShowRegexTester] = useState(false);
+  const [showCsvViewer, setShowCsvViewer] = useState(false);
+  const [showLanguageSelector, setShowLanguageSelector] = useState(false);
 
   const themeResult = useTheme(themeMode);
   useEffect(() => { setIsDark(themeResult.isDark); }, [themeResult.isDark, setIsDark]);
@@ -187,6 +197,38 @@ export default function App() {
       : TextTransform.spacesToTabs(activeTab.content, tabSize);
     updateContent(activeTab.id, converted);
   }, [activeTab, updateContent]);
+
+  const applyFormat = useCallback((lang: string) => {
+    if (!activeTab) return;
+    const { result, error } = FormatService.formatByLanguage(lang, activeTab.content);
+    if (error) { alert(error); return; }
+    updateContent(activeTab.id, result);
+  }, [activeTab, updateContent]);
+
+  const applyCharConvert = useCallback((action: string) => {
+    if (!activeTab) return;
+    let result = activeTab.content;
+    switch (action) {
+      case "to-full-width": result = CharConvert.toFullWidth(result); break;
+      case "to-half-width": result = CharConvert.toHalfWidth(result); break;
+      case "remove-non-printable": result = CharConvert.removeNonPrintable(result); break;
+      case "normalize-nfc": result = CharConvert.normalizeNFC(result); break;
+      case "normalize-nfd": result = CharConvert.normalizeNFD(result); break;
+      case "normalize-nfkc": result = CharConvert.normalizeNFKC(result); break;
+      case "normalize-nfkd": result = CharConvert.normalizeNFKD(result); break;
+      case "to-snake": result = CharConvert.toSnakeCase(result); break;
+      case "to-camel": result = CharConvert.toCamelCase(result); break;
+      case "to-pascal": result = CharConvert.toPascalCase(result); break;
+      case "to-kebab": result = CharConvert.toKebabCase(result); break;
+      case "to-constant": result = CharConvert.toConstantCase(result); break;
+    }
+    updateContent(activeTab.id, result);
+  }, [activeTab, updateContent]);
+
+  const handleSetLanguage = useCallback((language: string) => {
+    if (activeTabId) updateTab(activeTabId, { language });
+    window.dispatchEvent(new CustomEvent("markpt:set-language", { detail: { language } }));
+  }, [activeTabId, updateTab]);
 
   const handleContentChange = useCallback((content: string) => {
     if (activeTabId) updateContent(activeTabId, content);
@@ -343,6 +385,38 @@ export default function App() {
         e.preventDefault();
         setShowTextTransform(true);
       }
+      if ((e.metaKey || e.ctrlKey) && e.key === "Tab") {
+        e.preventDefault();
+        setShowDocSwitcher(true);
+      }
+      if ((e.metaKey || e.ctrlKey) && (e.key === "=" || e.key === "+")) {
+        e.preventDefault();
+        window.dispatchEvent(new CustomEvent("markpt:zoom-in"));
+      }
+      if ((e.metaKey || e.ctrlKey) && e.key === "-") {
+        e.preventDefault();
+        window.dispatchEvent(new CustomEvent("markpt:zoom-out"));
+      }
+      if ((e.metaKey || e.ctrlKey) && e.key === "0") {
+        e.preventDefault();
+        window.dispatchEvent(new CustomEvent("markpt:zoom-reset"));
+      }
+      if (e.key === "F3" && !e.shiftKey) {
+        e.preventDefault();
+        window.dispatchEvent(new CustomEvent("markpt:find-next"));
+      }
+      if (e.key === "F3" && e.shiftKey) {
+        e.preventDefault();
+        window.dispatchEvent(new CustomEvent("markpt:find-prev"));
+      }
+      if (e.key === "F2" && !e.shiftKey) {
+        e.preventDefault();
+        window.dispatchEvent(new CustomEvent("markpt:next-bookmark"));
+      }
+      if (e.key === "F2" && e.shiftKey) {
+        e.preventDefault();
+        window.dispatchEvent(new CustomEvent("markpt:prev-bookmark"));
+      }
     };
     window.addEventListener("keydown", handler);
     return () => window.removeEventListener("keydown", handler);
@@ -391,6 +465,47 @@ export default function App() {
     onEolConvert: (target) => handleEolConvert(target),
     onTabSpaceConvert: (direction) => handleTabSpaceConvert(direction),
     onFormatCode: () => window.dispatchEvent(new CustomEvent("markpt:format-code")),
+    onMarkdownPreview: () => setShowMarkdownPreview(true),
+    onRegexTester: () => setShowRegexTester(true),
+    onCsvViewer: () => setShowCsvViewer(true),
+    onLanguageSelector: () => setShowLanguageSelector(true),
+    onZoomIn: () => window.dispatchEvent(new CustomEvent("markpt:zoom-in")),
+    onZoomOut: () => window.dispatchEvent(new CustomEvent("markpt:zoom-out")),
+    onZoomReset: () => window.dispatchEvent(new CustomEvent("markpt:zoom-reset")),
+    onFindNext: () => window.dispatchEvent(new CustomEvent("markpt:find-next")),
+    onFindPrev: () => window.dispatchEvent(new CustomEvent("markpt:find-prev")),
+    onNextBookmark: () => window.dispatchEvent(new CustomEvent("markpt:next-bookmark")),
+    onPrevBookmark: () => window.dispatchEvent(new CustomEvent("markpt:prev-bookmark")),
+    onClearBookmarks: () => window.dispatchEvent(new CustomEvent("markpt:clear-bookmarks")),
+    onJumpToBracket: () => window.dispatchEvent(new CustomEvent("markpt:jump-to-bracket")),
+    onSelectToBracket: () => window.dispatchEvent(new CustomEvent("markpt:select-to-bracket")),
+    onCopyPath: () => { if (activeTab?.path) navigator.clipboard.writeText(activeTab.path); },
+    onReloadFromDisk: async () => {
+      if (!activeTab?.path) return;
+      try {
+        const result = await openFileService(activeTab.path);
+        updateTab(activeTab.id, { content: result.content, meta: result.meta, is_dirty: false });
+      } catch { /* ignore */ }
+    },
+    onInsertFile: async () => {
+      const selected = await open({ multiple: false, filters: [{ name: "所有文件", extensions: ["*"] }] });
+      if (!selected) return;
+      try {
+        const result = await openFileService(selected as string);
+        handleInsertText(result.content);
+      } catch { /* ignore */ }
+    },
+    onFullScreen: () => {
+      if (!document.fullscreenElement) document.documentElement.requestFullscreen();
+      else document.exitFullscreen();
+    },
+    onAlwaysOnTop: () => { /* Tauri window always on top - requires @tauri-apps/api/window */ },
+    onFormatJson: () => applyFormat("json"),
+    onFormatXml: () => applyFormat("xml"),
+    onFormatHtml: () => applyFormat("html"),
+    onFormatCss: () => applyFormat("css"),
+    onFormatSql: () => applyFormat("sql"),
+    onCharConvert: (action: string) => applyCharConvert(action),
   });
 
   useEffect(() => {
@@ -597,6 +712,22 @@ export default function App() {
       )}
       {showShortcutMapper && (
         <ShortcutMapper onClose={() => setShowShortcutMapper(false)} />
+      )}
+      {showMarkdownPreview && activeTab && (
+        <MarkdownPreview content={activeTab.content} onClose={() => setShowMarkdownPreview(false)} />
+      )}
+      {showRegexTester && (
+        <RegexTester onClose={() => setShowRegexTester(false)} />
+      )}
+      {showCsvViewer && activeTab && (
+        <CsvViewer content={activeTab.content} onClose={() => setShowCsvViewer(false)} />
+      )}
+      {showLanguageSelector && activeTab && (
+        <LanguageSelector
+          currentLanguage={activeTab.language}
+          onSelect={handleSetLanguage}
+          onClose={() => setShowLanguageSelector(false)}
+        />
       )}
       {reloadDialog && (
         <ReloadConfirmDialog fileName={getFileName(reloadDialog)} onReload={handleReload} onIgnore={() => setReloadDialog(null)} />

@@ -243,6 +243,89 @@ export function MonacoEditor({
     return () => window.removeEventListener("markpt:format-code", handler);
   }, []);
 
+  // 缩放
+  useEffect(() => {
+    const zoomIn = () => { const ed = editorRef.current; if (ed) { const opts = ed.getOptions(); const size = (opts.get(monacoRef.current!.editor.EditorOption.fontSize) as unknown as number) || 14; ed.updateOptions({ fontSize: Math.min(size + 1, 32) }); } };
+    const zoomOut = () => { const ed = editorRef.current; if (ed) { const opts = ed.getOptions(); const size = (opts.get(monacoRef.current!.editor.EditorOption.fontSize) as unknown as number) || 14; ed.updateOptions({ fontSize: Math.max(size - 1, 8) }); } };
+    const zoomReset = () => { editorRef.current?.updateOptions({ fontSize }); };
+    window.addEventListener("markpt:zoom-in", zoomIn);
+    window.addEventListener("markpt:zoom-out", zoomOut);
+    window.addEventListener("markpt:zoom-reset", zoomReset);
+    return () => {
+      window.removeEventListener("markpt:zoom-in", zoomIn);
+      window.removeEventListener("markpt:zoom-out", zoomOut);
+      window.removeEventListener("markpt:zoom-reset", zoomReset);
+    };
+  }, [fontSize]);
+
+  // 查找下一个/上一个
+  useEffect(() => {
+    const findNext = () => { editorRef.current?.getAction("editor.action.nextMatchFindAction")?.run(); };
+    const findPrev = () => { editorRef.current?.getAction("editor.action.previousMatchFindAction")?.run(); };
+    window.addEventListener("markpt:find-next", findNext);
+    window.addEventListener("markpt:find-prev", findPrev);
+    return () => {
+      window.removeEventListener("markpt:find-next", findNext);
+      window.removeEventListener("markpt:find-prev", findPrev);
+    };
+  }, []);
+
+  // 书签导航
+  useEffect(() => {
+    const nextBookmark = () => {
+      const bookmarks = useEditorStore.getState().getBookmarks(tabId).sort((a, b) => a - b);
+      const pos = editorRef.current?.getPosition();
+      if (!pos || bookmarks.length === 0) return;
+      const next = bookmarks.find((b) => b > pos.lineNumber) || bookmarks[0];
+      editorRef.current?.revealLineInCenter(next);
+      editorRef.current?.setPosition({ lineNumber: next, column: 1 });
+    };
+    const prevBookmark = () => {
+      const bookmarks = useEditorStore.getState().getBookmarks(tabId).sort((a, b) => b - a);
+      const pos = editorRef.current?.getPosition();
+      if (!pos || bookmarks.length === 0) return;
+      const prev = bookmarks.find((b) => b < pos.lineNumber) || bookmarks[0];
+      editorRef.current?.revealLineInCenter(prev);
+      editorRef.current?.setPosition({ lineNumber: prev, column: 1 });
+    };
+    const clearBookmarks = () => { useEditorStore.getState().clearBookmarks(tabId); };
+    window.addEventListener("markpt:next-bookmark", nextBookmark);
+    window.addEventListener("markpt:prev-bookmark", prevBookmark);
+    window.addEventListener("markpt:clear-bookmarks", clearBookmarks);
+    return () => {
+      window.removeEventListener("markpt:next-bookmark", nextBookmark);
+      window.removeEventListener("markpt:prev-bookmark", prevBookmark);
+      window.removeEventListener("markpt:clear-bookmarks", clearBookmarks);
+    };
+  }, [tabId]);
+
+  // 语言切换
+  useEffect(() => {
+    const handler = (e: Event) => {
+      const language = (e as CustomEvent).detail?.language;
+      const model = editorRef.current?.getModel();
+      if (model && language && monacoRef.current) {
+        monacoRef.current.editor.setModelLanguage(model, language);
+      }
+    };
+    window.addEventListener("markpt:set-language", handler);
+    return () => window.removeEventListener("markpt:set-language", handler);
+  }, []);
+
+  // 跳转到匹配括号
+  useEffect(() => {
+    const handler = () => { editorRef.current?.getAction("editor.action.jumpToBracket")?.run(); };
+    window.addEventListener("markpt:jump-to-bracket", handler);
+    return () => window.removeEventListener("markpt:jump-to-bracket", handler);
+  }, []);
+
+  // 选中到匹配括号
+  useEffect(() => {
+    const handler = () => { editorRef.current?.getAction("editor.action.selectToBracket")?.run(); };
+    window.addEventListener("markpt:select-to-bracket", handler);
+    return () => window.removeEventListener("markpt:select-to-bracket", handler);
+  }, []);
+
   // 查找替换
   useEffect(() => {
     const replaceHandler = (e: Event) => {
