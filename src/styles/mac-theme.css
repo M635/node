@@ -115,6 +115,158 @@
   color: var(--mac-fg);
 }
 
+.tab-color-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  opacity: 0.8;
+}
+
+.tab-actions {
+  display: flex;
+  align-items: center;
+  position: relative;
+  flex-shrink: 0;
+  margin-right: 8px;
+}
+
+.tab-action-btn {
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  color: var(--mac-text-secondary);
+  border-radius: var(--mac-radius-sm);
+  flex-shrink: 0;
+}
+
+.tab-action-btn:hover {
+  background: var(--mac-hover);
+  color: var(--mac-fg);
+}
+
+.tab-sort-menu {
+  position: absolute;
+  top: 100%;
+  right: 56px;
+  background: var(--mac-bg);
+  border: 1px solid var(--mac-border);
+  border-radius: var(--mac-radius-sm);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  z-index: 1000;
+  min-width: 140px;
+}
+
+.tab-sort-item {
+  padding: 8px 12px;
+  font-size: 12px;
+  cursor: pointer;
+  color: var(--mac-fg);
+}
+
+.tab-sort-item:hover {
+  background: var(--mac-hover);
+}
+
+.tab-list-menu {
+  position: absolute;
+  top: 100%;
+  right: 8px;
+  background: var(--mac-bg);
+  border: 1px solid var(--mac-border);
+  border-radius: var(--mac-radius-sm);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  z-index: 1000;
+  width: 300px;
+  max-height: 400px;
+  display: flex;
+  flex-direction: column;
+}
+
+.tab-list-header {
+  padding: 8px;
+  border-bottom: 1px solid var(--mac-border);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.tab-list-filter {
+  flex: 1;
+  padding: 4px 8px;
+  border: 1px solid var(--mac-border);
+  border-radius: var(--mac-radius-sm);
+  background: var(--mac-bg);
+  color: var(--mac-fg);
+  font-size: 12px;
+}
+
+.tab-list-filter:focus {
+  outline: none;
+  border-color: var(--mac-accent);
+}
+
+.tab-list-count {
+  font-size: 11px;
+  color: var(--mac-text-secondary);
+  white-space: nowrap;
+}
+
+.tab-list-items {
+  overflow-y: auto;
+  flex: 1;
+}
+
+.tab-list-item {
+  padding: 6px 12px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.tab-list-item:hover {
+  background: var(--mac-hover);
+}
+
+.tab-list-item.active {
+  background: var(--mac-accent);
+  color: white;
+}
+
+.tab-list-name {
+  font-size: 12px;
+  flex-shrink: 0;
+}
+
+.tab-list-path {
+  font-size: 10px;
+  color: var(--mac-text-secondary);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  flex: 1;
+}
+
+.tab-list-item.active .tab-list-path {
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.tab-list-dirty {
+  color: var(--mac-accent);
+  font-size: 10px;
+}
+
+.tab-list-empty {
+  padding: 16px;
+  text-align: center;
+  color: var(--mac-text-secondary);
+  font-size: 12px;
+}
+
 .status-bar {
   display: flex;
   align-items: center;
@@ -257,6 +409,62 @@
   font-size: 11px;
   color: var(--mac-text-secondary);
   padding: 2px 0;
+}
+
+.search-input-wrapper {
+  position: relative;
+  flex: 1;
+}
+
+.search-history-dropdown {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  max-height: 200px;
+  overflow-y: auto;
+  background: var(--mac-bg);
+  border: 1px solid var(--mac-border);
+  border-radius: var(--mac-radius-sm);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  z-index: 1000;
+}
+
+.search-history-item {
+  padding: 6px 10px;
+  font-size: 12px;
+  cursor: pointer;
+  color: var(--mac-fg);
+}
+
+.search-history-item:hover {
+  background: var(--mac-hover);
+}
+
+.surround-row {
+  flex-wrap: wrap;
+}
+
+.surround-label {
+  font-size: 11px;
+  color: var(--mac-text-secondary);
+  white-space: nowrap;
+}
+
+.surround-input {
+  width: 40px !important;
+  padding: 4px 6px;
+  border: 1px solid var(--mac-border);
+  border-radius: var(--mac-radius-sm);
+  background: var(--mac-bg);
+  color: var(--mac-fg);
+  font-size: 12px;
+  text-align: center;
+}
+
+.surround-input:focus {
+  outline: none;
+  border-color: var(--mac-accent);
 }
 
 .find-in-files-panel {
@@ -773,6 +981,11 @@
   height: 10px;
   margin-left: 4px;
   opacity: 0.8;
+}
+
+.markpt-match-highlight {
+  background: rgba(255, 213, 0, 0.3);
+  border-bottom: 1px solid rgba(255, 213, 0, 0.8);
 }
 
 .title-bar {

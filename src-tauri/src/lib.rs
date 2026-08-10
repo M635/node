@@ -21,20 +21,23 @@ pub fn run() {
 
                 let new_item = MenuItem::with_id(app_handle, "new", "新建", true, None::<&str>)?;
                 let open_item = MenuItem::with_id(app_handle, "open", "打开...", true, None::<&str>)?;
+                let open_with_encoding_item = MenuItem::with_id(app_handle, "open_with_encoding", "按编码打开...", true, None::<&str>)?;
                 let save_item = MenuItem::with_id(app_handle, "save", "保存", true, None::<&str>)?;
                 let save_as_item = MenuItem::with_id(app_handle, "save_as", "另存为...", true, None::<&str>)?;
+                let save_copy_item = MenuItem::with_id(app_handle, "save_copy", "保存副本...", true, None::<&str>)?;
                 let close_item = MenuItem::with_id(app_handle, "close", "关闭标签", true, None::<&str>)?;
                 let quit_item = MenuItem::with_id(app_handle, "quit", "退出 MarkPT", true, None::<&str>)?;
 
                 let file_props_item = MenuItem::with_id(app_handle, "file_props", "文件属性...", true, None::<&str>)?;
                 let copy_path_item = MenuItem::with_id(app_handle, "copy_path", "复制文件路径", true, None::<&str>)?;
                 let reload_disk_item = MenuItem::with_id(app_handle, "reload_from_disk", "从磁盘重载", true, None::<&str>)?;
+                let toggle_bom_item = MenuItem::with_id(app_handle, "toggle_bom", "切换 BOM", true, None::<&str>)?;
 
                 let file_menu = Submenu::with_items(
                     app_handle,
                     "文件",
                     true,
-                    &[&new_item, &open_item, &save_item, &save_as_item, &close_item, &reload_disk_item, &copy_path_item, &file_props_item, &quit_item],
+                    &[&new_item, &open_item, &open_with_encoding_item, &save_item, &save_as_item, &save_copy_item, &close_item, &reload_disk_item, &copy_path_item, &toggle_bom_item, &file_props_item, &quit_item],
                 )?;
 
                 let undo_item = MenuItem::with_id(app_handle, "edit_undo", "撤销", true, None::<&str>)?;
@@ -50,6 +53,15 @@ pub fn run() {
                 let lower_item = MenuItem::with_id(app_handle, "edit_lower", "转小写", true, None::<&str>)?;
                 let sort_asc_item = MenuItem::with_id(app_handle, "edit_sort_asc", "行排序(升序)", true, None::<&str>)?;
                 let sort_desc_item = MenuItem::with_id(app_handle, "edit_sort_desc", "行排序(降序)", true, None::<&str>)?;
+                let sort_length_asc_item = MenuItem::with_id(app_handle, "edit_sort_length_asc", "按长度排序(升序)", true, None::<&str>)?;
+                let sort_length_desc_item = MenuItem::with_id(app_handle, "edit_sort_length_desc", "按长度排序(降序)", true, None::<&str>)?;
+                let sort_random_item = MenuItem::with_id(app_handle, "edit_sort_random", "随机排序", true, None::<&str>)?;
+                let reverse_lines_item = MenuItem::with_id(app_handle, "edit_reverse_lines", "反转行序", true, None::<&str>)?;
+                let filter_lines_item = MenuItem::with_id(app_handle, "edit_filter_lines", "过滤行...", true, None::<&str>)?;
+                let filter_remove_item = MenuItem::with_id(app_handle, "edit_filter_lines_remove", "移除匹配行...", true, None::<&str>)?;
+                let merge_lines_item = MenuItem::with_id(app_handle, "edit_merge_lines", "合并行(空格)", true, None::<&str>)?;
+                let merge_lines_comma_item = MenuItem::with_id(app_handle, "edit_merge_lines_comma", "合并行(逗号)", true, None::<&str>)?;
+                let split_line_item = MenuItem::with_id(app_handle, "edit_split_line", "拆分行(空格)", true, None::<&str>)?;
                 let remove_dup_item = MenuItem::with_id(app_handle, "edit_remove_dup", "去重复行", true, None::<&str>)?;
                 let format_code_item = MenuItem::with_id(app_handle, "format_code", "格式化代码", true, None::<&str>)?;
                 let insert_datetime_item = MenuItem::with_id(app_handle, "insert_datetime", "插入日期时间...", true, None::<&str>)?;
@@ -90,6 +102,10 @@ pub fn run() {
                         &toggle_comment_item,
                         &upper_item, &lower_item,
                         &sort_asc_item, &sort_desc_item,
+                        &sort_length_asc_item, &sort_length_desc_item,
+                        &sort_random_item, &reverse_lines_item,
+                        &filter_lines_item, &filter_remove_item,
+                        &merge_lines_item, &merge_lines_comma_item, &split_line_item,
                         &remove_dup_item,
                         &format_code_item,
                         &format_json_item, &format_xml_item, &format_html_item, &format_css_item, &format_sql_item,

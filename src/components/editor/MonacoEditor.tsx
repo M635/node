@@ -166,6 +166,26 @@ export function MonacoEditor({
       label: "去除重复行",
       run: (ed) => EditOperations.removeDuplicateLines(ed),
     });
+    editor.addAction({
+      id: "markpt-sort-length-asc",
+      label: "按长度排序(升序)",
+      run: (ed) => EditOperations.sortLinesByLength(ed, false),
+    });
+    editor.addAction({
+      id: "markpt-sort-length-desc",
+      label: "按长度排序(降序)",
+      run: (ed) => EditOperations.sortLinesByLength(ed, true),
+    });
+    editor.addAction({
+      id: "markpt-sort-random",
+      label: "随机排序",
+      run: (ed) => EditOperations.sortLinesRandom(ed),
+    });
+    editor.addAction({
+      id: "markpt-reverse-lines",
+      label: "反转行序",
+      run: (ed) => EditOperations.reverseLineOrder(ed),
+    });
   }, [onCursorChange, tabId]);
 
   // 行号跳转
@@ -205,6 +225,23 @@ export function MonacoEditor({
         case "sort-desc": EditOperations.sortLinesDescending(editor); break;
         case "toggle-comment": EditOperations.toggleLineComment(editor, monaco); break;
         case "remove-duplicates": EditOperations.removeDuplicateLines(editor); break;
+        case "sort-length-asc": EditOperations.sortLinesByLength(editor, false); break;
+        case "sort-length-desc": EditOperations.sortLinesByLength(editor, true); break;
+        case "sort-random": EditOperations.sortLinesRandom(editor); break;
+        case "reverse-lines": EditOperations.reverseLineOrder(editor); break;
+        case "filter-lines": {
+          const pattern = prompt("输入过滤模式（保留匹配行）:");
+          if (pattern) EditOperations.filterLines(editor, pattern, true, false);
+          break;
+        }
+        case "filter-lines-remove": {
+          const pattern = prompt("输入过滤模式（移除匹配行）:");
+          if (pattern) EditOperations.filterLines(editor, pattern, false, false);
+          break;
+        }
+        case "merge-lines": EditOperations.mergeLines(editor, " "); break;
+        case "merge-lines-comma": EditOperations.mergeLines(editor, ", "); break;
+        case "split-line": EditOperations.splitLine(editor, " "); break;
         case "indent": EditOperations.indent(editor); break;
         case "outdent": EditOperations.outdent(editor); break;
       }
@@ -326,6 +363,37 @@ export function MonacoEditor({
     return () => window.removeEventListener("markpt:select-to-bracket", handler);
   }, []);
 
+  // 环绕选中文本
+  useEffect(() => {
+    const handler = (e: Event) => {
+      const detail = (e as CustomEvent).detail;
+      if (!editorRef.current || !monacoRef.current || !detail) return;
+      const editor = editorRef.current;
+      const monaco = monacoRef.current;
+      const selection = editor.getSelection();
+      if (!selection) return;
+      const model = editor.getModel();
+      if (!model) return;
+      const selectedText = model.getValueInRange(selection);
+      const newText = `${detail.open}${selectedText}${detail.close}`;
+      editor.executeEdits("surround", [{
+        range: new monaco.Range(
+          selection.startLineNumber, selection.startColumn,
+          selection.endLineNumber, selection.endColumn
+        ),
+        text: newText,
+      }]);
+      const newEndCol = selection.startColumn + newText.length;
+      editor.setSelection(new monaco.Range(
+        selection.startLineNumber, selection.startColumn + detail.open.length,
+        selection.endLineNumber, newEndCol - detail.close.length
+      ));
+      editor.focus();
+    };
+    window.addEventListener("markpt:surround-selection", handler);
+    return () => window.removeEventListener("markpt:surround-selection", handler);
+  }, []);
+
   // 查找替换
   useEffect(() => {
     const replaceHandler = (e: Event) => {
@@ -384,9 +452,23 @@ export function MonacoEditor({
         return;
       }
 
-      const fullText = model.getValue();
-      const newText = fullText.replace(regex, detail.replace);
-      model.setValue(newText);
+      const selection = editor.getSelection();
+      const searchInSelection = useSearchStore.getState().searchInSelection;
+      if (searchInSelection && selection && !selection.isEmpty()) {
+        const selectedText = model.getValueInRange(selection);
+        const newText = selectedText.replace(regex, detail.replace);
+        editor.executeEdits("replace-all-in-selection", [{
+          range: new monacoRef.current.Range(
+            selection.startLineNumber, selection.startColumn,
+            selection.endLineNumber, selection.endColumn
+          ),
+          text: newText,
+        }]);
+      } else {
+        const fullText = model.getValue();
+        const newText = fullText.replace(regex, detail.replace);
+        model.setValue(newText);
+      }
     };
 
     window.addEventListener("markpt:execute-replace", replaceHandler);

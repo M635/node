@@ -64,6 +64,9 @@ interface ShortcutHandlers {
   onFormatCss?: () => void;
   onFormatSql?: () => void;
   onCharConvert?: (action: string) => void;
+  onSaveCopy?: () => void;
+  onOpenWithEncoding?: () => void;
+  onToggleBom?: () => void;
 }
 
 export function useKeyboardShortcuts(handlers: ShortcutHandlers): void {
@@ -98,6 +101,15 @@ export function useKeyboardShortcuts(handlers: ShortcutHandlers): void {
           case "edit_lower": handlers.onEditAction?.("lower"); break;
           case "edit_sort_asc": handlers.onEditAction?.("sort-asc"); break;
           case "edit_sort_desc": handlers.onEditAction?.("sort-desc"); break;
+          case "edit_sort_length_asc": handlers.onEditAction?.("sort-length-asc"); break;
+          case "edit_sort_length_desc": handlers.onEditAction?.("sort-length-desc"); break;
+          case "edit_sort_random": handlers.onEditAction?.("sort-random"); break;
+          case "edit_reverse_lines": handlers.onEditAction?.("reverse-lines"); break;
+          case "edit_filter_lines": handlers.onEditAction?.("filter-lines"); break;
+          case "edit_filter_lines_remove": handlers.onEditAction?.("filter-lines-remove"); break;
+          case "edit_merge_lines": handlers.onEditAction?.("merge-lines"); break;
+          case "edit_merge_lines_comma": handlers.onEditAction?.("merge-lines-comma"); break;
+          case "edit_split_line": handlers.onEditAction?.("split-line"); break;
           case "edit_remove_dup": handlers.onEditAction?.("remove-duplicates"); break;
           case "edit_undo": handlers.onEditAction?.("undo"); break;
           case "edit_redo": handlers.onEditAction?.("redo"); break;
@@ -156,6 +168,9 @@ export function useKeyboardShortcuts(handlers: ShortcutHandlers): void {
           case "char_to_camel": handlers.onCharConvert?.("to-camel"); break;
           case "char_to_pascal": handlers.onCharConvert?.("to-pascal"); break;
           case "char_to_kebab": handlers.onCharConvert?.("to-kebab"); break;
+          case "save_copy": handlers.onSaveCopy?.(); break;
+          case "open_with_encoding": handlers.onOpenWithEncoding?.(); break;
+          case "toggle_bom": handlers.onToggleBom?.(); break;
         }
       });
     })();

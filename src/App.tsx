@@ -46,6 +46,7 @@ import {
 import { exportAsTxt, exportAsHtml, exportAsRtf } from "./services/tauri/exportService";
 import { getLanguageFromPath } from "./services/monaco/languages";
 import { getFileName } from "./utils/fileUtils";
+import { detectIndent } from "./utils/indentDetect";
 import { saveSession, loadSession, type SessionData } from "./services/session/sessionService";
 import type { EncodingType } from "./types/file";
 
@@ -102,6 +103,11 @@ export default function App() {
         cursor_position: { line: 1, column: 1 }, scroll_position: 0, is_new: false,
       });
       addRecentFile(path);
+      if (useSettingStore.getState().autoDetectIndent) {
+        const indent = detectIndent(result.content);
+        useSettingStore.getState().setTabSize(indent.tabSize);
+        useSettingStore.getState().setInsertSpaces(indent.insertSpaces);
+      }
     } catch (err) {
       alert(`打开文件失败: ${err}`);
     }
@@ -135,13 +141,67 @@ export default function App() {
       savePath = selected as string;
     }
     try {
-      await saveFileService(savePath, tab.content, tab.encoding);
+      let content = tab.content;
+      const settings = useSettingStore.getState();
+      if (settings.trimTrailingWhitespaceOnSave) {
+        content = content.split("\n").map((line) => line.replace(/\s+$/, "")).join("\n");
+      }
+      if (settings.ensureFinalNewline && !content.endsWith("\n")) {
+        content += "\n";
+      }
+      await saveFileService(savePath, content, tab.encoding);
+      if (content !== tab.content) updateContent(tab.id, content);
       updateTab(tab.id, { path: savePath, name: getFileName(savePath), is_new: false, is_dirty: false });
       markClean(tab.id);
     } catch (err) {
       alert(`保存失败: ${err}`);
     }
-  }, [getActiveTab, updateTab, markClean]);
+  }, [getActiveTab, updateTab, markClean, updateContent]);
+
+  const handleSaveCopy = useCallback(async () => {
+    const tab = getActiveTab();
+    if (!tab) return;
+    const selected = await save({ filters: [{ name: "所有文件", extensions: ["*"] }] });
+    if (!selected) return;
+    try {
+      await saveFileService(selected as string, tab.content, tab.encoding);
+    } catch (err) {
+      alert(`保存副本失败: ${err}`);
+    }
+  }, [getActiveTab]);
+
+  const handleOpenWithEncoding = useCallback(async () => {
+    const selected = await open({ multiple: false, filters: [{ name: "所有文件", extensions: ["*"] }] });
+    if (!selected) return;
+    const path = selected as string;
+    const encodings = ["UTF-8", "UTF-8-BOM", "GBK", "GB2312", "UTF-16LE", "UTF-16BE", "ASCII"];
+    const encoding = window.prompt(`选择编码:\n${encodings.map((e, i) => `${i + 1}. ${e}`).join("\n")}`, "1");
+    if (!encoding) return;
+    const encIdx = parseInt(encoding) - 1;
+    if (encIdx < 0 || encIdx >= encodings.length) return;
+    try {
+      const newContent = await reloadWithEncoding(path, encodings[encIdx]);
+      openTab({
+        id: generateId(), path, name: getFileName(path), content: newContent,
+        meta: null, is_dirty: false, is_large_file: false, readonly: false,
+        encoding: encodings[encIdx] as EncodingType,
+        language: getLanguageFromPath(path),
+        cursor_position: { line: 1, column: 1 }, scroll_position: 0, is_new: false,
+      });
+      addRecentFile(path);
+    } catch (err) {
+      alert(`按编码打开失败: ${err}`);
+    }
+  }, [openTab, addRecentFile]);
+
+  const handleToggleBom = useCallback(() => {
+    const tab = getActiveTab();
+    if (!tab) return;
+    const newEncoding = tab.encoding === "UTF-8" ? "UTF-8-BOM" : tab.encoding === "UTF-8-BOM" ? "UTF-8" : tab.encoding;
+    if (newEncoding !== tab.encoding) {
+      updateTab(tab.id, { encoding: newEncoding as EncodingType, is_dirty: true });
+    }
+  }, [getActiveTab, updateTab]);
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -506,6 +566,9 @@ export default function App() {
     onFormatCss: () => applyFormat("css"),
     onFormatSql: () => applyFormat("sql"),
     onCharConvert: (action: string) => applyCharConvert(action),
+    onSaveCopy: handleSaveCopy,
+    onOpenWithEncoding: handleOpenWithEncoding,
+    onToggleBom: handleToggleBom,
   });
 
   useEffect(() => {

@@ -16,6 +16,7 @@ interface FileStore {
   markClean: (id: string) => void;
   markDirty: (id: string) => void;
   reorderTabs: (fromIndex: number, toIndex: number) => void;
+  sortTabs: (by: "name" | "path" | "type" | "size") => void;
   addRecentFile: (path: string) => void;
   getActiveTab: () => FileTab | null;
   getTabByPath: (path: string) => FileTab | null;
@@ -97,6 +98,25 @@ export const useFileStore = create<FileStore>((set, get) => ({
       const [moved] = newTabs.splice(fromIndex, 1);
       newTabs.splice(toIndex, 0, moved);
       return { tabs: newTabs };
+    }),
+
+  sortTabs: (by) =>
+    set((state) => {
+      const sorted = [...state.tabs].sort((a, b) => {
+        switch (by) {
+          case "name":
+            return a.name.localeCompare(b.name);
+          case "path":
+            return a.path.localeCompare(b.path);
+          case "type":
+            return a.language.localeCompare(b.language) || a.name.localeCompare(b.name);
+          case "size":
+            return (b.meta?.size || 0) - (a.meta?.size || 0);
+          default:
+            return 0;
+        }
+      });
+      return { tabs: sorted };
     }),
 
   addRecentFile: (path) =>

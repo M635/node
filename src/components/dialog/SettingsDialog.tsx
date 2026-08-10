@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { useSettingStore } from "../../stores/settingStore";
+import { useI18n } from "../../stores/i18nStore";
 import type { ThemeMode } from "../../types/theme";
 
 interface SettingsDialogProps {
@@ -20,6 +21,9 @@ export function SettingsDialog({ onClose }: SettingsDialogProps) {
     autoIndent,
     bracketPairColorization,
     folding,
+    trimTrailingWhitespaceOnSave,
+    ensureFinalNewline,
+    autoDetectIndent,
     setFontSize,
     setFontFamily,
     setTabSize,
@@ -32,8 +36,12 @@ export function SettingsDialog({ onClose }: SettingsDialogProps) {
     setAutoIndent,
     setBracketPairColorization,
     setFolding,
+    setTrimTrailingWhitespaceOnSave,
+    setEnsureFinalNewline,
+    setAutoDetectIndent,
     resetToDefaults,
   } = useSettingStore();
+  const { language, setLanguage, t } = useI18n();
 
   const [localFontSize, setLocalFontSize] = useState(fontSize);
 
@@ -156,19 +164,58 @@ export function SettingsDialog({ onClose }: SettingsDialogProps) {
                 onChange={(e) => setAutoIndent(e.target.checked)}
               />
             </div>
+            <div className="settings-row">
+              <label>自动检测缩进</label>
+              <input
+                type="checkbox"
+                checked={autoDetectIndent}
+                onChange={(e) => setAutoDetectIndent(e.target.checked)}
+              />
+            </div>
+          </div>
+
+          <div className="settings-section">
+            <h3>保存</h3>
+            <div className="settings-row">
+              <label>保存时去行尾空格</label>
+              <input
+                type="checkbox"
+                checked={trimTrailingWhitespaceOnSave}
+                onChange={(e) => setTrimTrailingWhitespaceOnSave(e.target.checked)}
+              />
+            </div>
+            <div className="settings-row">
+              <label>确保文件末尾换行</label>
+              <input
+                type="checkbox"
+                checked={ensureFinalNewline}
+                onChange={(e) => setEnsureFinalNewline(e.target.checked)}
+              />
+            </div>
           </div>
 
           <div className="settings-section">
             <h3>主题</h3>
             <div className="settings-row">
-              <label>主题模式</label>
+              <label>{t("dialog.settings.themeMode")}</label>
               <select
                 value={themeMode}
                 onChange={(e) => setThemeMode(e.target.value as ThemeMode)}
               >
-                <option value="auto">跟随系统</option>
-                <option value="light">浅色</option>
-                <option value="dark">深色</option>
+                <option value="auto">{t("dialog.settings.followSystem")}</option>
+                <option value="light">{t("dialog.settings.light")}</option>
+                <option value="dark">{t("dialog.settings.dark")}</option>
+              </select>
+            </div>
+          </div>
+
+          <div className="settings-section">
+            <h3>{t("dialog.settings.language")}</h3>
+            <div className="settings-row">
+              <label>{t("dialog.settings.language")}</label>
+              <select value={language} onChange={(e) => setLanguage(e.target.value as "zh" | "en")}>
+                <option value="zh">简体中文</option>
+                <option value="en">English</option>
               </select>
             </div>
           </div>

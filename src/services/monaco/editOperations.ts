@@ -196,6 +196,159 @@ export class EditOperations {
     model.setValue(result.join("\n"));
   }
 
+  static sortLinesByLength(editor: Editor, descending: boolean = false): void {
+    const selection = editor.getSelection();
+    const model = editor.getModel();
+    if (!selection || !model) return;
+    const startLine = Math.min(selection.startLineNumber, selection.endLineNumber);
+    const endLine = Math.max(selection.startLineNumber, selection.endLineNumber);
+    if (startLine === endLine) return;
+
+    const lines: string[] = [];
+    for (let i = startLine; i <= endLine; i++) {
+      lines.push(model.getLineContent(i));
+    }
+    lines.sort((a, b) => {
+      const result = a.length - b.length;
+      return descending ? -result : result;
+    });
+
+    editor.executeEdits("sort-length", [{
+      range: { startLineNumber: startLine, startColumn: 1, endLineNumber: endLine, endColumn: model.getLineContent(endLine).length + 1 } as any,
+      text: lines.join("\n"),
+    }]);
+  }
+
+  static sortLinesRandom(editor: Editor): void {
+    const selection = editor.getSelection();
+    const model = editor.getModel();
+    if (!selection || !model) return;
+    const startLine = Math.min(selection.startLineNumber, selection.endLineNumber);
+    const endLine = Math.max(selection.startLineNumber, selection.endLineNumber);
+    if (startLine === endLine) return;
+
+    const lines: string[] = [];
+    for (let i = startLine; i <= endLine; i++) {
+      lines.push(model.getLineContent(i));
+    }
+    for (let i = lines.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [lines[i], lines[j]] = [lines[j], lines[i]];
+    }
+
+    editor.executeEdits("sort-random", [{
+      range: { startLineNumber: startLine, startColumn: 1, endLineNumber: endLine, endColumn: model.getLineContent(endLine).length + 1 } as any,
+      text: lines.join("\n"),
+    }]);
+  }
+
+  static filterLines(editor: Editor, pattern: string, keepMatching: boolean = true, useRegex: boolean = false): void {
+    const model = editor.getModel();
+    if (!model || !pattern) return;
+    let regex: RegExp;
+    try {
+      regex = useRegex
+        ? new RegExp(pattern, "i")
+        : new RegExp(pattern.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"), "i");
+    } catch { return; }
+
+    const text = model.getValue();
+    const lines = text.split("\n");
+    const filtered = lines.filter((line) => {
+      const matches = regex.test(line);
+      return keepMatching ? matches : !matches;
+    });
+    model.setValue(filtered.join("\n"));
+  }
+
+  static mergeLines(editor: Editor, separator: string = " "): void {
+    const selection = editor.getSelection();
+    const model = editor.getModel();
+    if (!selection || !model) return;
+    const startLine = Math.min(selection.startLineNumber, selection.endLineNumber);
+    const endLine = Math.max(selection.startLineNumber, selection.endLineNumber);
+    if (startLine === endLine) return;
+
+    const lines: string[] = [];
+    for (let i = startLine; i <= endLine; i++) {
+      lines.push(model.getLineContent(i));
+    }
+    const merged = lines.join(separator);
+
+    editor.executeEdits("merge-lines", [{
+      range: { startLineNumber: startLine, startColumn: 1, endLineNumber: endLine, endColumn: model.getLineContent(endLine).length + 1 } as any,
+      text: merged,
+    }]);
+  }
+
+  static splitLine(editor: Editor, separator: string = " "): void {
+    const position = editor.getPosition();
+    const model = editor.getModel();
+    if (!position || !model) return;
+    const lineContent = model.getLineContent(position.lineNumber);
+    const parts = lineContent.split(separator);
+    if (parts.length <= 1) return;
+
+    editor.executeEdits("split-line", [{
+      range: { startLineNumber: position.lineNumber, startColumn: 1, endLineNumber: position.lineNumber, endColumn: lineContent.length + 1 } as any,
+      text: parts.join("\n"),
+    }]);
+  }
+
+  static reverseLineOrder(editor: Editor): void {
+    const selection = editor.getSelection();
+    const model = editor.getModel();
+    if (!selection || !model) return;
+    const startLine = Math.min(selection.startLineNumber, selection.endLineNumber);
+    const endLine = Math.max(selection.startLineNumber, selection.endLineNumber);
+    if (startLine === endLine) return;
+
+    const lines: string[] = [];
+    for (let i = startLine; i <= endLine; i++) {
+      lines.push(model.getLineContent(i));
+    }
+    lines.reverse();
+
+    editor.executeEdits("reverse-lines", [{
+      range: { startLineNumber: startLine, startColumn: 1, endLineNumber: endLine, endColumn: model.getLineContent(endLine).length + 1 } as any,
+      text: lines.join("\n"),
+    }]);
+  }
+
+  static markAllMatches(editor: Editor, monaco: typeof Monaco, pattern: string, useRegex: boolean = false, caseSensitive: boolean = false): void {
+    const model = editor.getModel();
+    if (!model || !pattern) return;
+    let regex: RegExp;
+    try {
+      const flags = caseSensitive ? "g" : "gi";
+      regex = useRegex
+        ? new RegExp(pattern, flags)
+        : new RegExp(pattern.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"), flags);
+    } catch { return; }
+
+    const decorations: { range: Monaco.IRange; options: Monaco.editor.IModelDecorationOptions }[] = [];
+    const lineCount = model.getLineCount();
+    for (let i = 1; i <= lineCount; i++) {
+      const line = model.getLineContent(i);
+      let match;
+      while ((match = regex.exec(line)) !== null) {
+        decorations.push({
+          range: new monaco.Range(i, match.index + 1, i, match.index + match[0].length + 1),
+          options: {
+            inlineClassName: "markpt-match-highlight",
+            stickiness: 1,
+          },
+        });
+        if (match.index === regex.lastIndex) regex.lastIndex++;
+      }
+    }
+    (editor as any).__markDecorations = editor.deltaDecorations((editor as any).__markDecorations || [], decorations);
+  }
+
+  static clearMarkDecorations(editor: Editor): void {
+    (editor as any).__markDecorations = editor.deltaDecorations((editor as any).__markDecorations || [], []);
+  }
+
   static getWordCount(editor: Editor): { chars: number; words: number; lines: number; selected: number } {
     const model = editor.getModel();
     if (!model) return { chars: 0, words: 0, lines: 0, selected: 0 };

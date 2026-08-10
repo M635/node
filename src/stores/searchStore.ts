@@ -16,6 +16,11 @@ interface SearchStore {
   isSearching: boolean;
   searchTruncated: boolean;
   currentMatchIndex: number;
+  searchHistory: string[];
+  replaceHistory: string[];
+  surroundMode: boolean;
+  surroundChars: [string, string];
+  searchInSelection: boolean;
 
   toggleSearchPanel: () => void;
   toggleReplacePanel: () => void;
@@ -31,6 +36,12 @@ interface SearchStore {
   setSearching: (searching: boolean) => void;
   nextMatch: () => void;
   prevMatch: () => void;
+  addSearchHistory: (query: string) => void;
+  addReplaceHistory: (query: string) => void;
+  clearSearchHistory: () => void;
+  setSurroundMode: (enable: boolean) => void;
+  setSurroundChars: (chars: [string, string]) => void;
+  setSearchInSelection: (enable: boolean) => void;
 }
 
 export const useSearchStore = create<SearchStore>((set, get) => ({
@@ -48,6 +59,11 @@ export const useSearchStore = create<SearchStore>((set, get) => ({
   isSearching: false,
   searchTruncated: false,
   currentMatchIndex: 0,
+  searchHistory: [],
+  replaceHistory: [],
+  surroundMode: false,
+  surroundChars: ["(", ")"],
+  searchInSelection: false,
 
   toggleSearchPanel: () =>
     set((s) => ({ isSearchPanelOpen: !s.isSearchPanelOpen })),
@@ -101,4 +117,23 @@ export const useSearchStore = create<SearchStore>((set, get) => ({
             s.searchResults.length
           : 0,
     })),
+  addSearchHistory: (query) =>
+    set((s) => ({
+      searchHistory: [
+        query,
+        ...s.searchHistory.filter((q) => q !== query),
+      ].slice(0, 30),
+    })),
+  addReplaceHistory: (query) =>
+    set((s) => ({
+      replaceHistory: [
+        query,
+        ...s.replaceHistory.filter((q) => q !== query),
+      ].slice(0, 30),
+    })),
+  clearSearchHistory: () =>
+    set({ searchHistory: [], replaceHistory: [] }),
+  setSurroundMode: (enable) => set({ surroundMode: enable }),
+  setSurroundChars: (chars) => set({ surroundChars: chars }),
+  setSearchInSelection: (enable) => set({ searchInSelection: enable }),
 }));

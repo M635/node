@@ -17,6 +17,9 @@ interface SettingStore {
   folding: boolean;
   recentFiles: string[];
   showStatusBar: boolean;
+  trimTrailingWhitespaceOnSave: boolean;
+  ensureFinalNewline: boolean;
+  autoDetectIndent: boolean;
 
   setFontSize: (size: number) => void;
   setFontFamily: (family: string) => void;
@@ -32,6 +35,9 @@ interface SettingStore {
   setFolding: (enable: boolean) => void;
   addRecentFile: (path: string) => void;
   setShowStatusBar: (show: boolean) => void;
+  setTrimTrailingWhitespaceOnSave: (enable: boolean) => void;
+  setEnsureFinalNewline: (enable: boolean) => void;
+  setAutoDetectIndent: (enable: boolean) => void;
   resetToDefaults: () => void;
 }
 
@@ -50,6 +56,9 @@ export const useSettingStore = create<SettingStore>((set) => ({
   folding: defaultEditorConfig.folding,
   recentFiles: [],
   showStatusBar: true,
+  trimTrailingWhitespaceOnSave: false,
+  ensureFinalNewline: true,
+  autoDetectIndent: true,
 
   setFontSize: (size) => set({ fontSize: size }),
   setFontFamily: (family) => set({ fontFamily: family }),
@@ -72,6 +81,9 @@ export const useSettingStore = create<SettingStore>((set) => ({
       ].slice(0, 20),
     })),
   setShowStatusBar: (show) => set({ showStatusBar: show }),
+  setTrimTrailingWhitespaceOnSave: (enable) => set({ trimTrailingWhitespaceOnSave: enable }),
+  setEnsureFinalNewline: (enable) => set({ ensureFinalNewline: enable }),
+  setAutoDetectIndent: (enable) => set({ autoDetectIndent: enable }),
   resetToDefaults: () =>
     set({
       fontSize: defaultEditorConfig.fontSize,

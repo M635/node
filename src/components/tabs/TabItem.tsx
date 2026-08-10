@@ -15,6 +15,35 @@ interface TabItemProps {
   onContextMenu: (e: React.MouseEvent) => void;
 }
 
+const languageColors: Record<string, string> = {
+  javascript: "#f0db4f",
+  typescript: "#3178c6",
+  python: "#3776ab",
+  rust: "#dea584",
+  java: "#ed8b00",
+  c: "#5599ff",
+  cpp: "#659ad2",
+  go: "#00add8",
+  ruby: "#cc342d",
+  php: "#777bb4",
+  swift: "#fa7343",
+  kotlin: "#7f52ff",
+  html: "#e34c26",
+  css: "#264de4",
+  json: "#cbcb41",
+  xml: "#e3791a",
+  markdown: "#773",
+  sql: "#e38c00",
+  shell: "#89e051",
+  yaml: "#cb171e",
+  plaintext: "#999",
+};
+
+function getTabColor(tab: FileTab): string | undefined {
+  if (tab.is_new) return undefined;
+  return languageColors[tab.language];
+}
+
 export function TabItem({
   tab,
   active,
@@ -28,6 +57,7 @@ export function TabItem({
   onContextMenu,
 }: TabItemProps) {
   const title = tab.is_new ? "未命名" : truncatePath(tab.path, 30);
+  const color = getTabColor(tab);
 
   return (
     <div
@@ -41,6 +71,9 @@ export function TabItem({
       draggable
       title={tab.path || "未命名"}
     >
+      {color && (
+        <span className="tab-color-dot" style={{ background: color }} />
+      )}
       <span className="tab-icon">
         {tab.readonly && "🔒"}
         {tab.is_large_file && "📦"}
