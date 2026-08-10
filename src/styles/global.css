@@ -567,3 +567,118 @@ input, select, textarea {
   padding: 16px;
   overflow-y: auto;
 }
+
+/* ===== Text Transform Dialog ===== */
+.text-transform-dialog { min-width: 500px; max-width: 600px; }
+.transform-section { margin-bottom: 16px; }
+.transform-section h4 { margin-bottom: 8px; font-size: 13px; color: var(--mac-text-secondary); }
+.transform-buttons { display: flex; flex-wrap: wrap; gap: 6px; }
+.transform-result {
+  width: 100%; padding: 8px; border: 1px solid var(--mac-border);
+  border-radius: var(--mac-radius-sm); background: var(--mac-tab-inactive);
+  color: var(--mac-fg); font-family: var(--mac-mono-font); font-size: 12px;
+  resize: vertical;
+}
+.transform-actions { display: flex; gap: 8px; margin-top: 8px; }
+.hash-result { margin-top: 8px; padding: 8px; background: var(--mac-tab-inactive); border-radius: var(--mac-radius-sm); }
+.hash-result code { font-family: var(--mac-mono-font); font-size: 11px; word-break: break-all; }
+
+/* ===== Insert DateTime Dialog ===== */
+.insert-datetime-dialog { min-width: 400px; }
+.datetime-formats { margin-bottom: 16px; }
+.datetime-item {
+  display: flex; justify-content: space-between; padding: 8px 12px;
+  cursor: pointer; border-radius: var(--mac-radius-sm); margin-bottom: 4px;
+}
+.datetime-item:hover { background: var(--mac-hover); }
+.datetime-label { color: var(--mac-text-secondary); }
+.datetime-value { font-family: var(--mac-mono-font); }
+.datetime-custom h4 { margin-bottom: 8px; font-size: 13px; }
+.custom-format-row { display: flex; gap: 8px; margin-bottom: 8px; }
+.custom-format-row input { flex: 1; padding: 6px 8px; border: 1px solid var(--mac-border); border-radius: var(--mac-radius-sm); background: var(--mac-bg); color: var(--mac-fg); }
+.format-hint { font-size: 11px; color: var(--mac-text-secondary); margin-bottom: 4px; }
+.format-preview { font-family: var(--mac-mono-font); font-size: 12px; padding: 4px 8px; background: var(--mac-tab-inactive); border-radius: var(--mac-radius-sm); }
+
+/* ===== Special Char Panel ===== */
+.special-char-dialog { min-width: 500px; max-width: 600px; max-height: 80vh; }
+.special-char-filter { padding: 4px 8px; border: 1px solid var(--mac-border); border-radius: var(--mac-radius-sm); background: var(--mac-bg); color: var(--mac-fg); flex: 1; }
+.char-category { margin-bottom: 16px; }
+.char-category h4 { margin-bottom: 8px; font-size: 12px; color: var(--mac-text-secondary); }
+.char-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(80px, 1fr)); gap: 4px; }
+.char-item {
+  display: flex; flex-direction: column; align-items: center; padding: 6px 4px;
+  border: 1px solid var(--mac-border); border-radius: var(--mac-radius-sm); cursor: pointer; gap: 2px;
+}
+.char-item:hover { background: var(--mac-hover); border-color: var(--mac-accent); }
+.char-symbol { font-size: 18px; font-family: var(--mac-mono-font); }
+.char-name { font-size: 10px; color: var(--mac-text-secondary); }
+
+/* ===== Color Picker Dialog ===== */
+.color-picker-dialog { min-width: 400px; }
+.color-preview { width: 100%; height: 60px; border-radius: var(--mac-radius-sm); margin-bottom: 12px; border: 1px solid var(--mac-border); }
+.color-controls { margin-bottom: 12px; }
+.color-channel { margin-bottom: 8px; }
+.color-channel label { display: block; font-size: 12px; margin-bottom: 2px; }
+.color-channel input[type="range"] { width: 100%; }
+.color-hex-input { display: flex; align-items: center; gap: 8px; margin-bottom: 12px; }
+.color-hex-input label { font-size: 12px; }
+.color-hex-input input { flex: 1; padding: 6px 8px; border: 1px solid var(--mac-border); border-radius: var(--mac-radius-sm); background: var(--mac-bg); color: var(--mac-fg); font-family: var(--mac-mono-font); }
+.color-presets h4 { margin-bottom: 8px; font-size: 12px; }
+.preset-grid { display: grid; grid-template-columns: repeat(8, 1fr); gap: 4px; margin-bottom: 12px; }
+.preset-color { width: 100%; aspect-ratio: 1; border-radius: var(--mac-radius-sm); border: 1px solid var(--mac-border); cursor: pointer; }
+.preset-color:hover { transform: scale(1.1); }
+.color-format { display: flex; align-items: center; gap: 8px; margin-bottom: 12px; }
+.color-format select { padding: 4px 8px; border: 1px solid var(--mac-border); border-radius: var(--mac-radius-sm); background: var(--mac-bg); color: var(--mac-fg); }
+.color-output { display: flex; align-items: center; gap: 8px; }
+.color-output code { flex: 1; font-family: var(--mac-mono-font); padding: 8px; background: var(--mac-tab-inactive); border-radius: var(--mac-radius-sm); }
+
+/* ===== Document Switcher ===== */
+.doc-switcher-dialog { min-width: 500px; max-width: 600px; }
+.doc-switcher-header { display: flex; align-items: center; justify-content: space-between; padding: 12px 16px; border-bottom: 1px solid var(--mac-border); }
+.doc-switcher-hint { font-size: 11px; color: var(--mac-text-secondary); }
+.doc-switcher-list { max-height: 400px; overflow-y: auto; padding: 8px; }
+.doc-switcher-item {
+  display: flex; align-items: center; gap: 8px; padding: 8px 12px;
+  border-radius: var(--mac-radius-sm); cursor: pointer;
+}
+.doc-switcher-item.selected { background: var(--mac-accent); color: white; }
+.doc-switcher-item.dirty .doc-icon { color: var(--mac-accent); }
+.doc-switcher-item.selected .doc-icon { color: white; }
+.doc-icon { width: 16px; text-align: center; font-size: 10px; }
+.doc-name { font-weight: 500; min-width: 120px; }
+.doc-path { flex: 1; color: var(--mac-text-secondary); font-size: 11px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.doc-switcher-item.selected .doc-path { color: rgba(255,255,255,0.7); }
+.doc-lang { font-size: 10px; color: var(--mac-text-secondary); padding: 2px 6px; background: var(--mac-tab-inactive); border-radius: 3px; }
+.doc-switcher-item.selected .doc-lang { background: rgba(255,255,255,0.2); color: white; }
+.doc-switcher-empty { padding: 24px; text-align: center; color: var(--mac-text-secondary); }
+
+/* ===== Batch Find Replace ===== */
+.batch-find-replace-dialog { min-width: 600px; max-width: 700px; }
+.batch-rules-header { display: grid; grid-template-columns: 40px 1fr 1fr 60px; gap: 8px; padding: 4px 0; font-size: 11px; color: var(--mac-text-secondary); }
+.batch-rule-row { display: grid; grid-template-columns: 40px 1fr 1fr 60px; gap: 8px; margin-bottom: 6px; align-items: center; }
+.batch-rule-row input[type="text"] { padding: 4px 8px; border: 1px solid var(--mac-border); border-radius: var(--mac-radius-sm); background: var(--mac-bg); color: var(--mac-fg); }
+.batch-options { display: flex; gap: 16px; margin: 12px 0; font-size: 12px; }
+.batch-options label { display: flex; align-items: center; gap: 4px; }
+.batch-options select { padding: 4px 8px; border: 1px solid var(--mac-border); border-radius: var(--mac-radius-sm); }
+.batch-actions { margin: 12px 0; }
+.batch-results { margin-top: 12px; }
+.batch-results h4 { margin-bottom: 8px; font-size: 12px; }
+.batch-result-item { padding: 4px 8px; font-size: 12px; }
+
+/* ===== File Properties Dialog ===== */
+.file-properties-dialog { min-width: 450px; }
+.props-section { margin-bottom: 16px; }
+.props-section h4 { margin-bottom: 8px; font-size: 13px; color: var(--mac-text-secondary); }
+.props-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.prop-item { display: flex; justify-content: space-between; padding: 6px 12px; background: var(--mac-tab-inactive); border-radius: var(--mac-radius-sm); }
+.prop-label { color: var(--mac-text-secondary); }
+.prop-value { font-family: var(--mac-mono-font); font-size: 12px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 200px; }
+
+/* ===== Shortcut Mapper ===== */
+.shortcut-mapper-dialog { min-width: 600px; max-width: 700px; max-height: 80vh; }
+.shortcut-category { margin-bottom: 16px; }
+.shortcut-category h4 { margin-bottom: 8px; font-size: 13px; color: var(--mac-text-secondary); }
+.shortcut-table { width: 100%; border-collapse: collapse; }
+.shortcut-table th, .shortcut-table td { text-align: left; padding: 6px 12px; border-bottom: 1px solid var(--mac-border); font-size: 12px; }
+.shortcut-table th { color: var(--mac-text-secondary); font-weight: 500; }
+.shortcut-table kbd { display: inline-block; padding: 2px 6px; background: var(--mac-tab-inactive); border: 1px solid var(--mac-border); border-radius: 3px; font-family: var(--mac-mono-font); font-size: 11px; }

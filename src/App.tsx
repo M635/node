@@ -16,6 +16,15 @@ import { ShortcutsHelp } from "./components/dialog/ShortcutsHelp";
 import { CharacterStatsDialog } from "./components/dialog/CharacterStatsDialog";
 import { FunctionListPanel } from "./components/dialog/FunctionListPanel";
 import { MultiDocSearch } from "./components/search/MultiDocSearch";
+import { TextTransformDialog } from "./components/dialog/TextTransformDialog";
+import { InsertDateTimeDialog } from "./components/dialog/InsertDateTimeDialog";
+import { SpecialCharPanel } from "./components/dialog/SpecialCharPanel";
+import { ColorPickerDialog } from "./components/dialog/ColorPickerDialog";
+import { DocumentSwitcher } from "./components/dialog/DocumentSwitcher";
+import { BatchFindReplaceDialog } from "./components/dialog/BatchFindReplaceDialog";
+import { FilePropertiesDialog } from "./components/dialog/FilePropertiesDialog";
+import { ShortcutMapper } from "./components/dialog/ShortcutMapper";
+import { TextTransform } from "./services/text/textTransform";
 import { useFileStore, generateId } from "./stores/fileStore";
 import { useEditorStore } from "./stores/editorStore";
 import { useSearchStore } from "./stores/searchStore";
@@ -58,6 +67,14 @@ export default function App() {
   const [showHexViewer, setShowHexViewer] = useState(false);
   const [showMultiDocSearch, setShowMultiDocSearch] = useState(false);
   const [splitMode, setSplitMode] = useState<"horizontal" | "vertical" | null>(null);
+  const [showTextTransform, setShowTextTransform] = useState(false);
+  const [showInsertDateTime, setShowInsertDateTime] = useState(false);
+  const [showSpecialChar, setShowSpecialChar] = useState(false);
+  const [showColorPicker, setShowColorPicker] = useState(false);
+  const [showDocSwitcher, setShowDocSwitcher] = useState(false);
+  const [showBatchFindReplace, setShowBatchFindReplace] = useState(false);
+  const [showFileProps, setShowFileProps] = useState(false);
+  const [showShortcutMapper, setShowShortcutMapper] = useState(false);
 
   const themeResult = useTheme(themeMode);
   useEffect(() => { setIsDark(themeResult.isDark); }, [themeResult.isDark, setIsDark]);
@@ -146,6 +163,30 @@ export default function App() {
   }, [tabs, closeTab]);
 
   const handleGotoLine = useCallback(() => setShowGoToLineDialog(true), []);
+
+  const handleInsertText = useCallback((text: string) => {
+    window.dispatchEvent(new CustomEvent("markpt:insert-text", { detail: { text } }));
+  }, []);
+
+  const handleApplyTransform = useCallback((result: string) => {
+    if (activeTabId) updateContent(activeTabId, result);
+    setShowTextTransform(false);
+  }, [activeTabId, updateContent]);
+
+  const handleEolConvert = useCallback((target: "lf" | "crlf" | "cr") => {
+    if (!activeTab) return;
+    const converted = TextTransform.eolConvert(activeTab.content, target);
+    updateContent(activeTab.id, converted);
+  }, [activeTab, updateContent]);
+
+  const handleTabSpaceConvert = useCallback((direction: "tab-to-space" | "space-to-tab") => {
+    if (!activeTab) return;
+    const tabSize = useSettingStore.getState().tabSize;
+    const converted = direction === "tab-to-space"
+      ? TextTransform.tabsToSpaces(activeTab.content, tabSize)
+      : TextTransform.spacesToTabs(activeTab.content, tabSize);
+    updateContent(activeTab.id, converted);
+  }, [activeTab, updateContent]);
 
   const handleContentChange = useCallback((content: string) => {
     if (activeTabId) updateContent(activeTabId, content);
@@ -294,6 +335,14 @@ export default function App() {
         e.preventDefault();
         setShowFunctionList(true);
       }
+      if ((e.metaKey || e.ctrlKey) && e.key === "Tab") {
+        e.preventDefault();
+        setShowDocSwitcher(true);
+      }
+      if ((e.metaKey || e.ctrlKey) && e.shiftKey && e.key === "R") {
+        e.preventDefault();
+        setShowTextTransform(true);
+      }
     };
     window.addEventListener("keydown", handler);
     return () => window.removeEventListener("keydown", handler);
@@ -331,6 +380,17 @@ export default function App() {
     onCharStats: () => setShowCharStats(true),
     onHexViewer: () => setShowHexViewer(true),
     onMultiDocSearch: () => setShowMultiDocSearch(true),
+    onTextTransform: () => setShowTextTransform(true),
+    onInsertDateTime: () => setShowInsertDateTime(true),
+    onSpecialChar: () => setShowSpecialChar(true),
+    onColorPicker: () => setShowColorPicker(true),
+    onDocSwitcher: () => setShowDocSwitcher(true),
+    onBatchFindReplace: () => setShowBatchFindReplace(true),
+    onFileProps: () => setShowFileProps(true),
+    onShortcutMapper: () => setShowShortcutMapper(true),
+    onEolConvert: (target) => handleEolConvert(target),
+    onTabSpaceConvert: (direction) => handleTabSpaceConvert(direction),
+    onFormatCode: () => window.dispatchEvent(new CustomEvent("markpt:format-code")),
   });
 
   useEffect(() => {
@@ -500,6 +560,43 @@ export default function App() {
       )}
       {showMultiDocSearch && (
         <MultiDocSearch onClose={() => setShowMultiDocSearch(false)} />
+      )}
+      {showTextTransform && activeTab && (
+        <TextTransformDialog
+          content={activeTab.content}
+          onApply={handleApplyTransform}
+          onClose={() => setShowTextTransform(false)}
+        />
+      )}
+      {showInsertDateTime && (
+        <InsertDateTimeDialog
+          onInsert={handleInsertText}
+          onClose={() => setShowInsertDateTime(false)}
+        />
+      )}
+      {showSpecialChar && (
+        <SpecialCharPanel
+          onInsert={handleInsertText}
+          onClose={() => setShowSpecialChar(false)}
+        />
+      )}
+      {showColorPicker && (
+        <ColorPickerDialog
+          onInsert={handleInsertText}
+          onClose={() => setShowColorPicker(false)}
+        />
+      )}
+      {showDocSwitcher && (
+        <DocumentSwitcher onClose={() => setShowDocSwitcher(false)} />
+      )}
+      {showBatchFindReplace && (
+        <BatchFindReplaceDialog onClose={() => setShowBatchFindReplace(false)} />
+      )}
+      {showFileProps && activeTab && (
+        <FilePropertiesDialog tab={activeTab} onClose={() => setShowFileProps(false)} />
+      )}
+      {showShortcutMapper && (
+        <ShortcutMapper onClose={() => setShowShortcutMapper(false)} />
       )}
       {reloadDialog && (
         <ReloadConfirmDialog fileName={getFileName(reloadDialog)} onReload={handleReload} onIgnore={() => setReloadDialog(null)} />

@@ -26,11 +26,13 @@ pub fn run() {
                 let close_item = MenuItem::with_id(app_handle, "close", "关闭标签", true, None::<&str>)?;
                 let quit_item = MenuItem::with_id(app_handle, "quit", "退出 MarkPT", true, None::<&str>)?;
 
+                let file_props_item = MenuItem::with_id(app_handle, "file_props", "文件属性...", true, None::<&str>)?;
+
                 let file_menu = Submenu::with_items(
                     app_handle,
                     "文件",
                     true,
-                    &[&new_item, &open_item, &save_item, &save_as_item, &close_item, &quit_item],
+                    &[&new_item, &open_item, &save_item, &save_as_item, &close_item, &file_props_item, &quit_item],
                 )?;
 
                 let undo_item = MenuItem::with_id(app_handle, "edit_undo", "撤销", true, None::<&str>)?;
@@ -47,6 +49,15 @@ pub fn run() {
                 let sort_asc_item = MenuItem::with_id(app_handle, "edit_sort_asc", "行排序(升序)", true, None::<&str>)?;
                 let sort_desc_item = MenuItem::with_id(app_handle, "edit_sort_desc", "行排序(降序)", true, None::<&str>)?;
                 let remove_dup_item = MenuItem::with_id(app_handle, "edit_remove_dup", "去重复行", true, None::<&str>)?;
+                let format_code_item = MenuItem::with_id(app_handle, "format_code", "格式化代码", true, None::<&str>)?;
+                let insert_datetime_item = MenuItem::with_id(app_handle, "insert_datetime", "插入日期时间...", true, None::<&str>)?;
+                let special_char_item = MenuItem::with_id(app_handle, "special_char", "特殊字符...", true, None::<&str>)?;
+                let color_picker_item = MenuItem::with_id(app_handle, "color_picker", "颜色选择器...", true, None::<&str>)?;
+                let eol_lf_item = MenuItem::with_id(app_handle, "eol_lf", "行尾: LF (Unix)", true, None::<&str>)?;
+                let eol_crlf_item = MenuItem::with_id(app_handle, "eol_crlf", "行尾: CRLF (Windows)", true, None::<&str>)?;
+                let eol_cr_item = MenuItem::with_id(app_handle, "eol_cr", "行尾: CR (Mac)", true, None::<&str>)?;
+                let tab_to_space_item = MenuItem::with_id(app_handle, "tab_to_space", "Tab 转空格", true, None::<&str>)?;
+                let space_to_tab_item = MenuItem::with_id(app_handle, "space_to_tab", "空格转 Tab", true, None::<&str>)?;
 
                 let edit_menu = Submenu::with_items(
                     app_handle,
@@ -61,6 +72,10 @@ pub fn run() {
                         &upper_item, &lower_item,
                         &sort_asc_item, &sort_desc_item,
                         &remove_dup_item,
+                        &format_code_item,
+                        &insert_datetime_item, &special_char_item, &color_picker_item,
+                        &eol_lf_item, &eol_crlf_item, &eol_cr_item,
+                        &tab_to_space_item, &space_to_tab_item,
                     ],
                 )?;
 
@@ -68,12 +83,13 @@ pub fn run() {
                 let replace_item = MenuItem::with_id(app_handle, "replace", "替换...", true, None::<&str>)?;
                 let goto_item = MenuItem::with_id(app_handle, "goto", "跳转到行...", true, None::<&str>)?;
                 let find_in_files_item = MenuItem::with_id(app_handle, "find_in_files", "在文件中查找...", true, None::<&str>)?;
+                let batch_find_replace_item = MenuItem::with_id(app_handle, "batch_find_replace", "批量查找替换...", true, None::<&str>)?;
 
                 let search_menu = Submenu::with_items(
                     app_handle,
                     "搜索",
                     true,
-                    &[&find_item, &replace_item, &goto_item, &find_in_files_item],
+                    &[&find_item, &replace_item, &goto_item, &find_in_files_item, &batch_find_replace_item],
                 )?;
 
                 let encoding_item = MenuItem::with_id(app_handle, "encoding", "编码...", true, None::<&str>)?;
@@ -81,11 +97,12 @@ pub fn run() {
                 let char_stats_item = MenuItem::with_id(app_handle, "char_stats", "字符统计...", true, None::<&str>)?;
                 let hex_viewer_item = MenuItem::with_id(app_handle, "hex_viewer", "十六进制查看...", true, None::<&str>)?;
                 let multi_search_item = MenuItem::with_id(app_handle, "multi_search", "多文档查找替换...", true, None::<&str>)?;
+                let text_transform_item = MenuItem::with_id(app_handle, "text_transform", "文本转换...", true, None::<&str>)?;
                 let tools_menu = Submenu::with_items(
                     app_handle,
                     "工具",
                     true,
-                    &[&encoding_item, &settings_item, &char_stats_item, &hex_viewer_item, &multi_search_item],
+                    &[&encoding_item, &settings_item, &char_stats_item, &hex_viewer_item, &multi_search_item, &text_transform_item],
                 )?;
 
                 let sidebar_item = MenuItem::with_id(app_handle, "toggle_sidebar", "切换侧边栏", true, None::<&str>)?;
@@ -95,6 +112,7 @@ pub fn run() {
                 let split_close_item = MenuItem::with_id(app_handle, "split_close", "关闭分屏", true, None::<&str>)?;
                 let function_list_item = MenuItem::with_id(app_handle, "function_list", "函数列表...", true, None::<&str>)?;
                 let word_wrap_item = MenuItem::with_id(app_handle, "toggle_word_wrap", "切换自动换行", true, None::<&str>)?;
+                let doc_switcher_item = MenuItem::with_id(app_handle, "doc_switcher", "切换文档...", true, None::<&str>)?;
                 let view_menu = Submenu::with_items(
                     app_handle,
                     "视图",
@@ -103,16 +121,18 @@ pub fn run() {
                         &sidebar_item, &command_palette_item,
                         &split_h_item, &split_v_item, &split_close_item,
                         &function_list_item, &word_wrap_item,
+                        &doc_switcher_item,
                     ],
                 )?;
 
                 let shortcuts_item = MenuItem::with_id(app_handle, "shortcuts", "快捷键...", true, None::<&str>)?;
+                let shortcut_mapper_item = MenuItem::with_id(app_handle, "shortcut_mapper", "快捷键映射...", true, None::<&str>)?;
                 let about_item = MenuItem::with_id(app_handle, "about", "关于 MarkPT", true, None::<&str>)?;
                 let help_menu = Submenu::with_items(
                     app_handle,
                     "帮助",
                     true,
-                    &[&shortcuts_item, &about_item],
+                    &[&shortcuts_item, &shortcut_mapper_item, &about_item],
                 )?;
 
                 let menu = Menu::with_items(app_handle, &[&file_menu, &edit_menu, &search_menu, &tools_menu, &view_menu, &help_menu])?;

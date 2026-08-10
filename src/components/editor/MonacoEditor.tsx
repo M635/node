@@ -214,6 +214,35 @@ export function MonacoEditor({
     return () => window.removeEventListener("markpt:edit-action", handler);
   }, []);
 
+  // 插入文本（日期时间、特殊字符、颜色等）
+  useEffect(() => {
+    const handler = (e: Event) => {
+      const text = (e as CustomEvent).detail?.text;
+      if (!editorRef.current || !text) return;
+      const editor = editorRef.current;
+      const position = editor.getPosition();
+      if (!position) return;
+      editor.executeEdits("insert-text", [{
+        range: new monacoRef.current!.Range(position.lineNumber, position.column, position.lineNumber, position.column),
+        text,
+      }]);
+      editor.focus();
+    };
+    window.addEventListener("markpt:insert-text", handler);
+    return () => window.removeEventListener("markpt:insert-text", handler);
+  }, []);
+
+  // 代码格式化
+  useEffect(() => {
+    const handler = () => {
+      if (!editorRef.current) return;
+      editorRef.current.getAction("editor.action.formatDocument")?.run();
+      editorRef.current.focus();
+    };
+    window.addEventListener("markpt:format-code", handler);
+    return () => window.removeEventListener("markpt:format-code", handler);
+  }, []);
+
   // 查找替换
   useEffect(() => {
     const replaceHandler = (e: Event) => {
@@ -400,6 +429,12 @@ export function MonacoEditor({
     acceptSuggestionOnEnter: "on",
     tabCompletion: "on",
     wordBasedSuggestions: "allDocuments",
+    suggest: { showWords: true, showSnippets: true, showClasses: true, showFunctions: true, showVariables: true, showModules: true, showIcons: true },
+    autoClosingBrackets: "always",
+    autoClosingQuotes: "always",
+    autoSurround: "languageDefined",
+    matchBrackets: "always",
+    formatOnPaste: true,
     maxTokenizationLineLength: 20000,
     find: {
       addExtraSpaceOnTop: false,

@@ -29,6 +29,17 @@ interface ShortcutHandlers {
   onCharStats?: () => void;
   onHexViewer?: () => void;
   onMultiDocSearch?: () => void;
+  onTextTransform?: () => void;
+  onInsertDateTime?: () => void;
+  onSpecialChar?: () => void;
+  onColorPicker?: () => void;
+  onDocSwitcher?: () => void;
+  onBatchFindReplace?: () => void;
+  onFileProps?: () => void;
+  onShortcutMapper?: () => void;
+  onEolConvert?: (target: "lf" | "crlf" | "cr") => void;
+  onTabSpaceConvert?: (direction: "tab-to-space" | "space-to-tab") => void;
+  onFormatCode?: () => void;
 }
 
 export function useKeyboardShortcuts(handlers: ShortcutHandlers): void {
@@ -74,6 +85,20 @@ export function useKeyboardShortcuts(handlers: ShortcutHandlers): void {
           case "char_stats": handlers.onCharStats?.(); break;
           case "hex_viewer": handlers.onHexViewer?.(); break;
           case "multi_search": handlers.onMultiDocSearch?.(); break;
+          case "text_transform": handlers.onTextTransform?.(); break;
+          case "insert_datetime": handlers.onInsertDateTime?.(); break;
+          case "special_char": handlers.onSpecialChar?.(); break;
+          case "color_picker": handlers.onColorPicker?.(); break;
+          case "doc_switcher": handlers.onDocSwitcher?.(); break;
+          case "batch_find_replace": handlers.onBatchFindReplace?.(); break;
+          case "file_props": handlers.onFileProps?.(); break;
+          case "shortcut_mapper": handlers.onShortcutMapper?.(); break;
+          case "eol_lf": handlers.onEolConvert?.("lf"); break;
+          case "eol_crlf": handlers.onEolConvert?.("crlf"); break;
+          case "eol_cr": handlers.onEolConvert?.("cr"); break;
+          case "tab_to_space": handlers.onTabSpaceConvert?.("tab-to-space"); break;
+          case "space_to_tab": handlers.onTabSpaceConvert?.("space-to-tab"); break;
+          case "format_code": handlers.onFormatCode?.(); break;
         }
       });
     })();
