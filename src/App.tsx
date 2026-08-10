@@ -21,7 +21,7 @@ import { InsertDateTimeDialog } from "./components/dialog/InsertDateTimeDialog";
 import { SpecialCharPanel } from "./components/dialog/SpecialCharPanel";
 import { ColorPickerDialog } from "./components/dialog/ColorPickerDialog";
 import { DocumentSwitcher } from "./components/dialog/DocumentSwitcher";
-import { BatchFindReplaceDialog } from "./components/dialog/BatchFindReplaceDialog";
+import { BatchFindReplace } from "./components/dialog/BatchFindReplaceDialog";
 import { FilePropertiesDialog } from "./components/dialog/FilePropertiesDialog";
 import { ShortcutMapper } from "./components/dialog/ShortcutMapper";
 import { MarkdownPreview } from "./components/editor/MarkdownPreview";
@@ -705,7 +705,7 @@ export default function App() {
         <DocumentSwitcher onClose={() => setShowDocSwitcher(false)} />
       )}
       {showBatchFindReplace && (
-        <BatchFindReplaceDialog onClose={() => setShowBatchFindReplace(false)} />
+        <BatchFindReplace onClose={() => setShowBatchFindReplace(false)} />
       )}
       {showFileProps && activeTab && (
         <FilePropertiesDialog tab={activeTab} onClose={() => setShowFileProps(false)} />

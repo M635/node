@@ -49,7 +49,6 @@ interface ShortcutHandlers {
   onZoomReset?: () => void;
   onFindNext?: () => void;
   onFindPrev?: () => void;
-  onNextBookmark?: () => void;
   onPrevBookmark?: () => void;
   onClearBookmarks?: () => void;
   onJumpToBracket?: () => void;
