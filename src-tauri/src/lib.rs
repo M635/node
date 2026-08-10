@@ -27,6 +27,8 @@ pub fn run() {
                 let quit_item = MenuItem::with_id(app_handle, "quit", "退出 MarkPT", true, None::<&str>)?;
 
                 let file_props_item = MenuItem::with_id(app_handle, "file_props", "文件属性...", true, None::<&str>)?;
+                let copy_path_item = MenuItem::with_id(app_handle, "copy_path", "复制文件路径", true, None::<&str>)?;
+                let reload_disk_item = MenuItem::with_id(app_handle, "reload_from_disk", "从磁盘重载", true, None::<&str>)?;
 
                 let file_menu = Submenu::with_items(
                     app_handle,
@@ -74,8 +76,6 @@ pub fn run() {
                 let char_pascal_item = MenuItem::with_id(app_handle, "char_to_pascal", "转 PascalCase", true, None::<&str>)?;
                 let char_kebab_item = MenuItem::with_id(app_handle, "char_to_kebab", "转 kebab-case", true, None::<&str>)?;
                 let insert_file_item = MenuItem::with_id(app_handle, "insert_file", "插入文件内容...", true, None::<&str>)?;
-                let copy_path_item = MenuItem::with_id(app_handle, "copy_path", "复制文件路径", true, None::<&str>)?;
-                let reload_disk_item = MenuItem::with_id(app_handle, "reload_from_disk", "从磁盘重载", true, None::<&str>)?;
                 let language_item = MenuItem::with_id(app_handle, "language_selector", "选择语言...", true, None::<&str>)?;
 
                 let edit_menu = Submenu::with_items(
