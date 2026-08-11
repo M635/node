@@ -67,6 +67,18 @@ interface ShortcutHandlers {
   onSaveCopy?: () => void;
   onOpenWithEncoding?: () => void;
   onToggleBom?: () => void;
+  onSaveAll?: () => void;
+  onCopyDirectory?: () => void;
+  onCopyFileName?: () => void;
+  onClipboardHistory?: () => void;
+  onSnippets?: () => void;
+  onPluginManager?: () => void;
+  onRunCommand?: () => void;
+  onOpenInDefault?: () => void;
+  onRunMacroMultiple?: () => void;
+  onPostItMode?: () => void;
+  onSentenceCase?: () => void;
+  onRandomCase?: () => void;
 }
 
 export function useKeyboardShortcuts(handlers: ShortcutHandlers): void {
@@ -171,6 +183,18 @@ export function useKeyboardShortcuts(handlers: ShortcutHandlers): void {
           case "save_copy": handlers.onSaveCopy?.(); break;
           case "open_with_encoding": handlers.onOpenWithEncoding?.(); break;
           case "toggle_bom": handlers.onToggleBom?.(); break;
+          case "save_all": handlers.onSaveAll?.(); break;
+          case "copy_directory": handlers.onCopyDirectory?.(); break;
+          case "copy_filename": handlers.onCopyFileName?.(); break;
+          case "clipboard_history": handlers.onClipboardHistory?.(); break;
+          case "snippets": handlers.onSnippets?.(); break;
+          case "plugin_manager": handlers.onPluginManager?.(); break;
+          case "run_command": handlers.onRunCommand?.(); break;
+          case "open_in_default": handlers.onOpenInDefault?.(); break;
+          case "run_macro_multiple": handlers.onRunMacroMultiple?.(); break;
+          case "postit_mode": handlers.onPostItMode?.(); break;
+          case "edit_sentence_case": handlers.onSentenceCase?.(); break;
+          case "edit_random_case": handlers.onRandomCase?.(); break;
         }
       });
     })();

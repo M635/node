@@ -1277,3 +1277,69 @@
   font-size: 11px;
   color: var(--mac-text-secondary);
 }
+
+.markpt-smart-highlight {
+  background: rgba(255, 213, 79, 0.25);
+  border-radius: 2px;
+}
+
+.markpt-hidden-line {
+  display: none;
+}
+
+.clipboard-history-dialog { min-width: 500px; max-width: 600px; }
+.clipboard-empty { text-align: center; padding: 40px; color: var(--mac-text-secondary); }
+.clipboard-list { max-height: 400px; overflow-y: auto; }
+.clipboard-item {
+  display: flex; align-items: center; gap: 8px;
+  padding: 8px 12px; cursor: pointer; border-radius: var(--mac-radius-sm);
+}
+.clipboard-item:hover { background: var(--mac-hover); }
+.clipboard-item-index { font-size: 11px; color: var(--mac-text-secondary); min-width: 24px; }
+.clipboard-item-text { flex: 1; font-size: 12px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.clipboard-item-time { font-size: 10px; color: var(--mac-text-secondary); }
+
+.snippets-dialog { min-width: 500px; max-width: 700px; }
+.snippets-toolbar { display: flex; gap: 8px; margin-bottom: 12px; }
+.snippets-filter { flex: 1; padding: 4px 8px; border: 1px solid var(--mac-border); border-radius: var(--mac-radius-sm); background: var(--mac-bg); color: var(--mac-fg); font-size: 12px; }
+.snippets-list { max-height: 400px; overflow-y: auto; }
+.snippet-item { display: flex; align-items: center; justify-content: space-between; padding: 8px 12px; border-radius: var(--mac-radius-sm); }
+.snippet-item:hover { background: var(--mac-hover); }
+.snippet-item-info { display: flex; align-items: center; gap: 8px; }
+.snippet-trigger { font-weight: 600; font-size: 12px; min-width: 60px; }
+.snippet-desc { font-size: 12px; color: var(--mac-text-secondary); }
+.snippet-lang { font-size: 10px; padding: 2px 6px; border-radius: var(--mac-radius-sm); background: var(--mac-tab-inactive); }
+.snippet-delete { width: 20px; height: 20px; border-radius: var(--mac-radius-sm); font-size: 14px; color: var(--mac-text-secondary); }
+.snippet-delete:hover { background: var(--mac-hover); }
+.snippet-editor { padding: 12px; background: var(--mac-tab-inactive); border-radius: var(--mac-radius-sm); }
+.snippet-edit-row { margin-bottom: 8px; }
+.snippet-edit-row label { display: block; font-size: 11px; color: var(--mac-text-secondary); margin-bottom: 4px; }
+.snippet-edit-row input, .snippet-edit-row textarea { width: 100%; padding: 4px 8px; border: 1px solid var(--mac-border); border-radius: var(--mac-radius-sm); background: var(--mac-bg); color: var(--mac-fg); font-size: 12px; }
+.snippet-edit-actions { display: flex; gap: 8px; margin-top: 12px; }
+
+.plugin-manager-dialog { min-width: 500px; max-width: 700px; }
+.plugin-list { max-height: 500px; overflow-y: auto; }
+.plugin-item { display: flex; align-items: center; justify-content: space-between; padding: 12px; border-radius: var(--mac-radius-sm); margin-bottom: 4px; background: var(--mac-tab-inactive); }
+.plugin-item.enabled { border-left: 3px solid var(--mac-accent); }
+.plugin-item-info { flex: 1; }
+.plugin-item-header { display: flex; align-items: center; gap: 8px; margin-bottom: 4px; }
+.plugin-name { font-weight: 600; font-size: 13px; }
+.plugin-version { font-size: 11px; color: var(--mac-text-secondary); }
+.plugin-desc { font-size: 12px; color: var(--mac-text-secondary); margin-bottom: 2px; }
+.plugin-author { font-size: 10px; color: var(--mac-text-secondary); }
+.plugin-toggle { display: flex; align-items: center; gap: 6px; font-size: 12px; cursor: pointer; }
+
+.run-command-dialog { min-width: 400px; max-width: 500px; }
+.run-command-input { width: 100%; padding: 8px 12px; border: 1px solid var(--mac-border); border-radius: var(--mac-radius-sm); background: var(--mac-bg); color: var(--mac-fg); font-size: 13px; }
+.run-command-input:focus { outline: none; border-color: var(--mac-accent); }
+.run-command-history { margin-top: 12px; max-height: 200px; overflow-y: auto; }
+.run-history-header { font-size: 11px; color: var(--mac-text-secondary); margin-bottom: 6px; }
+.run-history-item { padding: 6px 12px; font-size: 12px; cursor: pointer; border-radius: var(--mac-radius-sm); }
+.run-history-item:hover { background: var(--mac-hover); }
+
+.run-macro-dialog { min-width: 350px; }
+
+.postit-mode .sidebar-container { display: none; }
+.postit-mode .tab-bar { display: none; }
+.postit-mode .status-bar { display: none; }
+.postit-mode .app-body { padding: 0; }

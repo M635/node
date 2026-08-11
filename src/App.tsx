@@ -28,6 +28,11 @@ import { MarkdownPreview } from "./components/editor/MarkdownPreview";
 import { RegexTester } from "./components/dialog/RegexTester";
 import { CsvViewer } from "./components/dialog/CsvViewer";
 import { LanguageSelector } from "./components/dialog/LanguageSelector";
+import { ClipboardHistoryPanel } from "./components/dialog/ClipboardHistoryPanel";
+import { SnippetsPanel } from "./components/dialog/SnippetsPanel";
+import { PluginManager } from "./components/dialog/PluginManager";
+import { RunCommandDialog } from "./components/dialog/RunCommandDialog";
+import { RunMacroDialog } from "./components/dialog/RunMacroDialog";
 import { TextTransform } from "./services/text/textTransform";
 import { FormatService } from "./services/text/formatService";
 import { CharConvert } from "./services/text/charConvert";
@@ -86,6 +91,12 @@ export default function App() {
   const [showRegexTester, setShowRegexTester] = useState(false);
   const [showCsvViewer, setShowCsvViewer] = useState(false);
   const [showLanguageSelector, setShowLanguageSelector] = useState(false);
+  const [showClipboardHistory, setShowClipboardHistory] = useState(false);
+  const [showSnippets, setShowSnippets] = useState(false);
+  const [showPluginManager, setShowPluginManager] = useState(false);
+  const [showRunCommand, setShowRunCommand] = useState(false);
+  const [showRunMacro, setShowRunMacro] = useState(false);
+  const [postItMode, setPostItMode] = useState(false);
 
   const themeResult = useTheme(themeMode);
   useEffect(() => { setIsDark(themeResult.isDark); }, [themeResult.isDark, setIsDark]);
@@ -202,6 +213,59 @@ export default function App() {
       updateTab(tab.id, { encoding: newEncoding as EncodingType, is_dirty: true });
     }
   }, [getActiveTab, updateTab]);
+
+  const handleSaveAll = useCallback(async () => {
+    for (const tab of tabs) {
+      if (!tab.is_dirty) continue;
+      let savePath = tab.path;
+      if (!savePath || tab.is_new) continue;
+      try {
+        let content = tab.content;
+        const settings = useSettingStore.getState();
+        if (settings.trimTrailingWhitespaceOnSave) {
+          content = content.split("\n").map((line) => line.replace(/\s+$/, "")).join("\n");
+        }
+        if (settings.ensureFinalNewline && !content.endsWith("\n")) {
+          content += "\n";
+        }
+        await saveFileService(savePath, content, tab.encoding);
+        if (content !== tab.content) updateContent(tab.id, content);
+        markClean(tab.id);
+      } catch { /* ignore */ }
+    }
+  }, [tabs, markClean, updateContent]);
+
+  const handleCopyDirectory = useCallback(() => {
+    const tab = getActiveTab();
+    if (!tab?.path) return;
+    const parts = tab.path.split(/[/\\]/);
+    parts.pop();
+    navigator.clipboard.writeText(parts.join("/"));
+  }, [getActiveTab]);
+
+  const handleCopyFileName = useCallback(() => {
+    const tab = getActiveTab();
+    if (!tab?.path) return;
+    navigator.clipboard.writeText(tab.name);
+  }, [getActiveTab]);
+
+  const handleRunCommand = useCallback((command: string) => {
+    window.dispatchEvent(new CustomEvent("markpt:run-command", { detail: { command } }));
+  }, []);
+
+  const handleOpenInDefault = useCallback(async () => {
+    const tab = getActiveTab();
+    if (!tab?.path) return;
+    window.dispatchEvent(new CustomEvent("markpt:open-in-default", { detail: { path: tab.path } }));
+  }, [getActiveTab]);
+
+  const handleRunMacro = useCallback((times: number) => {
+    window.dispatchEvent(new CustomEvent("markpt:run-macro-multiple", { detail: { times } }));
+  }, []);
+
+  const handlePasteFromHistory = useCallback((text: string) => {
+    window.dispatchEvent(new CustomEvent("markpt:insert-text", { detail: { text } }));
+  }, []);
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -569,6 +633,18 @@ export default function App() {
     onSaveCopy: handleSaveCopy,
     onOpenWithEncoding: handleOpenWithEncoding,
     onToggleBom: handleToggleBom,
+    onSaveAll: handleSaveAll,
+    onCopyDirectory: handleCopyDirectory,
+    onCopyFileName: handleCopyFileName,
+    onClipboardHistory: () => setShowClipboardHistory(true),
+    onSnippets: () => setShowSnippets(true),
+    onPluginManager: () => setShowPluginManager(true),
+    onRunCommand: () => setShowRunCommand(true),
+    onOpenInDefault: handleOpenInDefault,
+    onRunMacroMultiple: () => setShowRunMacro(true),
+    onPostItMode: () => setPostItMode((v) => !v),
+    onSentenceCase: () => window.dispatchEvent(new CustomEvent("markpt:edit-action", { detail: { action: "sentence-case" } })),
+    onRandomCase: () => window.dispatchEvent(new CustomEvent("markpt:edit-action", { detail: { action: "random-case" } })),
   });
 
   useEffect(() => {
@@ -627,7 +703,7 @@ export default function App() {
   }, []);
 
   return (
-    <div className={`app ${isDark ? "dark" : "light"}`} onDrop={handleDrop} onDragOver={handleDragOver}>
+    <div className={`app ${isDark ? "dark" : "light"} ${postItMode ? "postit-mode" : ""}`} onDrop={handleDrop} onDragOver={handleDragOver}>
       <div className="app-body">
         {showSidebar && (
           <div className="sidebar-container">
@@ -794,6 +870,21 @@ export default function App() {
       )}
       {reloadDialog && (
         <ReloadConfirmDialog fileName={getFileName(reloadDialog)} onReload={handleReload} onIgnore={() => setReloadDialog(null)} />
+      )}
+      {showClipboardHistory && (
+        <ClipboardHistoryPanel onPaste={handlePasteFromHistory} onClose={() => setShowClipboardHistory(false)} />
+      )}
+      {showSnippets && (
+        <SnippetsPanel onClose={() => setShowSnippets(false)} />
+      )}
+      {showPluginManager && (
+        <PluginManager onClose={() => setShowPluginManager(false)} />
+      )}
+      {showRunCommand && (
+        <RunCommandDialog onClose={() => setShowRunCommand(false)} onRun={handleRunCommand} />
+      )}
+      {showRunMacro && (
+        <RunMacroDialog onClose={() => setShowRunMacro(false)} onRun={handleRunMacro} />
       )}
     </div>
   );

@@ -114,6 +114,32 @@ export class EditOperations {
     editor.executeEdits("invert", [{ range: selection as any, text: inverted }]);
   }
 
+  static toSentenceCase(editor: Editor): void {
+    const selection = editor.getSelection();
+    const model = editor.getModel();
+    if (!selection || !model) return;
+    const text = model.getValueInRange(selection);
+    let result = "";
+    let capNext = true;
+    for (const ch of text) {
+      if (/[.!?。！？]/.test(ch)) { result += ch; capNext = true; }
+      else if (capNext && /\w/.test(ch)) { result += ch.toUpperCase(); capNext = false; }
+      else { result += ch.toLowerCase(); if (/\w/.test(ch)) capNext = false; }
+    }
+    editor.executeEdits("sentence", [{ range: selection as any, text: result }]);
+  }
+
+  static toRandomCase(editor: Editor): void {
+    const selection = editor.getSelection();
+    const model = editor.getModel();
+    if (!selection || !model) return;
+    const text = model.getValueInRange(selection);
+    const result = text.split("").map((c) =>
+      Math.random() > 0.5 ? c.toUpperCase() : c.toLowerCase()
+    ).join("");
+    editor.executeEdits("random-case", [{ range: selection as any, text: result }]);
+  }
+
   static sortLinesAscending(editor: Editor): void {
     this.sortLines(editor, false);
   }

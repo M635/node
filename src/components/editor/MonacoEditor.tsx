@@ -4,6 +4,7 @@ import * as Monaco from "monaco-editor";
 import { useEditorStore } from "../../stores/editorStore";
 import { useSettingStore } from "../../stores/settingStore";
 import { useSearchStore } from "../../stores/searchStore";
+import { useSnippetStore } from "../../stores/snippetStore";
 import { defineThemes, getThemeName } from "../../services/monaco/themes";
 import { configureLanguages, getLanguageFromPath } from "../../services/monaco/languages";
 import { configureFolding } from "../../services/monaco/folding";
@@ -221,6 +222,8 @@ export function MonacoEditor({
         case "lower": EditOperations.toLowerCase(editor); break;
         case "title": EditOperations.toTitleCase(editor); break;
         case "invert": EditOperations.invertCase(editor); break;
+        case "sentence-case": EditOperations.toSentenceCase(editor); break;
+        case "random-case": EditOperations.toRandomCase(editor); break;
         case "sort-asc": EditOperations.sortLinesAscending(editor); break;
         case "sort-desc": EditOperations.sortLinesDescending(editor); break;
         case "toggle-comment": EditOperations.toggleLineComment(editor, monaco); break;
@@ -477,6 +480,97 @@ export function MonacoEditor({
       window.removeEventListener("markpt:execute-replace", replaceHandler);
       window.removeEventListener("markpt:execute-replace-all", replaceAllHandler);
     };
+  }, []);
+
+  // 智能高亮（光标处单词全文档高亮）
+  useEffect(() => {
+    const editor = editorRef.current;
+    const monaco = monacoRef.current;
+    if (!editor || !monaco) return;
+
+    let smartDecorations: string[] = [];
+    const handler = editor.onDidChangeCursorPosition((e) => {
+      const model = editor.getModel();
+      if (!model) return;
+      const word = model.getWordAtPosition(e.position);
+      if (!word || word.word.length < 2) {
+        smartDecorations = editor.deltaDecorations(smartDecorations, []);
+        return;
+      }
+      const matches: { range: Monaco.IRange; options: Monaco.editor.IModelDecorationOptions }[] = [];
+      const flags = "gi";
+      let regex: RegExp;
+      try { regex = new RegExp(`\\b${word.word.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}\\b`, flags); } catch { return; }
+      const lineCount = model.getLineCount();
+      for (let i = 1; i <= lineCount && matches.length < 500; i++) {
+        const line = model.getLineContent(i);
+        let m;
+        while ((m = regex.exec(line)) !== null && matches.length < 500) {
+          matches.push({
+            range: new monaco.Range(i, m.index + 1, i, m.index + m[0].length + 1),
+            options: { inlineClassName: "markpt-smart-highlight", stickiness: 1 },
+          });
+          if (m.index === regex.lastIndex) regex.lastIndex++;
+        }
+      }
+      smartDecorations = editor.deltaDecorations(smartDecorations, matches);
+    });
+
+    return () => handler.dispose();
+  }, []);
+
+  // 代码片段 Tab 展开
+  useEffect(() => {
+    const editor = editorRef.current;
+    const monaco = monacoRef.current;
+    if (!editor || !monaco) return;
+
+    const handler = editor.onKeyDown((e) => {
+      if (e.keyCode !== Monaco.KeyCode.Tab) return;
+      const model = editor.getModel();
+      const position = editor.getPosition();
+      if (!model || !position) return;
+      const lineContent = model.getLineContent(position.lineNumber);
+      const beforeCursor = lineContent.substring(0, position.column - 1);
+      const match = beforeCursor.match(/(\w+)$/);
+      if (!match) return;
+      const trigger = match[1];
+      const snippet = useSnippetStore.getState().findSnippet(trigger, resolvedLanguage);
+      if (!snippet) return;
+      e.preventDefault();
+      e.stopPropagation();
+      const startCol = position.column - trigger.length;
+      editor.executeEdits("snippet", [{
+        range: new monaco.Range(position.lineNumber, startCol, position.lineNumber, position.column),
+        text: snippet.body.replace(/\$\{\d+:?([^}]*)\}/g, "$1"),
+      }]);
+    });
+
+    return () => handler.dispose();
+  }, [resolvedLanguage]);
+
+  // 隐藏行
+  useEffect(() => {
+    const handler = (e: Event) => {
+      const detail = (e as CustomEvent).detail;
+      if (!editorRef.current || !monacoRef.current || !detail) return;
+      const editor = editorRef.current;
+      const monaco = monacoRef.current;
+      const model = editor.getModel();
+      if (!model) return;
+      const { startLine, endLine, hide } = detail;
+      if (hide) {
+        const decorations = [{
+          range: new monaco.Range(startLine, 1, endLine, model.getLineContent(endLine).length + 1),
+          options: { inlineClassName: "markpt-hidden-line", stickiness: 1 },
+        }];
+        (editor as any).__hiddenDecorations = editor.deltaDecorations((editor as any).__hiddenDecorations || [], decorations);
+      } else {
+        (editor as any).__hiddenDecorations = editor.deltaDecorations((editor as any).__hiddenDecorations || [], []);
+      }
+    };
+    window.addEventListener("markpt:toggle-hide-lines", handler);
+    return () => window.removeEventListener("markpt:toggle-hide-lines", handler);
   }, []);
 
   // 书签装饰

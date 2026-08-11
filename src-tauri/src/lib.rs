@@ -23,6 +23,7 @@ pub fn run() {
                 let open_item = MenuItem::with_id(app_handle, "open", "打开...", true, None::<&str>)?;
                 let open_with_encoding_item = MenuItem::with_id(app_handle, "open_with_encoding", "按编码打开...", true, None::<&str>)?;
                 let save_item = MenuItem::with_id(app_handle, "save", "保存", true, None::<&str>)?;
+                let save_all_item = MenuItem::with_id(app_handle, "save_all", "保存所有", true, None::<&str>)?;
                 let save_as_item = MenuItem::with_id(app_handle, "save_as", "另存为...", true, None::<&str>)?;
                 let save_copy_item = MenuItem::with_id(app_handle, "save_copy", "保存副本...", true, None::<&str>)?;
                 let close_item = MenuItem::with_id(app_handle, "close", "关闭标签", true, None::<&str>)?;
@@ -30,14 +31,18 @@ pub fn run() {
 
                 let file_props_item = MenuItem::with_id(app_handle, "file_props", "文件属性...", true, None::<&str>)?;
                 let copy_path_item = MenuItem::with_id(app_handle, "copy_path", "复制文件路径", true, None::<&str>)?;
+                let copy_dir_item = MenuItem::with_id(app_handle, "copy_directory", "复制目录路径", true, None::<&str>)?;
+                let copy_fname_item = MenuItem::with_id(app_handle, "copy_filename", "复制文件名", true, None::<&str>)?;
                 let reload_disk_item = MenuItem::with_id(app_handle, "reload_from_disk", "从磁盘重载", true, None::<&str>)?;
                 let toggle_bom_item = MenuItem::with_id(app_handle, "toggle_bom", "切换 BOM", true, None::<&str>)?;
+                let open_in_default_item = MenuItem::with_id(app_handle, "open_in_default", "在默认程序打开", true, None::<&str>)?;
+                let run_command_item = MenuItem::with_id(app_handle, "run_command", "运行命令...", true, None::<&str>)?;
 
                 let file_menu = Submenu::with_items(
                     app_handle,
                     "文件",
                     true,
-                    &[&new_item, &open_item, &open_with_encoding_item, &save_item, &save_as_item, &save_copy_item, &close_item, &reload_disk_item, &copy_path_item, &toggle_bom_item, &file_props_item, &quit_item],
+                    &[&new_item, &open_item, &open_with_encoding_item, &save_item, &save_all_item, &save_as_item, &save_copy_item, &close_item, &reload_disk_item, &copy_path_item, &copy_dir_item, &copy_fname_item, &toggle_bom_item, &open_in_default_item, &run_command_item, &file_props_item, &quit_item],
                 )?;
 
                 let undo_item = MenuItem::with_id(app_handle, "edit_undo", "撤销", true, None::<&str>)?;
@@ -51,6 +56,8 @@ pub fn run() {
                 let toggle_comment_item = MenuItem::with_id(app_handle, "edit_toggle_comment", "切换注释", true, None::<&str>)?;
                 let upper_item = MenuItem::with_id(app_handle, "edit_upper", "转大写", true, None::<&str>)?;
                 let lower_item = MenuItem::with_id(app_handle, "edit_lower", "转小写", true, None::<&str>)?;
+                let sentence_case_item = MenuItem::with_id(app_handle, "edit_sentence_case", "句首大写", true, None::<&str>)?;
+                let random_case_item = MenuItem::with_id(app_handle, "edit_random_case", "随机大小写", true, None::<&str>)?;
                 let sort_asc_item = MenuItem::with_id(app_handle, "edit_sort_asc", "行排序(升序)", true, None::<&str>)?;
                 let sort_desc_item = MenuItem::with_id(app_handle, "edit_sort_desc", "行排序(降序)", true, None::<&str>)?;
                 let sort_length_asc_item = MenuItem::with_id(app_handle, "edit_sort_length_asc", "按长度排序(升序)", true, None::<&str>)?;
@@ -100,7 +107,7 @@ pub fn run() {
                         &move_up_item, &move_down_item,
                         &delete_blank_item, &trim_trailing_item,
                         &toggle_comment_item,
-                        &upper_item, &lower_item,
+                        &upper_item, &lower_item, &sentence_case_item, &random_case_item,
                         &sort_asc_item, &sort_desc_item,
                         &sort_length_asc_item, &sort_length_desc_item,
                         &sort_random_item, &reverse_lines_item,
@@ -142,11 +149,15 @@ pub fn run() {
                 let hex_viewer_item = MenuItem::with_id(app_handle, "hex_viewer", "十六进制查看...", true, None::<&str>)?;
                 let multi_search_item = MenuItem::with_id(app_handle, "multi_search", "多文档查找替换...", true, None::<&str>)?;
                 let text_transform_item = MenuItem::with_id(app_handle, "text_transform", "文本转换...", true, None::<&str>)?;
+                let clipboard_history_item = MenuItem::with_id(app_handle, "clipboard_history", "剪贴板历史...", true, None::<&str>)?;
+                let snippets_item = MenuItem::with_id(app_handle, "snippets", "代码片段...", true, None::<&str>)?;
+                let plugin_manager_item = MenuItem::with_id(app_handle, "plugin_manager", "插件管理...", true, None::<&str>)?;
+                let run_macro_multiple_item = MenuItem::with_id(app_handle, "run_macro_multiple", "多次运行宏...", true, None::<&str>)?;
                 let tools_menu = Submenu::with_items(
                     app_handle,
                     "工具",
                     true,
-                    &[&encoding_item, &settings_item, &char_stats_item, &hex_viewer_item, &multi_search_item, &text_transform_item],
+                    &[&encoding_item, &settings_item, &char_stats_item, &hex_viewer_item, &multi_search_item, &text_transform_item, &clipboard_history_item, &snippets_item, &plugin_manager_item, &run_macro_multiple_item],
                 )?;
 
                 let sidebar_item = MenuItem::with_id(app_handle, "toggle_sidebar", "切换侧边栏", true, None::<&str>)?;
@@ -165,6 +176,7 @@ pub fn run() {
                 let markdown_preview_item = MenuItem::with_id(app_handle, "markdown_preview", "Markdown 预览...", true, None::<&str>)?;
                 let csv_viewer_item = MenuItem::with_id(app_handle, "csv_viewer", "CSV/TSV 查看...", true, None::<&str>)?;
                 let regex_tester_item = MenuItem::with_id(app_handle, "regex_tester", "正则测试器...", true, None::<&str>)?;
+                let postit_item = MenuItem::with_id(app_handle, "postit_mode", "便利贴模式", true, None::<&str>)?;
                 let view_menu = Submenu::with_items(
                     app_handle,
                     "视图",
@@ -175,7 +187,7 @@ pub fn run() {
                         &function_list_item, &word_wrap_item,
                         &doc_switcher_item,
                         &zoom_in_item, &zoom_out_item, &zoom_reset_item,
-                        &fullscreen_item, &always_on_top_item,
+                        &fullscreen_item, &always_on_top_item, &postit_item,
                         &language_item,
                         &markdown_preview_item, &csv_viewer_item, &regex_tester_item,
                     ],
