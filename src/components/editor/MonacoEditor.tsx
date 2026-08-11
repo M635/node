@@ -482,6 +482,8 @@ export function MonacoEditor({
     };
   }, []);
 
+  const resolvedLanguage = language || getLanguageFromPath(path);
+
   // 智能高亮（光标处单词全文档高亮）
   useEffect(() => {
     const editor = editorRef.current;
@@ -651,8 +653,6 @@ export function MonacoEditor({
   const handleChange: OnChange = useCallback((value) => {
     onContentChange?.(value || "");
   }, [onContentChange]);
-
-  const resolvedLanguage = language || getLanguageFromPath(path);
 
   const options: Monaco.editor.IStandaloneEditorConstructionOptions = {
     readOnly: readonly,
