@@ -43,53 +43,54 @@ jobs:
           body: |
             # MarkPT ${{ steps.get_version.outputs.version }}
 
-            对标 Notepad++ 的轻量化跨平台文本编辑器，基于 Tauri + Rust + Monaco Editor。
+            对标 Notepad++ 的轻量化跨平台代码文本编辑器，基于 Tauri 2.x + Rust + React + Monaco Editor。
+
+            ## v1.0.3 更新亮点
+            - 全新绿色主题 UI，白底绿字 MPT 品牌图标
+            - 菜单栏完全对标 Notepad++（文件/编辑/搜索/视图/编码/设置/工具/宏/帮助）
+            - 工具栏对标 Notepad++，支持 20+ 常用操作按钮
+            - 修复标签排序、下拉列表数据同步 bug
+            - 修复窗口最小化还原后布局错乱
+            - NSIS 安装向导 + 卸载程序（Windows）
+            - DMG 安装包（macOS Universal Binary）
+            - AppImage 绿色免安装版（Linux）
 
             ## 功能
-            - 多标签页编辑，拖拽排序，右键菜单
+            - 多标签页编辑，拖拽排序，右键菜单，标签着色
             - 语法高亮 (100+ 语言)，代码折叠，配对括号高亮
-            - 多光标编辑，列块选择
+            - 多光标编辑，列块选择，智能高亮
             - 大文件分片懒加载 (1GB+，mmap)
-            - 编码识别与转换 (UTF-8/GBK/GB2312/UTF-16/ASCII)
-            - 正则查找替换，搜索高亮，全局目录检索
-            - 编辑操作: 删除/复制/移动行、大小写转换、排序、注释、去重
-            - 书签标记，行号跳转
-            - 宏录制与回放
+            - 编码识别与转换 (UTF-8/GBK/GB2312/UTF-16/ASCII + BOM)
+            - 正则查找替换，搜索高亮，选区内搜索，环绕搜索，全局目录检索
+            - 编辑操作: 删除/复制/移动行、大小写转换、排序、注释、去重、过滤、合并/拆分
+            - 书签标记，行号跳转，跳转括号
+            - 宏录制与回放，多次运行宏
             - 双文件 Diff 对比
             - 分屏编辑 (水平/垂直，同步滚动)
             - 函数列表 (JS/TS/Python/Rust/Java/C/C++/Go 等)
-            - 多文档查找替换
-            - 十六进制查看器
-            - 字符统计面板
+            - 多文档查找替换，批量查找替换
+            - 十六进制查看器，字符统计面板
+            - 代码片段系统 (Snippets，Tab 展开)
+            - 剪贴板历史 (50 条)
+            - 插件系统架构 (12 个内置插件)
+            - 运行命令，在默认程序打开
+            - 便利贴模式 (Post-it)
             - 会话保存/恢复 (自动恢复上次打开文件)
             - 文件变动监听 + 重载提示
             - 命令面板 (Cmd+P)
             - 侧边栏文件树浏览器
             - macOS 原生风格 + 深色/浅色自适应
+            - i18n 中英双语
             - 导出 txt/html/rtf
             - 跨平台: macOS / Windows / Linux
 
-            ## 快捷键
-            | 快捷键 | 功能 |
-            |--------|------|
-            | Cmd/Ctrl+P | 命令面板 |
-            | Cmd/Ctrl+S | 保存 |
-            | Cmd/Ctrl+F | 查找 |
-            | Cmd/Ctrl+H | 替换 |
-            | Cmd/Ctrl+G | 跳转行 |
-            | Cmd/Ctrl+D | 删除当前行 |
-            | Cmd/Ctrl+/ | 切换注释 |
-            | Alt+↑/↓ | 上移/下移行 |
-            | Cmd+Shift+U | 转大写 |
-            | Cmd+Shift+L | 转小写 |
-            | Cmd+Shift+F | 多文档搜索 |
-            | Cmd+Shift+O | 函数列表 |
-            | Cmd+Shift+C | 字符统计 |
-
-            ## 下载
-            - macOS: MarkPT-*.dmg (Universal Binary)
-            - Windows: MarkPT-*-setup.exe
-            - Linux: MarkPT-*.AppImage / *.deb
+            ## 下载安装
+            | 平台 | 文件 | 说明 |
+            |------|------|------|
+            | macOS | `MarkPT-*.dmg` | Universal Binary，拖拽到 Applications 安装 |
+            | Windows | `MarkPT-*-setup.exe` | NSIS 安装向导，含卸载程序 |
+            | Linux | `MarkPT-*.AppImage` | 绿色免安装，直接运行 |
+            | Linux | `MarkPT-*.deb` | Debian/Ubuntu 安装包 |
           draft: false
           prerelease: false
 

@@ -136,7 +136,7 @@ export function SearchPanel() {
             ref={searchInputRef}
             type="text"
             className="search-input"
-            placeholder="查找..."
+            placeholder="输入查找内容..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             onKeyDown={handleKeyDown}

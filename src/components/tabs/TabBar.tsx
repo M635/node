@@ -10,27 +10,23 @@ interface TabBarProps {
 }
 
 export function TabBar({ onNewTab, onCloseTab }: TabBarProps) {
-  const { tabs, activeTabId, setActiveTab, reorderTabs, closeTab, sortTabs } = useFileStore();
+  const { tabs, activeTabId, setActiveTab, reorderTabs, sortTabs } = useFileStore();
   const [dragIndex, setDragIndex] = useState<number | null>(null);
   const [dragOverIndex, setDragOverIndex] = useState<number | null>(null);
   const [contextMenu, setContextMenu] = useState<{ x: number; y: number; tabId: string } | null>(null);
   const [showTabList, setShowTabList] = useState(false);
   const [showSortMenu, setShowSortMenu] = useState(false);
   const [tabListFilter, setTabListFilter] = useState("");
-  const sortMenuRef = useRef<HTMLDivElement>(null);
-  const tabListRef = useRef<HTMLDivElement>(null);
+  const sortRef = useRef<HTMLDivElement>(null);
+  const listRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    const handleClickOutside = (e: MouseEvent) => {
-      if (showSortMenu && sortMenuRef.current && !sortMenuRef.current.contains(e.target as Node)) {
-        setShowSortMenu(false);
-      }
-      if (showTabList && tabListRef.current && !tabListRef.current.contains(e.target as Node)) {
-        setShowTabList(false);
-      }
+    const onDown = (e: MouseEvent) => {
+      if (showSortMenu && sortRef.current && !sortRef.current.contains(e.target as Node)) setShowSortMenu(false);
+      if (showTabList && listRef.current && !listRef.current.contains(e.target as Node)) setShowTabList(false);
     };
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
+    document.addEventListener("mousedown", onDown);
+    return () => document.removeEventListener("mousedown", onDown);
   }, [showSortMenu, showTabList]);
 
   const handleDragStart = (e: DragEvent, index: number) => {
@@ -46,34 +42,16 @@ export function TabBar({ onNewTab, onCloseTab }: TabBarProps) {
 
   const handleDrop = (e: DragEvent, index: number) => {
     e.preventDefault();
-    if (dragIndex !== null && dragIndex !== index) {
-      reorderTabs(dragIndex, index);
-    }
+    if (dragIndex !== null && dragIndex !== index) reorderTabs(dragIndex, index);
     setDragIndex(null);
     setDragOverIndex(null);
   };
 
-  const handleDragEnd = () => {
-    setDragIndex(null);
-    setDragOverIndex(null);
-  };
+  const handleDragEnd = () => { setDragIndex(null); setDragOverIndex(null); };
 
   const handleContextMenu = (e: React.MouseEvent, tabId: string) => {
     e.preventDefault();
     setContextMenu({ x: e.clientX, y: e.clientY, tabId });
-  };
-
-  const handleCloseContextMenu = () => setContextMenu(null);
-
-  const handleClose = (id: string) => {
-    const tab = tabs.find((t) => t.id === id);
-    if (tab?.is_dirty) {
-      if (window.confirm(`"${tab.name}" 已修改，是否保存？`)) {
-        window.dispatchEvent(new CustomEvent("markpt:save"));
-      }
-    }
-    closeTab(id);
-    onCloseTab(id);
   };
 
   const handleSort = (by: "name" | "path" | "type" | "size") => {
@@ -82,7 +60,9 @@ export function TabBar({ onNewTab, onCloseTab }: TabBarProps) {
   };
 
   const filteredTabs = tabListFilter
-    ? tabs.filter((t) => t.name.toLowerCase().includes(tabListFilter.toLowerCase()) || t.path.toLowerCase().includes(tabListFilter.toLowerCase()))
+    ? tabs.filter((t) =>
+        t.name.toLowerCase().includes(tabListFilter.toLowerCase()) ||
+        t.path.toLowerCase().includes(tabListFilter.toLowerCase()))
     : tabs;
 
   return (
@@ -95,7 +75,7 @@ export function TabBar({ onNewTab, onCloseTab }: TabBarProps) {
             active={tab.id === activeTabId}
             dragOver={dragOverIndex === index}
             onClick={() => setActiveTab(tab.id)}
-            onClose={() => handleClose(tab.id)}
+            onClose={() => onCloseTab(tab.id)}
             onDragStart={(e) => handleDragStart(e, index)}
             onDragOver={(e) => handleDragOver(e, index)}
             onDrop={(e) => handleDrop(e, index)}
@@ -104,65 +84,58 @@ export function TabBar({ onNewTab, onCloseTab }: TabBarProps) {
           />
         ))}
       </div>
-      <div className="tab-actions" ref={sortMenuRef}>
-        <button className="tab-action-btn" onClick={() => setShowSortMenu((v) => !v)} title="排序标签">
-          ⇅
-        </button>
-        {showSortMenu && (
-          <div className="tab-dropdown-menu tab-sort-menu">
-            <div className="tab-dropdown-item" onClick={() => handleSort("name")}>按名称排序</div>
-            <div className="tab-dropdown-item" onClick={() => handleSort("path")}>按路径排序</div>
-            <div className="tab-dropdown-item" onClick={() => handleSort("type")}>按类型排序</div>
-            <div className="tab-dropdown-item" onClick={() => handleSort("size")}>按大小排序</div>
-          </div>
-        )}
-        <button className="tab-action-btn" onClick={() => setShowTabList((v) => !v)} title="标签列表">
-          ☰
-        </button>
-        {showTabList && (
-          <div className="tab-dropdown-menu tab-list-menu" ref={tabListRef}>
-            <div className="tab-list-header">
-              <input
-                type="text"
-                className="tab-list-filter"
-                placeholder="过滤标签..."
-                value={tabListFilter}
-                onChange={(e) => setTabListFilter(e.target.value)}
-                autoFocus
-              />
-              <span className="tab-list-count">{filteredTabs.length}/{tabs.length}</span>
+      <div className="tab-actions">
+        <div ref={sortRef} style={{ position: "relative" }}>
+          <button className="tab-action-btn" onClick={() => setShowSortMenu(v => !v)} title="排序标签">⇅</button>
+          {showSortMenu && (
+            <div className="tab-dropdown-menu" style={{ right: 0 }}>
+              <div className="tab-dropdown-item" onClick={() => handleSort("name")}>按名称排序</div>
+              <div className="tab-dropdown-item" onClick={() => handleSort("path")}>按路径排序</div>
+              <div className="tab-dropdown-item" onClick={() => handleSort("type")}>按类型排序</div>
+              <div className="tab-dropdown-item" onClick={() => handleSort("size")}>按大小排序</div>
             </div>
-            <div className="tab-list-items">
-              {filteredTabs.map((tab) => (
-                <div
-                  key={tab.id}
-                  className={`tab-list-item ${tab.id === activeTabId ? "active" : ""}`}
-                  onClick={() => {
-                    setActiveTab(tab.id);
-                    setShowTabList(false);
-                  }}
-                >
-                  <span className="tab-list-name">{tab.name}</span>
-                  <span className="tab-list-path">{tab.path}</span>
-                  {tab.is_dirty && <span className="tab-list-dirty">●</span>}
-                </div>
-              ))}
-              {filteredTabs.length === 0 && (
-                <div className="tab-list-empty">无匹配标签</div>
-              )}
+          )}
+        </div>
+        <div ref={listRef} style={{ position: "relative" }}>
+          <button className="tab-action-btn" onClick={() => setShowTabList(v => !v)} title="标签列表">☰</button>
+          {showTabList && (
+            <div className="tab-dropdown-menu tab-list-dropdown" style={{ right: 0 }}>
+              <div className="tab-list-header">
+                <input
+                  type="text"
+                  className="tab-list-filter"
+                  placeholder="过滤标签..."
+                  value={tabListFilter}
+                  onChange={(e) => setTabListFilter(e.target.value)}
+                  autoFocus
+                />
+                <span className="tab-list-count">{filteredTabs.length}/{tabs.length}</span>
+              </div>
+              <div className="tab-list-items">
+                {filteredTabs.map((tab) => (
+                  <div
+                    key={tab.id}
+                    className={`tab-list-item ${tab.id === activeTabId ? "active" : ""}`}
+                    onClick={() => { setActiveTab(tab.id); setShowTabList(false); }}
+                  >
+                    <span className="tab-list-name">{tab.name}</span>
+                    <span className="tab-list-path">{tab.path}</span>
+                    {tab.is_dirty && <span className="tab-list-dirty">●</span>}
+                  </div>
+                ))}
+                {filteredTabs.length === 0 && <div className="tab-list-empty">无匹配标签</div>}
+              </div>
             </div>
-          </div>
-        )}
-        <button className="tab-new-btn" onClick={onNewTab} title="新建标签">
-          +
-        </button>
+          )}
+        </div>
+        <button className="tab-new-btn" onClick={onNewTab} title="新建标签">+</button>
       </div>
       {contextMenu && (
         <TabContextMenu
           x={contextMenu.x}
           y={contextMenu.y}
           tabId={contextMenu.tabId}
-          onClose={handleCloseContextMenu}
+          onClose={() => setContextMenu(null)}
         />
       )}
     </div>

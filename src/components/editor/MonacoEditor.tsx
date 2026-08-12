@@ -187,6 +187,17 @@ export function MonacoEditor({
       label: "反转行序",
       run: (ed) => EditOperations.reverseLineOrder(ed),
     });
+
+    const container = editor.getContainerDomNode();
+    const resizeObserver = new ResizeObserver(() => {
+      requestAnimationFrame(() => editor.layout());
+    });
+    resizeObserver.observe(container);
+    window.addEventListener("resize", () => editor.layout());
+
+    return () => {
+      resizeObserver.disconnect();
+    };
   }, [onCursorChange, tabId]);
 
   // 行号跳转

@@ -57,7 +57,7 @@ export function SettingsDialog({ onClose }: SettingsDialogProps) {
     <div className="dialog-overlay" onClick={onClose}>
       <div className="dialog settings-dialog" onClick={(e) => e.stopPropagation()}>
         <div className="dialog-header">
-          <h2>设置</h2>
+          <h2>MarkPT 设置</h2>
           <button className="dialog-close" onClick={onClose}>×</button>
         </div>
         <div className="dialog-body">

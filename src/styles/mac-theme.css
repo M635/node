@@ -169,16 +169,12 @@
   color: white;
 }
 
-.tab-sort-menu {
-  right: 56px;
-}
-
-.tab-list-menu {
-  right: 28px;
+.tab-list-dropdown {
   min-width: 280px;
   max-height: 400px;
   display: flex;
   flex-direction: column;
+  padding: 0;
 }
 
 .tab-action-btn {

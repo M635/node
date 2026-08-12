@@ -1,14 +1,16 @@
 :root {
   --mac-bg: #ffffff;
   --mac-fg: #1d1d1f;
-  --mac-accent: #007aff;
+  --mac-accent: #00a857;
+  --mac-accent-light: #00d97e;
+  --mac-accent-bg: rgba(0, 168, 87, 0.08);
   --mac-border: #d2d2d7;
   --mac-tab-active: #ffffff;
   --mac-tab-inactive: #f5f5f7;
-  --mac-statusbar: #f5f5f7;
+  --mac-statusbar: #f0f0f2;
   --mac-sidebar: #f5f5f7;
   --mac-hover: #e8e8ed;
-  --mac-selected: #007aff;
+  --mac-selected: #00a857;
   --mac-text-secondary: #86868b;
   --mac-radius: 8px;
   --mac-radius-sm: 4px;
@@ -21,16 +23,18 @@
 }
 
 .app.dark {
-  --mac-bg: #1e1e1e;
+  --mac-bg: #1a1a2e;
   --mac-fg: #d4d4d4;
-  --mac-accent: #0a84ff;
-  --mac-border: #3c3c3c;
-  --mac-tab-active: #1e1e1e;
-  --mac-tab-inactive: #252526;
-  --mac-statusbar: #007acc;
-  --mac-sidebar: #252526;
-  --mac-hover: #2a2a2a;
-  --mac-selected: #094771;
+  --mac-accent: #00d97e;
+  --mac-accent-light: #00ff88;
+  --mac-accent-bg: rgba(0, 217, 126, 0.1);
+  --mac-border: #2d2d44;
+  --mac-tab-active: #1a1a2e;
+  --mac-tab-inactive: #16162a;
+  --mac-statusbar: #0d0d1a;
+  --mac-sidebar: #16162a;
+  --mac-hover: #222240;
+  --mac-selected: #00a857;
   --mac-text-secondary: #858585;
 }
 

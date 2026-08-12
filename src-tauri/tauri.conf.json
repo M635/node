@@ -12,11 +12,11 @@
   "app": {
     "windows": [
       {
-        "title": "MarkPT",
+        "title": "MarkPT - 代码文本编辑器",
         "width": 1024,
         "height": 768,
-        "minWidth": 640,
-        "minHeight": 480,
+        "minWidth": 480,
+        "minHeight": 360,
         "resizable": true,
         "fullscreen": false,
         "decorations": true,
@@ -43,10 +43,10 @@
     ],
     "resources": [],
     "externalBin": [],
-    "copyright": "",
+    "copyright": "Copyright © 2024 MarkPT",
     "category": "DeveloperTool",
-    "shortDescription": "MarkPT 轻量化代码文本编辑器",
-    "longDescription": "MarkPT - 对标 Notepad++ 的跨平台轻量化代码文本编辑器，基于 Tauri + Rust + React + Monaco Editor",
+    "shortDescription": "MarkPT - 轻量化代码文本编辑器",
+    "longDescription": "MarkPT 是一款对标 Notepad++ 的跨平台轻量化代码文本编辑器，基于 Tauri 2.x + Rust + React + Monaco Editor 构建，支持 100+ 语法高亮、正则查找替换、多标签编辑、宏录制、插件系统等功能。",
     "macOS": {
       "frameworks": [],
       "minimumSystemVersion": "10.15",
@@ -55,7 +55,18 @@
       "entitlements": null
     },
     "windows": {
-      "webviewInstallMode": { "type": "embedBootstrapper" }
+      "webviewInstallMode": { "type": "embedBootstrapper" },
+      "nsis": {
+        "installMode": "both",
+        "languages": ["SimpChinese", "English"],
+        "displayLanguageSelector": true,
+        "installerIcon": "icons/icon.ico",
+        "sidebarImage": "icons/128x128.png",
+        "headerImage": "icons/32x32.png",
+        "template": null,
+        "startMenuFolder": "MarkPT",
+        "shortcut": true
+      }
     },
     "linux": {
       "deb": { "depends": [] },
