@@ -45,12 +45,15 @@ jobs:
 
             对标 Notepad++ 的轻量化跨平台代码文本编辑器，基于 Tauri 2.x + Rust + React + Monaco Editor。
 
-            ## v1.0.3 更新亮点
+            ## v2.0.0 重大更新
+            - 菜单栏完全对标 Notepad++ 11 菜单结构（文件/编辑/查找/视图/编码/语言/设置/工具/对比/窗口/帮助）
+            - 工具栏 5 按钮组（文件/编辑/搜索/视图/对比）对标 Notepad++
+            - 新增语言菜单（languageMenu）：直接切换 17 种语法高亮
+            - 新增对比菜单（compareMenu）：文件对比/同步滚动/差异导航
+            - 新增窗口菜单（windowMenu）：窗口排序（名称/路径/时间）+ 窗口排列（层叠/水平平铺/垂直平铺）
+            - 修复 documentTabBar 渲染异常：标签项文本与下拉面板正常绘制
+            - 修复 windowMenu 窗口排序与排列功能失效
             - 全新绿色主题 UI，白底绿字 MPT 品牌图标
-            - 菜单栏完全对标 Notepad++（文件/编辑/搜索/视图/编码/设置/工具/宏/帮助）
-            - 工具栏对标 Notepad++，支持 20+ 常用操作按钮
-            - 修复标签排序、下拉列表数据同步 bug
-            - 修复窗口最小化还原后布局错乱
             - NSIS 安装向导 + 卸载程序（Windows）
             - DMG 安装包（macOS Universal Binary）
             - AppImage 绿色免安装版（Linux）

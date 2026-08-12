@@ -23,34 +23,33 @@ interface MainLayoutProps {
   onSplitHorizontal: () => void;
   onSplitVertical: () => void;
   onLanguageSelector: () => void;
+  onCompareStart: () => void;
   selectionInfo: { chars: number; lines: number } | null;
 }
 
 export function MainLayout({
   children, onNewTab, onCloseTab, onSave, onSaveAll, onOpenFile, onGotoLine, onExport,
-  onOpenEncoding, onOpenSettings, onFunctionList, onSplitHorizontal, onSplitVertical, onLanguageSelector,
-  selectionInfo,
+  onOpenEncoding, onOpenSettings, onFunctionList, onSplitHorizontal, onSplitVertical,
+  onLanguageSelector, onCompareStart, selectionInfo,
 }: MainLayoutProps) {
   const { tabs, activeTabId } = useFileStore();
   const { isSearchPanelOpen, isFindInFilesOpen, toggleSearchPanel, toggleReplacePanel, toggleFindInFiles } = useSearchStore();
   const activeTab = tabs.find((t) => t.id === activeTabId);
 
-  const handleUndo = () => window.dispatchEvent(new CustomEvent("markpt:edit-action", { detail: { action: "undo" } }));
-  const handleRedo = () => window.dispatchEvent(new CustomEvent("markpt:edit-action", { detail: { action: "redo" } }));
+  const dispatch = (event: string) => window.dispatchEvent(new CustomEvent(event));
+  const handleUndo = () => dispatch("markpt:edit-undo");
+  const handleRedo = () => dispatch("markpt:edit-redo");
   const handleCut = () => document.execCommand("cut");
   const handleCopy = () => document.execCommand("copy");
   const handlePaste = () => document.execCommand("paste");
-  const handleZoomIn = () => window.dispatchEvent(new CustomEvent("markpt:zoom-in"));
-  const handleZoomOut = () => window.dispatchEvent(new CustomEvent("markpt:zoom-out"));
+  const handleZoomIn = () => dispatch("markpt:zoom-in");
+  const handleZoomOut = () => dispatch("markpt:zoom-out");
+  const handleZoomReset = () => dispatch("markpt:zoom-reset");
   const handleToggleWordWrap = () => useSettingStore.getState().setWordWrap(!useSettingStore.getState().wordWrap);
-  const handleToggleInvisible = () => useSettingStore.getState().setShowWhitespace(!useSettingStore.getState().showWhitespace);
-  const handleToggleIndentGuide = () => useSettingStore.getState().setShowIndentGuides(!useSettingStore.getState().showIndentGuides);
+  const handleToggleLineNumbers = () => useSettingStore.getState().setShowLineNumbers(!useSettingStore.getState().showLineNumbers);
   const handlePrint = () => window.print();
-  const handleClose = () => activeTabId && onCloseTab(activeTabId);
-  const handleCloseAll = () => {
-    const allTabs = [...useFileStore.getState().tabs];
-    for (const tab of allTabs) onCloseTab(tab.id);
-  };
+  const handleCompareClear = () => dispatch("markpt:compare-clear");
+  const handleCompareSyncScroll = () => dispatch("markpt:compare-sync-scroll");
 
   return (
     <div className="main-layout">
@@ -60,29 +59,24 @@ export function MainLayout({
         onOpen={onOpenFile}
         onSave={onSave}
         onSaveAll={onSaveAll}
-        onClose={handleClose}
-        onCloseAll={handleCloseAll}
-        onFind={toggleSearchPanel}
-        onReplace={toggleReplacePanel}
-        onFindInFiles={toggleFindInFiles}
-        onGotoLine={onGotoLine}
+        onPrint={handlePrint}
         onUndo={handleUndo}
         onRedo={handleRedo}
         onCut={handleCut}
         onCopy={handleCopy}
         onPaste={handlePaste}
-        onToggleWordWrap={handleToggleWordWrap}
-        onToggleInvisible={handleToggleInvisible}
-        onToggleIndentGuide={handleToggleIndentGuide}
+        onFind={toggleSearchPanel}
+        onReplace={toggleReplacePanel}
+        onGotoLine={onGotoLine}
         onZoomIn={handleZoomIn}
         onZoomOut={handleZoomOut}
-        onEncoding={onOpenEncoding}
+        onZoomReset={handleZoomReset}
+        onToggleWordWrap={handleToggleWordWrap}
+        onToggleLineNumbers={handleToggleLineNumbers}
+        onCompareStart={onCompareStart}
+        onCompareClear={handleCompareClear}
+        onCompareSyncScroll={handleCompareSyncScroll}
         onSettings={onOpenSettings}
-        onFunctionList={onFunctionList}
-        onSplitHorizontal={onSplitHorizontal}
-        onSplitVertical={onSplitVertical}
-        onLanguageSelector={onLanguageSelector}
-        onPrint={handlePrint}
       />
       <div className="editor-area">
         {isSearchPanelOpen && <SearchPanel />}

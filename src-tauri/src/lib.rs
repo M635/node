@@ -20,11 +20,11 @@ pub fn run() {
                 let app_handle = app.handle();
                 let m = |id: &str, label: &str| MenuItem::with_id(app_handle, id, label, true, None::<&str>);
 
-                // ========== 文件菜单 ==========
+                // ========== 文件菜单 (fileMenu) ==========
                 let file_menu = Submenu::with_items(app_handle, "文件", true, &[
                     &m("new", "新建")?, &m("open", "打开...")?, &m("open_with_encoding", "按编码打开...")?,
                     &m("reload_from_disk", "从磁盘重载")?,
-                    &m("save", "保存")?, &m("save_as", "另存为...")?, &m("save_copy", "保存副本...")?, &m("save_all", "保存所有")?,
+                    &m("save", "保存")?, &m("save_as", "另存为...")?, &m("save_copy", "保存副本...")?, &m("save_all", "全部保存")?,
                     &m("close", "关闭")?, &m("close_all", "关闭所有")?, &m("close_all_but_current", "关闭所有但当前")?,
                     &m("copy_path", "复制文件路径")?, &m("copy_directory", "复制目录路径")?, &m("copy_filename", "复制文件名")?,
                     &m("toggle_bom", "切换 BOM")?,
@@ -33,7 +33,7 @@ pub fn run() {
                     &m("quit", "退出 MarkPT")?,
                 ])?;
 
-                // ========== 编辑菜单 ==========
+                // ========== 编辑菜单 (editMenu) ==========
                 let edit_menu = Submenu::with_items(app_handle, "编辑", true, &[
                     &m("edit_undo", "撤销")?, &m("edit_redo", "重做")?,
                     &m("edit_toggle_comment", "切换注释")?,
@@ -57,17 +57,17 @@ pub fn run() {
                     &m("char_normalize_nfc", "Unicode NFC")?, &m("char_to_snake", "转 snake_case")?, &m("char_to_camel", "转 camelCase")?, &m("char_to_pascal", "转 PascalCase")?, &m("char_to_kebab", "转 kebab-case")?,
                 ])?;
 
-                // ========== 搜索菜单 ==========
-                let search_menu = Submenu::with_items(app_handle, "搜索", true, &[
+                // ========== 查找菜单 (searchMenu) ==========
+                let search_menu = Submenu::with_items(app_handle, "查找", true, &[
                     &m("find", "查找...")?, &m("find_next", "查找下一个")?, &m("find_prev", "查找上一个")?,
                     &m("replace", "替换...")?,
                     &m("find_in_files", "在文件中查找...")?, &m("batch_find_replace", "批量查找替换...")?, &m("multi_search", "多文档查找替换...")?,
-                    &m("goto", "跳转到行...")?, &m("jump_to_bracket", "跳转到匹配括号")?, &m("select_to_bracket", "选中到匹配括号")?,
+                    &m("goto", "转到行...")?, &m("jump_to_bracket", "跳转到匹配括号")?, &m("select_to_bracket", "选中到匹配括号")?,
                     &m("mark_all", "标记所有匹配")?, &m("unmark_all", "取消所有标记")?,
                     &m("next_bookmark", "下一书签")?, &m("prev_bookmark", "上一书签")?, &m("clear_bookmarks", "清除所有书签")?,
                 ])?;
 
-                // ========== 视图菜单 ==========
+                // ========== 视图菜单 (viewMenu) ==========
                 let view_menu = Submenu::with_items(app_handle, "视图", true, &[
                     &m("toggle_sidebar", "切换侧边栏")?, &m("command_palette", "命令面板...")?,
                     &m("split_horizontal", "水平分屏")?, &m("split_vertical", "垂直分屏")?, &m("split_close", "关闭分屏")?,
@@ -76,10 +76,9 @@ pub fn run() {
                     &m("zoom_in", "放大")?, &m("zoom_out", "缩小")?, &m("zoom_reset", "重置缩放")?,
                     &m("full_screen", "全屏")?, &m("always_on_top", "窗口置顶")?, &m("postit_mode", "便利贴模式")?,
                     &m("markdown_preview", "Markdown 预览...")?, &m("csv_viewer", "CSV/TSV 查看...")?, &m("regex_tester", "正则测试器...")?,
-                    &m("language_selector", "选择语言...")?,
                 ])?;
 
-                // ========== 编码菜单 ==========
+                // ========== 编码菜单 (encodingMenu) ==========
                 let encoding_menu = Submenu::with_items(app_handle, "编码", true, &[
                     &m("encoding", "编码设置...")?,
                     &m("encode_utf8", "用 UTF-8 编码")?, &m("encode_utf8_bom", "用 UTF-8-BOM 编码")?,
@@ -91,7 +90,19 @@ pub fn run() {
                     &m("convert_utf16le", "转换为 UTF-16LE")?, &m("convert_utf16be", "转换为 UTF-16BE")?,
                 ])?;
 
-                // ========== 设置菜单 ==========
+                // ========== 语言菜单 (languageMenu) ==========
+                let language_menu = Submenu::with_items(app_handle, "语言", true, &[
+                    &m("language_selector", "选择语言...")?,
+                    &m("lang_plaintext", "纯文本")?,
+                    &m("lang_javascript", "JavaScript")?, &m("lang_typescript", "TypeScript")?,
+                    &m("lang_python", "Python")?, &m("lang_rust", "Rust")?,
+                    &m("lang_c", "C")?, &m("lang_cpp", "C++")?, &m("lang_java", "Java")?,
+                    &m("lang_go", "Go")?, &m("lang_html", "HTML")?, &m("lang_css", "CSS")?,
+                    &m("lang_json", "JSON")?, &m("lang_xml", "XML")?, &m("lang_markdown", "Markdown")?,
+                    &m("lang_sql", "SQL")?, &m("lang_shell", "Shell")?, &m("lang_yaml", "YAML")?,
+                ])?;
+
+                // ========== 设置菜单 (settingsMenu) ==========
                 let settings_menu = Submenu::with_items(app_handle, "设置", true, &[
                     &m("settings", "首选项...")?,
                     &m("shortcut_mapper", "快捷键映射...")?,
@@ -101,29 +112,45 @@ pub fn run() {
                     &m("plugin_manager", "插件管理...")?,
                 ])?;
 
-                // ========== 工具菜单 ==========
+                // ========== 工具菜单 (toolsMenu) ==========
                 let tools_menu = Submenu::with_items(app_handle, "工具", true, &[
                     &m("char_stats", "字符统计...")?, &m("hex_viewer", "十六进制查看...")?,
                     &m("text_transform", "文本转换...")?,
-                    &m("run_macro_multiple", "多次运行宏...")?,
-                ])?;
-
-                // ========== 宏菜单 ==========
-                let macro_menu = Submenu::with_items(app_handle, "宏", true, &[
-                    &m("macro_start_stop", "开始/停止录制")?,
-                    &m("macro_playback", "播放")?,
+                    &m("macro_start_stop", "开始/停止录制宏")?,
+                    &m("macro_playback", "播放宏")?,
                     &m("run_macro_multiple", "多次运行宏...")?,
                     &m("macro_save", "保存当前录制的宏")?,
                 ])?;
 
-                // ========== 帮助菜单 ==========
+                // ========== 对比菜单 (compareMenu) ==========
+                let compare_menu = Submenu::with_items(app_handle, "对比", true, &[
+                    &m("compare_start", "开始对比...")?,
+                    &m("compare_clear", "清除对比")?,
+                    &m("compare_sync_scroll", "同步滚动")?,
+                    &m("compare_next_diff", "下一差异")?,
+                    &m("compare_prev_diff", "上一差异")?,
+                ])?;
+
+                // ========== 窗口菜单 (windowMenu) ==========
+                let window_menu = Submenu::with_items(app_handle, "窗口", true, &[
+                    &m("window_sort_name", "按名称排序")?,
+                    &m("window_sort_path", "按路径排序")?,
+                    &m("window_sort_time", "按打开时间排序")?,
+                    &m("window_cascade", "层叠窗口")?,
+                    &m("window_tile_horizontal", "水平平铺")?,
+                    &m("window_tile_vertical", "垂直平铺")?,
+                    &m("window_list", "窗口列表...")?,
+                ])?;
+
+                // ========== 帮助菜单 (helpMenu) ==========
                 let help_menu = Submenu::with_items(app_handle, "帮助", true, &[
                     &m("about", "关于 MarkPT")?,
                 ])?;
 
                 let menu = Menu::with_items(app_handle, &[
                     &file_menu, &edit_menu, &search_menu, &view_menu,
-                    &encoding_menu, &settings_menu, &tools_menu, &macro_menu, &help_menu,
+                    &encoding_menu, &language_menu, &settings_menu, &tools_menu,
+                    &compare_menu, &window_menu, &help_menu,
                 ])?;
                 app_handle.set_menu(menu)?;
             }

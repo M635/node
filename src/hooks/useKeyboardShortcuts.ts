@@ -91,6 +91,17 @@ interface ShortcutHandlers {
   onMacroPlayback?: () => void;
   onMacroSave?: () => void;
   onAbout?: () => void;
+  onSetLanguage?: (lang: string) => void;
+  onCompareStart?: () => void;
+  onCompareClear?: () => void;
+  onCompareSyncScroll?: () => void;
+  onCompareNextDiff?: () => void;
+  onComparePrevDiff?: () => void;
+  onWindowSort?: (by: "name" | "path" | "time") => void;
+  onWindowCascade?: () => void;
+  onWindowTileHorizontal?: () => void;
+  onWindowTileVertical?: () => void;
+  onWindowList?: () => void;
 }
 
 export function useKeyboardShortcuts(handlers: ShortcutHandlers): void {
@@ -230,6 +241,35 @@ export function useKeyboardShortcuts(handlers: ShortcutHandlers): void {
           case "macro_playback": handlers.onMacroPlayback?.(); break;
           case "macro_save": handlers.onMacroSave?.(); break;
           case "about": handlers.onAbout?.(); break;
+          case "lang_plaintext": handlers.onSetLanguage?.("plaintext"); break;
+          case "lang_javascript": handlers.onSetLanguage?.("javascript"); break;
+          case "lang_typescript": handlers.onSetLanguage?.("typescript"); break;
+          case "lang_python": handlers.onSetLanguage?.("python"); break;
+          case "lang_rust": handlers.onSetLanguage?.("rust"); break;
+          case "lang_c": handlers.onSetLanguage?.("c"); break;
+          case "lang_cpp": handlers.onSetLanguage?.("cpp"); break;
+          case "lang_java": handlers.onSetLanguage?.("java"); break;
+          case "lang_go": handlers.onSetLanguage?.("go"); break;
+          case "lang_html": handlers.onSetLanguage?.("html"); break;
+          case "lang_css": handlers.onSetLanguage?.("css"); break;
+          case "lang_json": handlers.onSetLanguage?.("json"); break;
+          case "lang_xml": handlers.onSetLanguage?.("xml"); break;
+          case "lang_markdown": handlers.onSetLanguage?.("markdown"); break;
+          case "lang_sql": handlers.onSetLanguage?.("sql"); break;
+          case "lang_shell": handlers.onSetLanguage?.("shell"); break;
+          case "lang_yaml": handlers.onSetLanguage?.("yaml"); break;
+          case "compare_start": handlers.onCompareStart?.(); break;
+          case "compare_clear": handlers.onCompareClear?.(); break;
+          case "compare_sync_scroll": handlers.onCompareSyncScroll?.(); break;
+          case "compare_next_diff": handlers.onCompareNextDiff?.(); break;
+          case "compare_prev_diff": handlers.onComparePrevDiff?.(); break;
+          case "window_sort_name": handlers.onWindowSort?.("name"); break;
+          case "window_sort_path": handlers.onWindowSort?.("path"); break;
+          case "window_sort_time": handlers.onWindowSort?.("time"); break;
+          case "window_cascade": handlers.onWindowCascade?.(); break;
+          case "window_tile_horizontal": handlers.onWindowTileHorizontal?.(); break;
+          case "window_tile_vertical": handlers.onWindowTileVertical?.(); break;
+          case "window_list": handlers.onWindowList?.(); break;
         }
       });
     })();

@@ -6,8 +6,10 @@
   border-bottom: 1px solid var(--mac-border);
   padding-left: 80px;
   flex-shrink: 0;
-  overflow: hidden;
+  overflow: visible;
   -webkit-app-region: drag;
+  position: relative;
+  z-index: 100;
 }
 
 .tab-item {

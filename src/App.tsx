@@ -740,6 +740,21 @@ export default function App() {
     onMacroPlayback: handleMacroPlayback,
     onMacroSave: handleMacroSave,
     onAbout: handleAbout,
+    onSetLanguage: (lang: string) => handleSetLanguage(lang),
+    onCompareStart: handleToggleDiff,
+    onCompareClear: () => setShowDiffView(false),
+    onCompareSyncScroll: () => window.dispatchEvent(new CustomEvent("markpt:compare-sync-scroll")),
+    onCompareNextDiff: () => window.dispatchEvent(new CustomEvent("markpt:compare-next-diff")),
+    onComparePrevDiff: () => window.dispatchEvent(new CustomEvent("markpt:compare-prev-diff")),
+    onWindowSort: (by: "name" | "path" | "time") => {
+      if (by === "name") useFileStore.getState().sortTabs("name");
+      else if (by === "path") useFileStore.getState().sortTabs("path");
+      else useFileStore.getState().sortTabs("type");
+    },
+    onWindowCascade: () => setSplitMode(null),
+    onWindowTileHorizontal: () => setSplitMode("horizontal"),
+    onWindowTileVertical: () => setSplitMode("vertical"),
+    onWindowList: () => setShowDocSwitcher(true),
   });
 
   useEffect(() => {
@@ -829,6 +844,7 @@ export default function App() {
           onSplitHorizontal={() => setSplitMode(splitMode === "horizontal" ? null : "horizontal")}
           onSplitVertical={() => setSplitMode(splitMode === "vertical" ? null : "vertical")}
           onLanguageSelector={() => setShowLanguageSelector(true)}
+          onCompareStart={handleToggleDiff}
           selectionInfo={selectionInfo}
         >
           {activeTab ? (
@@ -861,7 +877,7 @@ export default function App() {
               <div className="no-tab-content">
                 <div className="no-tab-logo">MPT</div>
                 <h2>MarkPT</h2>
-                <p>轻量化代码文本编辑器 v1.0.3</p>
+                <p>轻量化代码文本编辑器 v2.0.0</p>
                 <p className="hint">对标 Notepad++ · 基于 Tauri + Monaco Editor</p>
                 <div className="no-tab-actions">
                   <button className="btn btn-primary" onClick={handleNewFile}>新建文件</button>
@@ -995,7 +1011,7 @@ export default function App() {
           <div className="dialog-content about-dialog" onClick={(e) => e.stopPropagation()}>
             <div className="about-logo">MPT</div>
             <h2>MarkPT</h2>
-            <p className="about-version">版本 1.0.3</p>
+            <p className="about-version">版本 2.0.0</p>
             <p className="about-desc">轻量化代码文本编辑器</p>
             <p className="about-tech">Tauri 2.x + Rust + React + Monaco Editor</p>
             <p className="about-desc">对标 Notepad++ 的跨平台文本编辑器</p>
