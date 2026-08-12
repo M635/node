@@ -290,21 +290,6 @@ export default function App() {
     }
   }, [getActiveTab, updateTab, markClean]);
 
-  const handleCloseAll = useCallback(async () => {
-    const allTabs = [...useFileStore.getState().tabs];
-    for (const tab of allTabs) {
-      await handleCloseTab(tab.id);
-    }
-  }, [handleCloseTab]);
-
-  const handleCloseAllButCurrent = useCallback(async () => {
-    const allTabs = [...useFileStore.getState().tabs];
-    for (const tab of allTabs) {
-      if (tab.id === activeTabId) continue;
-      await handleCloseTab(tab.id);
-    }
-  }, [activeTabId, handleCloseTab]);
-
   const handleQuit = useCallback(() => {
     window.close();
   }, []);
@@ -378,6 +363,21 @@ export default function App() {
     }
     closeTab(id);
   }, [tabs, closeTab]);
+
+  const handleCloseAll = useCallback(async () => {
+    const allTabs = [...useFileStore.getState().tabs];
+    for (const tab of allTabs) {
+      await handleCloseTab(tab.id);
+    }
+  }, [handleCloseTab]);
+
+  const handleCloseAllButCurrent = useCallback(async () => {
+    const allTabs = [...useFileStore.getState().tabs];
+    for (const tab of allTabs) {
+      if (tab.id === activeTabId) continue;
+      await handleCloseTab(tab.id);
+    }
+  }, [activeTabId, handleCloseTab]);
 
   const handleGotoLine = useCallback(() => setShowGoToLineDialog(true), []);
 
