@@ -61,11 +61,7 @@
         "languages": ["SimpChinese", "English"],
         "displayLanguageSelector": true,
         "installerIcon": "icons/icon.ico",
-        "sidebarImage": "icons/128x128.png",
-        "headerImage": "icons/32x32.png",
-        "template": null,
-        "startMenuFolder": "MarkPT",
-        "shortcut": true
+        "startMenuFolder": "MarkPT"
       }
     },
     "linux": {
