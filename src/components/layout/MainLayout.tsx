@@ -19,22 +19,38 @@ interface MainLayoutProps {
   onExport: (format: "txt" | "html" | "rtf") => void;
   onOpenEncoding: () => void;
   onOpenSettings: () => void;
+  onFunctionList: () => void;
+  onSplitHorizontal: () => void;
+  onSplitVertical: () => void;
+  onLanguageSelector: () => void;
   selectionInfo: { chars: number; lines: number } | null;
 }
 
 export function MainLayout({
   children, onNewTab, onCloseTab, onSave, onSaveAll, onOpenFile, onGotoLine, onExport,
-  onOpenEncoding, onOpenSettings, selectionInfo,
+  onOpenEncoding, onOpenSettings, onFunctionList, onSplitHorizontal, onSplitVertical, onLanguageSelector,
+  selectionInfo,
 }: MainLayoutProps) {
   const { tabs, activeTabId } = useFileStore();
-  const { isSearchPanelOpen, isFindInFilesOpen, toggleSearchPanel, toggleReplacePanel } = useSearchStore();
+  const { isSearchPanelOpen, isFindInFilesOpen, toggleSearchPanel, toggleReplacePanel, toggleFindInFiles } = useSearchStore();
   const activeTab = tabs.find((t) => t.id === activeTabId);
 
   const handleUndo = () => window.dispatchEvent(new CustomEvent("markpt:edit-action", { detail: { action: "undo" } }));
   const handleRedo = () => window.dispatchEvent(new CustomEvent("markpt:edit-action", { detail: { action: "redo" } }));
+  const handleCut = () => document.execCommand("cut");
+  const handleCopy = () => document.execCommand("copy");
+  const handlePaste = () => document.execCommand("paste");
   const handleZoomIn = () => window.dispatchEvent(new CustomEvent("markpt:zoom-in"));
   const handleZoomOut = () => window.dispatchEvent(new CustomEvent("markpt:zoom-out"));
   const handleToggleWordWrap = () => useSettingStore.getState().setWordWrap(!useSettingStore.getState().wordWrap);
+  const handleToggleInvisible = () => useSettingStore.getState().setShowWhitespace(!useSettingStore.getState().showWhitespace);
+  const handleToggleIndentGuide = () => useSettingStore.getState().setShowIndentGuides(!useSettingStore.getState().showIndentGuides);
+  const handlePrint = () => window.print();
+  const handleClose = () => activeTabId && onCloseTab(activeTabId);
+  const handleCloseAll = () => {
+    const allTabs = [...useFileStore.getState().tabs];
+    for (const tab of allTabs) onCloseTab(tab.id);
+  };
 
   return (
     <div className="main-layout">
@@ -44,16 +60,29 @@ export function MainLayout({
         onOpen={onOpenFile}
         onSave={onSave}
         onSaveAll={onSaveAll}
+        onClose={handleClose}
+        onCloseAll={handleCloseAll}
         onFind={toggleSearchPanel}
         onReplace={toggleReplacePanel}
+        onFindInFiles={toggleFindInFiles}
         onGotoLine={onGotoLine}
         onUndo={handleUndo}
         onRedo={handleRedo}
+        onCut={handleCut}
+        onCopy={handleCopy}
+        onPaste={handlePaste}
         onToggleWordWrap={handleToggleWordWrap}
+        onToggleInvisible={handleToggleInvisible}
+        onToggleIndentGuide={handleToggleIndentGuide}
         onZoomIn={handleZoomIn}
         onZoomOut={handleZoomOut}
         onEncoding={onOpenEncoding}
         onSettings={onOpenSettings}
+        onFunctionList={onFunctionList}
+        onSplitHorizontal={onSplitHorizontal}
+        onSplitVertical={onSplitVertical}
+        onLanguageSelector={onLanguageSelector}
+        onPrint={handlePrint}
       />
       <div className="editor-area">
         {isSearchPanelOpen && <SearchPanel />}

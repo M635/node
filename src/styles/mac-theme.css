@@ -358,6 +358,11 @@
   color: white;
 }
 
+.toolbar-icon-btn.active {
+  background: var(--mac-accent);
+  color: white;
+}
+
 .toolbar-spacer {
   flex: 1;
 }
@@ -1396,3 +1401,8 @@
 .postit-mode .tab-bar { display: none; }
 .postit-mode .status-bar { display: none; }
 .postit-mode .app-body { padding: 0; }
+
+.about-dialog { min-width: 360px; text-align: center; }
+.about-dialog h2 { margin-bottom: 8px; }
+.about-dialog p { margin: 4px 0; color: var(--mac-text-secondary); }
+.about-dialog .btn { margin-top: 12px; }

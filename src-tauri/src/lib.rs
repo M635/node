@@ -18,192 +18,113 @@ pub fn run() {
             {
                 use tauri::menu::{Menu, MenuItem, Submenu};
                 let app_handle = app.handle();
+                let m = |id: &str, label: &str| MenuItem::with_id(app_handle, id, label, true, None::<&str>);
 
-                let new_item = MenuItem::with_id(app_handle, "new", "新建", true, None::<&str>)?;
-                let open_item = MenuItem::with_id(app_handle, "open", "打开...", true, None::<&str>)?;
-                let open_with_encoding_item = MenuItem::with_id(app_handle, "open_with_encoding", "按编码打开...", true, None::<&str>)?;
-                let save_item = MenuItem::with_id(app_handle, "save", "保存", true, None::<&str>)?;
-                let save_all_item = MenuItem::with_id(app_handle, "save_all", "保存所有", true, None::<&str>)?;
-                let save_as_item = MenuItem::with_id(app_handle, "save_as", "另存为...", true, None::<&str>)?;
-                let save_copy_item = MenuItem::with_id(app_handle, "save_copy", "保存副本...", true, None::<&str>)?;
-                let close_item = MenuItem::with_id(app_handle, "close", "关闭标签", true, None::<&str>)?;
-                let quit_item = MenuItem::with_id(app_handle, "quit", "退出 MarkPT", true, None::<&str>)?;
+                // ========== 文件菜单 ==========
+                let file_menu = Submenu::with_items(app_handle, "文件", true, &[
+                    &m("new", "新建")?, &m("open", "打开...")?, &m("open_with_encoding", "按编码打开...")?,
+                    &m("reload_from_disk", "从磁盘重载")?,
+                    &m("save", "保存")?, &m("save_as", "另存为...")?, &m("save_copy", "保存副本...")?, &m("save_all", "保存所有")?,
+                    &m("close", "关闭")?, &m("close_all", "关闭所有")?, &m("close_all_but_current", "关闭所有但当前")?,
+                    &m("copy_path", "复制文件路径")?, &m("copy_directory", "复制目录路径")?, &m("copy_filename", "复制文件名")?,
+                    &m("toggle_bom", "切换 BOM")?,
+                    &m("open_in_default", "在默认程序打开")?, &m("run_command", "运行命令...")?,
+                    &m("file_props", "文件属性...")?,
+                    &m("quit", "退出 MarkPT")?,
+                ])?;
 
-                let file_props_item = MenuItem::with_id(app_handle, "file_props", "文件属性...", true, None::<&str>)?;
-                let copy_path_item = MenuItem::with_id(app_handle, "copy_path", "复制文件路径", true, None::<&str>)?;
-                let copy_dir_item = MenuItem::with_id(app_handle, "copy_directory", "复制目录路径", true, None::<&str>)?;
-                let copy_fname_item = MenuItem::with_id(app_handle, "copy_filename", "复制文件名", true, None::<&str>)?;
-                let reload_disk_item = MenuItem::with_id(app_handle, "reload_from_disk", "从磁盘重载", true, None::<&str>)?;
-                let toggle_bom_item = MenuItem::with_id(app_handle, "toggle_bom", "切换 BOM", true, None::<&str>)?;
-                let open_in_default_item = MenuItem::with_id(app_handle, "open_in_default", "在默认程序打开", true, None::<&str>)?;
-                let run_command_item = MenuItem::with_id(app_handle, "run_command", "运行命令...", true, None::<&str>)?;
+                // ========== 编辑菜单 ==========
+                let edit_menu = Submenu::with_items(app_handle, "编辑", true, &[
+                    &m("edit_undo", "撤销")?, &m("edit_redo", "重做")?,
+                    &m("edit_toggle_comment", "切换注释")?,
+                    &m("edit_delete_line", "删除当前行")?, &m("edit_duplicate_line", "复制当前行")?,
+                    &m("edit_move_up", "上移行")?, &m("edit_move_down", "下移行")?,
+                    &m("edit_delete_blank", "删除空行")?, &m("edit_remove_dup", "去重复行")?,
+                    &m("edit_trim_trailing", "去行尾空格")?,
+                    &m("edit_upper", "转大写")?, &m("edit_lower", "转小写")?,
+                    &m("edit_sentence_case", "句首大写")?, &m("edit_random_case", "随机大小写")?,
+                    &m("edit_sort_asc", "行排序(升序)")?, &m("edit_sort_desc", "行排序(降序)")?,
+                    &m("edit_sort_length_asc", "按长度排序(升序)")?, &m("edit_sort_length_desc", "按长度排序(降序)")?,
+                    &m("edit_sort_random", "随机排序")?, &m("edit_reverse_lines", "反转行序")?,
+                    &m("edit_filter_lines", "过滤行...")?, &m("edit_filter_lines_remove", "移除匹配行...")?,
+                    &m("edit_merge_lines", "合并行(空格)")?, &m("edit_merge_lines_comma", "合并行(逗号)")?, &m("edit_split_line", "拆分行")?,
+                    &m("eol_lf", "行尾: LF")?, &m("eol_crlf", "行尾: CRLF")?, &m("eol_cr", "行尾: CR")?,
+                    &m("tab_to_space", "Tab 转空格")?, &m("space_to_tab", "空格转 Tab")?,
+                    &m("format_code", "格式化代码")?,
+                    &m("format_json", "格式化 JSON")?, &m("format_xml", "格式化 XML")?, &m("format_html", "格式化 HTML")?, &m("format_css", "格式化 CSS")?, &m("format_sql", "格式化 SQL")?,
+                    &m("insert_datetime", "插入日期时间...")?, &m("special_char", "特殊字符...")?, &m("color_picker", "颜色选择器...")?, &m("insert_file", "插入文件内容...")?,
+                    &m("char_full_width", "转全角")?, &m("char_half_width", "转半角")?, &m("char_remove_non_printable", "删除非打印字符")?,
+                    &m("char_normalize_nfc", "Unicode NFC")?, &m("char_to_snake", "转 snake_case")?, &m("char_to_camel", "转 camelCase")?, &m("char_to_pascal", "转 PascalCase")?, &m("char_to_kebab", "转 kebab-case")?,
+                ])?;
 
-                let file_menu = Submenu::with_items(
-                    app_handle,
-                    "文件",
-                    true,
-                    &[&new_item, &open_item, &open_with_encoding_item, &save_item, &save_all_item, &save_as_item, &save_copy_item, &close_item, &reload_disk_item, &copy_path_item, &copy_dir_item, &copy_fname_item, &toggle_bom_item, &open_in_default_item, &run_command_item, &file_props_item, &quit_item],
-                )?;
+                // ========== 搜索菜单 ==========
+                let search_menu = Submenu::with_items(app_handle, "搜索", true, &[
+                    &m("find", "查找...")?, &m("find_next", "查找下一个")?, &m("find_prev", "查找上一个")?,
+                    &m("replace", "替换...")?,
+                    &m("find_in_files", "在文件中查找...")?, &m("batch_find_replace", "批量查找替换...")?, &m("multi_search", "多文档查找替换...")?,
+                    &m("goto", "跳转到行...")?, &m("jump_to_bracket", "跳转到匹配括号")?, &m("select_to_bracket", "选中到匹配括号")?,
+                    &m("mark_all", "标记所有匹配")?, &m("unmark_all", "取消所有标记")?,
+                    &m("next_bookmark", "下一书签")?, &m("prev_bookmark", "上一书签")?, &m("clear_bookmarks", "清除所有书签")?,
+                ])?;
 
-                let undo_item = MenuItem::with_id(app_handle, "edit_undo", "撤销", true, None::<&str>)?;
-                let redo_item = MenuItem::with_id(app_handle, "edit_redo", "重做", true, None::<&str>)?;
-                let delete_line_item = MenuItem::with_id(app_handle, "edit_delete_line", "删除当前行", true, None::<&str>)?;
-                let duplicate_line_item = MenuItem::with_id(app_handle, "edit_duplicate_line", "复制当前行", true, None::<&str>)?;
-                let move_up_item = MenuItem::with_id(app_handle, "edit_move_up", "上移行", true, None::<&str>)?;
-                let move_down_item = MenuItem::with_id(app_handle, "edit_move_down", "下移行", true, None::<&str>)?;
-                let delete_blank_item = MenuItem::with_id(app_handle, "edit_delete_blank", "删除空行", true, None::<&str>)?;
-                let trim_trailing_item = MenuItem::with_id(app_handle, "edit_trim_trailing", "去行尾空格", true, None::<&str>)?;
-                let toggle_comment_item = MenuItem::with_id(app_handle, "edit_toggle_comment", "切换注释", true, None::<&str>)?;
-                let upper_item = MenuItem::with_id(app_handle, "edit_upper", "转大写", true, None::<&str>)?;
-                let lower_item = MenuItem::with_id(app_handle, "edit_lower", "转小写", true, None::<&str>)?;
-                let sentence_case_item = MenuItem::with_id(app_handle, "edit_sentence_case", "句首大写", true, None::<&str>)?;
-                let random_case_item = MenuItem::with_id(app_handle, "edit_random_case", "随机大小写", true, None::<&str>)?;
-                let sort_asc_item = MenuItem::with_id(app_handle, "edit_sort_asc", "行排序(升序)", true, None::<&str>)?;
-                let sort_desc_item = MenuItem::with_id(app_handle, "edit_sort_desc", "行排序(降序)", true, None::<&str>)?;
-                let sort_length_asc_item = MenuItem::with_id(app_handle, "edit_sort_length_asc", "按长度排序(升序)", true, None::<&str>)?;
-                let sort_length_desc_item = MenuItem::with_id(app_handle, "edit_sort_length_desc", "按长度排序(降序)", true, None::<&str>)?;
-                let sort_random_item = MenuItem::with_id(app_handle, "edit_sort_random", "随机排序", true, None::<&str>)?;
-                let reverse_lines_item = MenuItem::with_id(app_handle, "edit_reverse_lines", "反转行序", true, None::<&str>)?;
-                let filter_lines_item = MenuItem::with_id(app_handle, "edit_filter_lines", "过滤行...", true, None::<&str>)?;
-                let filter_remove_item = MenuItem::with_id(app_handle, "edit_filter_lines_remove", "移除匹配行...", true, None::<&str>)?;
-                let merge_lines_item = MenuItem::with_id(app_handle, "edit_merge_lines", "合并行(空格)", true, None::<&str>)?;
-                let merge_lines_comma_item = MenuItem::with_id(app_handle, "edit_merge_lines_comma", "合并行(逗号)", true, None::<&str>)?;
-                let split_line_item = MenuItem::with_id(app_handle, "edit_split_line", "拆分行(空格)", true, None::<&str>)?;
-                let remove_dup_item = MenuItem::with_id(app_handle, "edit_remove_dup", "去重复行", true, None::<&str>)?;
-                let format_code_item = MenuItem::with_id(app_handle, "format_code", "格式化代码", true, None::<&str>)?;
-                let insert_datetime_item = MenuItem::with_id(app_handle, "insert_datetime", "插入日期时间...", true, None::<&str>)?;
-                let special_char_item = MenuItem::with_id(app_handle, "special_char", "特殊字符...", true, None::<&str>)?;
-                let color_picker_item = MenuItem::with_id(app_handle, "color_picker", "颜色选择器...", true, None::<&str>)?;
-                let eol_lf_item = MenuItem::with_id(app_handle, "eol_lf", "行尾: LF (Unix)", true, None::<&str>)?;
-                let eol_crlf_item = MenuItem::with_id(app_handle, "eol_crlf", "行尾: CRLF (Windows)", true, None::<&str>)?;
-                let eol_cr_item = MenuItem::with_id(app_handle, "eol_cr", "行尾: CR (Mac)", true, None::<&str>)?;
-                let tab_to_space_item = MenuItem::with_id(app_handle, "tab_to_space", "Tab 转空格", true, None::<&str>)?;
-                let space_to_tab_item = MenuItem::with_id(app_handle, "space_to_tab", "空格转 Tab", true, None::<&str>)?;
-                let jump_bracket_item = MenuItem::with_id(app_handle, "jump_to_bracket", "跳转到匹配括号", true, None::<&str>)?;
-                let select_bracket_item = MenuItem::with_id(app_handle, "select_to_bracket", "选中到匹配括号", true, None::<&str>)?;
-                let format_json_item = MenuItem::with_id(app_handle, "format_json", "格式化 JSON", true, None::<&str>)?;
-                let format_xml_item = MenuItem::with_id(app_handle, "format_xml", "格式化 XML", true, None::<&str>)?;
-                let format_html_item = MenuItem::with_id(app_handle, "format_html", "格式化 HTML", true, None::<&str>)?;
-                let format_css_item = MenuItem::with_id(app_handle, "format_css", "格式化 CSS", true, None::<&str>)?;
-                let format_sql_item = MenuItem::with_id(app_handle, "format_sql", "格式化 SQL", true, None::<&str>)?;
-                let char_full_item = MenuItem::with_id(app_handle, "char_full_width", "转全角", true, None::<&str>)?;
-                let char_half_item = MenuItem::with_id(app_handle, "char_half_width", "转半角", true, None::<&str>)?;
-                let char_nonprint_item = MenuItem::with_id(app_handle, "char_remove_non_printable", "删除非打印字符", true, None::<&str>)?;
-                let char_nfc_item = MenuItem::with_id(app_handle, "char_normalize_nfc", "Unicode NFC 归一化", true, None::<&str>)?;
-                let char_snake_item = MenuItem::with_id(app_handle, "char_to_snake", "转 snake_case", true, None::<&str>)?;
-                let char_camel_item = MenuItem::with_id(app_handle, "char_to_camel", "转 camelCase", true, None::<&str>)?;
-                let char_pascal_item = MenuItem::with_id(app_handle, "char_to_pascal", "转 PascalCase", true, None::<&str>)?;
-                let char_kebab_item = MenuItem::with_id(app_handle, "char_to_kebab", "转 kebab-case", true, None::<&str>)?;
-                let insert_file_item = MenuItem::with_id(app_handle, "insert_file", "插入文件内容...", true, None::<&str>)?;
-                let language_item = MenuItem::with_id(app_handle, "language_selector", "选择语言...", true, None::<&str>)?;
+                // ========== 视图菜单 ==========
+                let view_menu = Submenu::with_items(app_handle, "视图", true, &[
+                    &m("toggle_sidebar", "切换侧边栏")?, &m("command_palette", "命令面板...")?,
+                    &m("split_horizontal", "水平分屏")?, &m("split_vertical", "垂直分屏")?, &m("split_close", "关闭分屏")?,
+                    &m("function_list", "函数列表...")?, &m("doc_switcher", "切换文档...")?,
+                    &m("toggle_word_wrap", "自动换行")?,
+                    &m("zoom_in", "放大")?, &m("zoom_out", "缩小")?, &m("zoom_reset", "重置缩放")?,
+                    &m("full_screen", "全屏")?, &m("always_on_top", "窗口置顶")?, &m("postit_mode", "便利贴模式")?,
+                    &m("markdown_preview", "Markdown 预览...")?, &m("csv_viewer", "CSV/TSV 查看...")?, &m("regex_tester", "正则测试器...")?,
+                    &m("language_selector", "选择语言...")?,
+                ])?;
 
-                let edit_menu = Submenu::with_items(
-                    app_handle,
-                    "编辑",
-                    true,
-                    &[
-                        &undo_item, &redo_item,
-                        &delete_line_item, &duplicate_line_item,
-                        &move_up_item, &move_down_item,
-                        &delete_blank_item, &trim_trailing_item,
-                        &toggle_comment_item,
-                        &upper_item, &lower_item, &sentence_case_item, &random_case_item,
-                        &sort_asc_item, &sort_desc_item,
-                        &sort_length_asc_item, &sort_length_desc_item,
-                        &sort_random_item, &reverse_lines_item,
-                        &filter_lines_item, &filter_remove_item,
-                        &merge_lines_item, &merge_lines_comma_item, &split_line_item,
-                        &remove_dup_item,
-                        &format_code_item,
-                        &format_json_item, &format_xml_item, &format_html_item, &format_css_item, &format_sql_item,
-                        &insert_datetime_item, &special_char_item, &color_picker_item, &insert_file_item,
-                        &eol_lf_item, &eol_crlf_item, &eol_cr_item,
-                        &tab_to_space_item, &space_to_tab_item,
-                        &jump_bracket_item, &select_bracket_item,
-                        &char_full_item, &char_half_item, &char_nonprint_item, &char_nfc_item,
-                        &char_snake_item, &char_camel_item, &char_pascal_item, &char_kebab_item,
-                    ],
-                )?;
+                // ========== 编码菜单 ==========
+                let encoding_menu = Submenu::with_items(app_handle, "编码", true, &[
+                    &m("encoding", "编码设置...")?,
+                    &m("encode_utf8", "用 UTF-8 编码")?, &m("encode_utf8_bom", "用 UTF-8-BOM 编码")?,
+                    &m("encode_gbk", "用 GBK 编码")?, &m("encode_gb2312", "用 GB2312 编码")?,
+                    &m("encode_utf16le", "用 UTF-16LE 编码")?, &m("encode_utf16be", "用 UTF-16BE 编码")?,
+                    &m("encode_ascii", "用 ASCII 编码")?,
+                    &m("convert_utf8", "转换为 UTF-8")?, &m("convert_utf8_bom", "转换为 UTF-8-BOM")?,
+                    &m("convert_gbk", "转换为 GBK")?, &m("convert_gb2312", "转换为 GB2312")?,
+                    &m("convert_utf16le", "转换为 UTF-16LE")?, &m("convert_utf16be", "转换为 UTF-16BE")?,
+                ])?;
 
-                let find_item = MenuItem::with_id(app_handle, "find", "查找...", true, None::<&str>)?;
-                let replace_item = MenuItem::with_id(app_handle, "replace", "替换...", true, None::<&str>)?;
-                let goto_item = MenuItem::with_id(app_handle, "goto", "跳转到行...", true, None::<&str>)?;
-                let find_in_files_item = MenuItem::with_id(app_handle, "find_in_files", "在文件中查找...", true, None::<&str>)?;
-                let batch_find_replace_item = MenuItem::with_id(app_handle, "batch_find_replace", "批量查找替换...", true, None::<&str>)?;
-                let find_next_item = MenuItem::with_id(app_handle, "find_next", "查找下一个", true, None::<&str>)?;
-                let find_prev_item = MenuItem::with_id(app_handle, "find_prev", "查找上一个", true, None::<&str>)?;
-                let next_bookmark_item = MenuItem::with_id(app_handle, "next_bookmark", "下一书签", true, None::<&str>)?;
-                let prev_bookmark_item = MenuItem::with_id(app_handle, "prev_bookmark", "上一书签", true, None::<&str>)?;
-                let clear_bookmarks_item = MenuItem::with_id(app_handle, "clear_bookmarks", "清除所有书签", true, None::<&str>)?;
+                // ========== 设置菜单 ==========
+                let settings_menu = Submenu::with_items(app_handle, "设置", true, &[
+                    &m("settings", "首选项...")?,
+                    &m("shortcut_mapper", "快捷键映射...")?,
+                    &m("shortcuts", "快捷键帮助...")?,
+                    &m("snippets", "代码片段...")?,
+                    &m("clipboard_history", "剪贴板历史...")?,
+                    &m("plugin_manager", "插件管理...")?,
+                ])?;
 
-                let search_menu = Submenu::with_items(
-                    app_handle,
-                    "搜索",
-                    true,
-                    &[&find_item, &replace_item, &find_next_item, &find_prev_item, &goto_item, &find_in_files_item, &batch_find_replace_item, &next_bookmark_item, &prev_bookmark_item, &clear_bookmarks_item],
-                )?;
+                // ========== 工具菜单 ==========
+                let tools_menu = Submenu::with_items(app_handle, "工具", true, &[
+                    &m("char_stats", "字符统计...")?, &m("hex_viewer", "十六进制查看...")?,
+                    &m("text_transform", "文本转换...")?,
+                    &m("run_macro_multiple", "多次运行宏...")?,
+                ])?;
 
-                let encoding_item = MenuItem::with_id(app_handle, "encoding", "编码...", true, None::<&str>)?;
-                let settings_item = MenuItem::with_id(app_handle, "settings", "设置...", true, None::<&str>)?;
-                let char_stats_item = MenuItem::with_id(app_handle, "char_stats", "字符统计...", true, None::<&str>)?;
-                let hex_viewer_item = MenuItem::with_id(app_handle, "hex_viewer", "十六进制查看...", true, None::<&str>)?;
-                let multi_search_item = MenuItem::with_id(app_handle, "multi_search", "多文档查找替换...", true, None::<&str>)?;
-                let text_transform_item = MenuItem::with_id(app_handle, "text_transform", "文本转换...", true, None::<&str>)?;
-                let clipboard_history_item = MenuItem::with_id(app_handle, "clipboard_history", "剪贴板历史...", true, None::<&str>)?;
-                let snippets_item = MenuItem::with_id(app_handle, "snippets", "代码片段...", true, None::<&str>)?;
-                let plugin_manager_item = MenuItem::with_id(app_handle, "plugin_manager", "插件管理...", true, None::<&str>)?;
-                let run_macro_multiple_item = MenuItem::with_id(app_handle, "run_macro_multiple", "多次运行宏...", true, None::<&str>)?;
-                let tools_menu = Submenu::with_items(
-                    app_handle,
-                    "工具",
-                    true,
-                    &[&encoding_item, &settings_item, &char_stats_item, &hex_viewer_item, &multi_search_item, &text_transform_item, &clipboard_history_item, &snippets_item, &plugin_manager_item, &run_macro_multiple_item],
-                )?;
+                // ========== 宏菜单 ==========
+                let macro_menu = Submenu::with_items(app_handle, "宏", true, &[
+                    &m("macro_start_stop", "开始/停止录制")?,
+                    &m("macro_playback", "播放")?,
+                    &m("run_macro_multiple", "多次运行宏...")?,
+                    &m("macro_save", "保存当前录制的宏")?,
+                ])?;
 
-                let sidebar_item = MenuItem::with_id(app_handle, "toggle_sidebar", "切换侧边栏", true, None::<&str>)?;
-                let command_palette_item = MenuItem::with_id(app_handle, "command_palette", "命令面板...", true, None::<&str>)?;
-                let split_h_item = MenuItem::with_id(app_handle, "split_horizontal", "水平分屏", true, None::<&str>)?;
-                let split_v_item = MenuItem::with_id(app_handle, "split_vertical", "垂直分屏", true, None::<&str>)?;
-                let split_close_item = MenuItem::with_id(app_handle, "split_close", "关闭分屏", true, None::<&str>)?;
-                let function_list_item = MenuItem::with_id(app_handle, "function_list", "函数列表...", true, None::<&str>)?;
-                let word_wrap_item = MenuItem::with_id(app_handle, "toggle_word_wrap", "切换自动换行", true, None::<&str>)?;
-                let doc_switcher_item = MenuItem::with_id(app_handle, "doc_switcher", "切换文档...", true, None::<&str>)?;
-                let zoom_in_item = MenuItem::with_id(app_handle, "zoom_in", "放大", true, None::<&str>)?;
-                let zoom_out_item = MenuItem::with_id(app_handle, "zoom_out", "缩小", true, None::<&str>)?;
-                let zoom_reset_item = MenuItem::with_id(app_handle, "zoom_reset", "重置缩放", true, None::<&str>)?;
-                let fullscreen_item = MenuItem::with_id(app_handle, "full_screen", "全屏", true, None::<&str>)?;
-                let always_on_top_item = MenuItem::with_id(app_handle, "always_on_top", "窗口置顶", true, None::<&str>)?;
-                let markdown_preview_item = MenuItem::with_id(app_handle, "markdown_preview", "Markdown 预览...", true, None::<&str>)?;
-                let csv_viewer_item = MenuItem::with_id(app_handle, "csv_viewer", "CSV/TSV 查看...", true, None::<&str>)?;
-                let regex_tester_item = MenuItem::with_id(app_handle, "regex_tester", "正则测试器...", true, None::<&str>)?;
-                let postit_item = MenuItem::with_id(app_handle, "postit_mode", "便利贴模式", true, None::<&str>)?;
-                let view_menu = Submenu::with_items(
-                    app_handle,
-                    "视图",
-                    true,
-                    &[
-                        &sidebar_item, &command_palette_item,
-                        &split_h_item, &split_v_item, &split_close_item,
-                        &function_list_item, &word_wrap_item,
-                        &doc_switcher_item,
-                        &zoom_in_item, &zoom_out_item, &zoom_reset_item,
-                        &fullscreen_item, &always_on_top_item, &postit_item,
-                        &language_item,
-                        &markdown_preview_item, &csv_viewer_item, &regex_tester_item,
-                    ],
-                )?;
+                // ========== 帮助菜单 ==========
+                let help_menu = Submenu::with_items(app_handle, "帮助", true, &[
+                    &m("about", "关于 MarkPT")?,
+                ])?;
 
-                let shortcuts_item = MenuItem::with_id(app_handle, "shortcuts", "快捷键...", true, None::<&str>)?;
-                let shortcut_mapper_item = MenuItem::with_id(app_handle, "shortcut_mapper", "快捷键映射...", true, None::<&str>)?;
-                let about_item = MenuItem::with_id(app_handle, "about", "关于 MarkPT", true, None::<&str>)?;
-                let help_menu = Submenu::with_items(
-                    app_handle,
-                    "帮助",
-                    true,
-                    &[&shortcuts_item, &shortcut_mapper_item, &about_item],
-                )?;
-
-                let menu = Menu::with_items(app_handle, &[&file_menu, &edit_menu, &search_menu, &tools_menu, &view_menu, &help_menu])?;
+                let menu = Menu::with_items(app_handle, &[
+                    &file_menu, &edit_menu, &search_menu, &view_menu,
+                    &encoding_menu, &settings_menu, &tools_menu, &macro_menu, &help_menu,
+                ])?;
                 app_handle.set_menu(menu)?;
             }
             Ok(())

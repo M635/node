@@ -97,6 +97,7 @@ export default function App() {
   const [showRunCommand, setShowRunCommand] = useState(false);
   const [showRunMacro, setShowRunMacro] = useState(false);
   const [postItMode, setPostItMode] = useState(false);
+  const [showAbout, setShowAbout] = useState(false);
 
   const themeResult = useTheme(themeMode);
   useEffect(() => { setIsDark(themeResult.isDark); }, [themeResult.isDark, setIsDark]);
@@ -265,6 +266,88 @@ export default function App() {
 
   const handlePasteFromHistory = useCallback((text: string) => {
     window.dispatchEvent(new CustomEvent("markpt:insert-text", { detail: { text } }));
+  }, []);
+
+  const handleSaveAs = useCallback(async () => {
+    const tab = getActiveTab();
+    if (!tab) return;
+    const selected = await save({ filters: [{ name: "所有文件", extensions: ["*"] }] });
+    if (!selected) return;
+    try {
+      let content = tab.content;
+      const settings = useSettingStore.getState();
+      if (settings.trimTrailingWhitespaceOnSave) {
+        content = content.split("\n").map((line) => line.replace(/\s+$/, "")).join("\n");
+      }
+      if (settings.ensureFinalNewline && !content.endsWith("\n")) {
+        content += "\n";
+      }
+      await saveFileService(selected as string, content, tab.encoding);
+      updateTab(tab.id, { path: selected as string, name: getFileName(selected as string), is_new: false, is_dirty: false });
+      markClean(tab.id);
+    } catch (err) {
+      alert(`另存为失败: ${err}`);
+    }
+  }, [getActiveTab, updateTab, markClean]);
+
+  const handleCloseAll = useCallback(async () => {
+    const allTabs = [...useFileStore.getState().tabs];
+    for (const tab of allTabs) {
+      await handleCloseTab(tab.id);
+    }
+  }, [handleCloseTab]);
+
+  const handleCloseAllButCurrent = useCallback(async () => {
+    const allTabs = [...useFileStore.getState().tabs];
+    for (const tab of allTabs) {
+      if (tab.id === activeTabId) continue;
+      await handleCloseTab(tab.id);
+    }
+  }, [activeTabId, handleCloseTab]);
+
+  const handleQuit = useCallback(() => {
+    window.close();
+  }, []);
+
+  const handleMarkAll = useCallback(() => {
+    window.dispatchEvent(new CustomEvent("markpt:mark-all-matches"));
+  }, []);
+
+  const handleUnmarkAll = useCallback(() => {
+    window.dispatchEvent(new CustomEvent("markpt:unmark-all"));
+  }, []);
+
+  const handleEncodeWith = useCallback(async (encoding: string) => {
+    const tab = getActiveTab();
+    if (!tab?.path) return;
+    try {
+      const newContent = await reloadWithEncoding(tab.path, encoding);
+      updateTab(tab.id, { encoding: encoding as EncodingType, content: newContent, is_dirty: false });
+    } catch (err) {
+      alert(`用 ${encoding} 编码打开失败: ${err}`);
+    }
+  }, [getActiveTab, updateTab]);
+
+  const handleConvertEncoding = useCallback(async (encoding: string) => {
+    const tab = getActiveTab();
+    if (!tab) return;
+    updateTab(tab.id, { encoding: encoding as EncodingType, is_dirty: true });
+  }, [getActiveTab, updateTab]);
+
+  const handleMacroStartStop = useCallback(() => {
+    window.dispatchEvent(new CustomEvent("markpt:toggle-macro"));
+  }, []);
+
+  const handleMacroPlayback = useCallback(() => {
+    window.dispatchEvent(new CustomEvent("markpt:play-macro"));
+  }, []);
+
+  const handleMacroSave = useCallback(() => {
+    window.dispatchEvent(new CustomEvent("markpt:save-macro"));
+  }, []);
+
+  const handleAbout = useCallback(() => {
+    setShowAbout(true);
   }, []);
 
   useEffect(() => {
@@ -645,6 +728,18 @@ export default function App() {
     onPostItMode: () => setPostItMode((v) => !v),
     onSentenceCase: () => window.dispatchEvent(new CustomEvent("markpt:edit-action", { detail: { action: "sentence-case" } })),
     onRandomCase: () => window.dispatchEvent(new CustomEvent("markpt:edit-action", { detail: { action: "random-case" } })),
+    onSaveAs: handleSaveAs,
+    onCloseAll: handleCloseAll,
+    onCloseAllButCurrent: handleCloseAllButCurrent,
+    onQuit: handleQuit,
+    onMarkAll: handleMarkAll,
+    onUnmarkAll: handleUnmarkAll,
+    onEncodeWith: handleEncodeWith,
+    onConvertEncoding: handleConvertEncoding,
+    onMacroStartStop: handleMacroStartStop,
+    onMacroPlayback: handleMacroPlayback,
+    onMacroSave: handleMacroSave,
+    onAbout: handleAbout,
   });
 
   useEffect(() => {
@@ -730,6 +825,10 @@ export default function App() {
           onExport={handleExport}
           onOpenEncoding={() => setShowEncodingDialog(true)}
           onOpenSettings={() => setShowSettingsDialog(true)}
+          onFunctionList={() => setShowFunctionList((v) => !v)}
+          onSplitHorizontal={() => setSplitMode(splitMode === "horizontal" ? null : "horizontal")}
+          onSplitVertical={() => setSplitMode(splitMode === "vertical" ? null : "vertical")}
+          onLanguageSelector={() => setShowLanguageSelector(true)}
           selectionInfo={selectionInfo}
         >
           {activeTab ? (
@@ -886,6 +985,18 @@ export default function App() {
       )}
       {showRunMacro && (
         <RunMacroDialog onClose={() => setShowRunMacro(false)} onRun={handleRunMacro} />
+      )}
+      {showAbout && (
+        <div className="dialog-overlay" onClick={() => setShowAbout(false)}>
+          <div className="dialog-content about-dialog" onClick={(e) => e.stopPropagation()}>
+            <h2>MarkPT</h2>
+            <p>轻量化文本编辑器</p>
+            <p>版本 1.0.2</p>
+            <p>基于 Tauri + Rust + React + Monaco Editor</p>
+            <p>对标 Notepad++ 的跨平台文本编辑器</p>
+            <button className="btn btn-primary" onClick={() => setShowAbout(false)}>确定</button>
+          </div>
+        </div>
       )}
     </div>
   );

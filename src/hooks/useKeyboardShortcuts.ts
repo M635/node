@@ -79,6 +79,18 @@ interface ShortcutHandlers {
   onPostItMode?: () => void;
   onSentenceCase?: () => void;
   onRandomCase?: () => void;
+  onSaveAs?: () => void;
+  onCloseAll?: () => void;
+  onCloseAllButCurrent?: () => void;
+  onQuit?: () => void;
+  onMarkAll?: () => void;
+  onUnmarkAll?: () => void;
+  onEncodeWith?: (encoding: string) => void;
+  onConvertEncoding?: (encoding: string) => void;
+  onMacroStartStop?: () => void;
+  onMacroPlayback?: () => void;
+  onMacroSave?: () => void;
+  onAbout?: () => void;
 }
 
 export function useKeyboardShortcuts(handlers: ShortcutHandlers): void {
@@ -195,6 +207,29 @@ export function useKeyboardShortcuts(handlers: ShortcutHandlers): void {
           case "postit_mode": handlers.onPostItMode?.(); break;
           case "edit_sentence_case": handlers.onSentenceCase?.(); break;
           case "edit_random_case": handlers.onRandomCase?.(); break;
+          case "save_as": handlers.onSaveAs?.(); break;
+          case "close_all": handlers.onCloseAll?.(); break;
+          case "close_all_but_current": handlers.onCloseAllButCurrent?.(); break;
+          case "quit": handlers.onQuit?.(); break;
+          case "mark_all": handlers.onMarkAll?.(); break;
+          case "unmark_all": handlers.onUnmarkAll?.(); break;
+          case "encode_utf8": handlers.onEncodeWith?.("UTF-8"); break;
+          case "encode_utf8_bom": handlers.onEncodeWith?.("UTF-8-BOM"); break;
+          case "encode_gbk": handlers.onEncodeWith?.("GBK"); break;
+          case "encode_gb2312": handlers.onEncodeWith?.("GB2312"); break;
+          case "encode_utf16le": handlers.onEncodeWith?.("UTF-16LE"); break;
+          case "encode_utf16be": handlers.onEncodeWith?.("UTF-16BE"); break;
+          case "encode_ascii": handlers.onEncodeWith?.("ASCII"); break;
+          case "convert_utf8": handlers.onConvertEncoding?.("UTF-8"); break;
+          case "convert_utf8_bom": handlers.onConvertEncoding?.("UTF-8-BOM"); break;
+          case "convert_gbk": handlers.onConvertEncoding?.("GBK"); break;
+          case "convert_gb2312": handlers.onConvertEncoding?.("GB2312"); break;
+          case "convert_utf16le": handlers.onConvertEncoding?.("UTF-16LE"); break;
+          case "convert_utf16be": handlers.onConvertEncoding?.("UTF-16BE"); break;
+          case "macro_start_stop": handlers.onMacroStartStop?.(); break;
+          case "macro_playback": handlers.onMacroPlayback?.(); break;
+          case "macro_save": handlers.onMacroSave?.(); break;
+          case "about": handlers.onAbout?.(); break;
         }
       });
     })();

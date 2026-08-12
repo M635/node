@@ -20,6 +20,7 @@ interface SettingStore {
   trimTrailingWhitespaceOnSave: boolean;
   ensureFinalNewline: boolean;
   autoDetectIndent: boolean;
+  showIndentGuides: boolean;
 
   setFontSize: (size: number) => void;
   setFontFamily: (family: string) => void;
@@ -38,6 +39,7 @@ interface SettingStore {
   setTrimTrailingWhitespaceOnSave: (enable: boolean) => void;
   setEnsureFinalNewline: (enable: boolean) => void;
   setAutoDetectIndent: (enable: boolean) => void;
+  setShowIndentGuides: (enable: boolean) => void;
   resetToDefaults: () => void;
 }
 
@@ -59,6 +61,7 @@ export const useSettingStore = create<SettingStore>((set) => ({
   trimTrailingWhitespaceOnSave: false,
   ensureFinalNewline: true,
   autoDetectIndent: true,
+  showIndentGuides: true,
 
   setFontSize: (size) => set({ fontSize: size }),
   setFontFamily: (family) => set({ fontFamily: family }),
@@ -84,6 +87,7 @@ export const useSettingStore = create<SettingStore>((set) => ({
   setTrimTrailingWhitespaceOnSave: (enable) => set({ trimTrailingWhitespaceOnSave: enable }),
   setEnsureFinalNewline: (enable) => set({ ensureFinalNewline: enable }),
   setAutoDetectIndent: (enable) => set({ autoDetectIndent: enable }),
+  setShowIndentGuides: (enable) => set({ showIndentGuides: enable }),
   resetToDefaults: () =>
     set({
       fontSize: defaultEditorConfig.fontSize,
