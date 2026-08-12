@@ -85,8 +85,7 @@ input, select, textarea {
 }
 
 .title-bar-space {
-  height: var(--mac-titlebar-height);
-  flex-shrink: 0;
+  display: none;
 }
 
 .editor-area {

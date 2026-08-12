@@ -4,9 +4,18 @@
   height: var(--mac-tabbar-height);
   background: var(--mac-tab-inactive);
   border-bottom: 1px solid var(--mac-border);
-  padding-left: 70px;
+  padding-left: 80px;
   flex-shrink: 0;
   overflow: hidden;
+  -webkit-app-region: drag;
+}
+
+.tab-item {
+  -webkit-app-region: no-drag;
+}
+
+.tab-actions {
+  -webkit-app-region: no-drag;
 }
 
 .tabs-container {
@@ -307,6 +316,50 @@
   display: flex;
   align-items: center;
   gap: 8px;
+}
+
+.main-toolbar {
+  display: flex;
+  align-items: center;
+  height: 34px;
+  padding: 0 8px;
+  background: var(--mac-bg);
+  border-bottom: 1px solid var(--mac-border);
+  flex-shrink: 0;
+  gap: 4px;
+}
+
+.toolbar-divider {
+  width: 1px;
+  height: 18px;
+  background: var(--mac-border);
+  margin: 0 2px;
+}
+
+.toolbar-icon-btn {
+  width: 28px;
+  height: 26px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--mac-radius-sm);
+  font-size: 14px;
+  color: var(--mac-fg);
+  transition: background 0.15s;
+  cursor: pointer;
+}
+
+.toolbar-icon-btn:hover {
+  background: var(--mac-hover);
+}
+
+.toolbar-icon-btn:active {
+  background: var(--mac-accent);
+  color: white;
+}
+
+.toolbar-spacer {
+  flex: 1;
 }
 
 .toolbar-group {

@@ -724,6 +724,7 @@ export default function App() {
           onNewTab={handleNewFile}
           onCloseTab={handleCloseTab}
           onSave={handleSave}
+          onSaveAll={handleSaveAll}
           onOpenFile={handleOpenFile}
           onGotoLine={handleGotoLine}
           onExport={handleExport}
