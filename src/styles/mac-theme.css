@@ -21,10 +21,12 @@
 .tabs-container {
   display: flex;
   align-items: center;
-  flex: 1;
+  flex: 1 1 auto;
+  min-width: 0;
   overflow-x: auto;
   overflow-y: hidden;
   height: 100%;
+  scrollbar-width: thin;
 }
 
 .tabs-container::-webkit-scrollbar {
@@ -138,6 +140,45 @@
   position: relative;
   flex-shrink: 0;
   margin-right: 8px;
+  z-index: 100;
+}
+
+.tab-dropdown-menu {
+  position: absolute;
+  top: 100%;
+  right: 0;
+  background: var(--mac-bg);
+  border: 1px solid var(--mac-border);
+  border-radius: var(--mac-radius-sm);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
+  z-index: 10000;
+  min-width: 160px;
+  padding: 4px 0;
+}
+
+.tab-dropdown-item {
+  padding: 8px 16px;
+  font-size: 12px;
+  cursor: pointer;
+  color: var(--mac-fg);
+  white-space: nowrap;
+}
+
+.tab-dropdown-item:hover {
+  background: var(--mac-accent);
+  color: white;
+}
+
+.tab-sort-menu {
+  right: 56px;
+}
+
+.tab-list-menu {
+  right: 28px;
+  min-width: 280px;
+  max-height: 400px;
+  display: flex;
+  flex-direction: column;
 }
 
 .tab-action-btn {
@@ -155,44 +196,6 @@
 .tab-action-btn:hover {
   background: var(--mac-hover);
   color: var(--mac-fg);
-}
-
-.tab-sort-menu {
-  position: absolute;
-  top: 100%;
-  right: 56px;
-  background: var(--mac-bg);
-  border: 1px solid var(--mac-border);
-  border-radius: var(--mac-radius-sm);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-  z-index: 1000;
-  min-width: 140px;
-}
-
-.tab-sort-item {
-  padding: 8px 12px;
-  font-size: 12px;
-  cursor: pointer;
-  color: var(--mac-fg);
-}
-
-.tab-sort-item:hover {
-  background: var(--mac-hover);
-}
-
-.tab-list-menu {
-  position: absolute;
-  top: 100%;
-  right: 8px;
-  background: var(--mac-bg);
-  border: 1px solid var(--mac-border);
-  border-radius: var(--mac-radius-sm);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-  z-index: 1000;
-  width: 300px;
-  max-height: 400px;
-  display: flex;
-  flex-direction: column;
 }
 
 .tab-list-header {
@@ -293,15 +296,39 @@
   display: flex;
   align-items: center;
   gap: 12px;
+  min-width: 0;
+  overflow: hidden;
+}
+
+.status-left {
+  flex: 1 1 auto;
+}
+
+.status-right {
+  flex-shrink: 0;
 }
 
 .status-item {
   cursor: pointer;
   white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  flex-shrink: 0;
 }
 
 .status-item:hover {
   color: var(--mac-accent);
+}
+
+.status-version {
+  color: #00a857;
+  font-weight: 600;
+  font-size: 10px;
+  padding: 1px 6px;
+  background: rgba(0, 168, 87, 0.1);
+  border-radius: 3px;
+  white-space: nowrap;
+  flex-shrink: 0;
 }
 
 .readonly-badge {
@@ -321,32 +348,41 @@
 .main-toolbar {
   display: flex;
   align-items: center;
-  height: 34px;
-  padding: 0 8px;
-  background: var(--mac-bg);
+  height: 32px;
+  padding: 0 6px;
+  background: var(--mac-tab-inactive);
   border-bottom: 1px solid var(--mac-border);
   flex-shrink: 0;
-  gap: 4px;
+  gap: 2px;
+  overflow-x: auto;
+  overflow-y: hidden;
+  scrollbar-width: none;
+}
+
+.main-toolbar::-webkit-scrollbar {
+  height: 0;
 }
 
 .toolbar-divider {
   width: 1px;
-  height: 18px;
+  height: 16px;
   background: var(--mac-border);
-  margin: 0 2px;
+  margin: 0 3px;
+  flex-shrink: 0;
 }
 
 .toolbar-icon-btn {
-  width: 28px;
-  height: 26px;
+  width: 26px;
+  height: 24px;
   display: flex;
   align-items: center;
   justify-content: center;
   border-radius: var(--mac-radius-sm);
-  font-size: 14px;
+  font-size: 13px;
   color: var(--mac-fg);
-  transition: background 0.15s;
+  transition: background 0.1s;
   cursor: pointer;
+  flex-shrink: 0;
 }
 
 .toolbar-icon-btn:hover {
@@ -1064,7 +1100,9 @@
 
 .app-body {
   display: flex;
-  flex: 1;
+  flex: 1 1 auto;
+  min-width: 0;
+  min-height: 0;
   overflow: hidden;
 }
 
@@ -1402,7 +1440,24 @@
 .postit-mode .status-bar { display: none; }
 .postit-mode .app-body { padding: 0; }
 
-.about-dialog { min-width: 360px; text-align: center; }
-.about-dialog h2 { margin-bottom: 8px; }
+.about-dialog { min-width: 360px; text-align: center; padding: 24px; }
+.about-dialog h2 { margin-bottom: 8px; font-size: 24px; font-weight: 300; }
 .about-dialog p { margin: 4px 0; color: var(--mac-text-secondary); }
-.about-dialog .btn { margin-top: 12px; }
+.about-version { font-weight: 600; color: var(--mac-fg) !important; }
+.about-desc { font-size: 13px; }
+.about-tech { font-size: 11px; }
+.about-logo {
+  width: 64px;
+  height: 64px;
+  margin: 0 auto 12px;
+  background: white;
+  border: 2px solid #00a857;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 22px;
+  font-weight: 700;
+  color: #00a857;
+}
+.about-actions { margin-top: 16px; }

@@ -1,4 +1,4 @@
-import { useState, type DragEvent } from "react";
+import { useState, useRef, useEffect, type DragEvent } from "react";
 import { useFileStore } from "../../stores/fileStore";
 import { TabItem } from "./TabItem";
 import { TabContextMenu } from "./TabContextMenu";
@@ -17,6 +17,21 @@ export function TabBar({ onNewTab, onCloseTab }: TabBarProps) {
   const [showTabList, setShowTabList] = useState(false);
   const [showSortMenu, setShowSortMenu] = useState(false);
   const [tabListFilter, setTabListFilter] = useState("");
+  const sortMenuRef = useRef<HTMLDivElement>(null);
+  const tabListRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
+      if (showSortMenu && sortMenuRef.current && !sortMenuRef.current.contains(e.target as Node)) {
+        setShowSortMenu(false);
+      }
+      if (showTabList && tabListRef.current && !tabListRef.current.contains(e.target as Node)) {
+        setShowTabList(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, [showSortMenu, showTabList]);
 
   const handleDragStart = (e: DragEvent, index: number) => {
     setDragIndex(index);
@@ -61,6 +76,11 @@ export function TabBar({ onNewTab, onCloseTab }: TabBarProps) {
     onCloseTab(id);
   };
 
+  const handleSort = (by: "name" | "path" | "type" | "size") => {
+    sortTabs(by);
+    setShowSortMenu(false);
+  };
+
   const filteredTabs = tabListFilter
     ? tabs.filter((t) => t.name.toLowerCase().includes(tabListFilter.toLowerCase()) || t.path.toLowerCase().includes(tabListFilter.toLowerCase()))
     : tabs;
@@ -84,23 +104,23 @@ export function TabBar({ onNewTab, onCloseTab }: TabBarProps) {
           />
         ))}
       </div>
-      <div className="tab-actions">
+      <div className="tab-actions" ref={sortMenuRef}>
         <button className="tab-action-btn" onClick={() => setShowSortMenu((v) => !v)} title="排序标签">
           ⇅
         </button>
         {showSortMenu && (
-          <div className="tab-sort-menu" onMouseLeave={() => setShowSortMenu(false)}>
-            <div className="tab-sort-item" onClick={() => { sortTabs("name"); setShowSortMenu(false); }}>按名称排序</div>
-            <div className="tab-sort-item" onClick={() => { sortTabs("path"); setShowSortMenu(false); }}>按路径排序</div>
-            <div className="tab-sort-item" onClick={() => { sortTabs("type"); setShowSortMenu(false); }}>按类型排序</div>
-            <div className="tab-sort-item" onClick={() => { sortTabs("size"); setShowSortMenu(false); }}>按大小排序</div>
+          <div className="tab-dropdown-menu tab-sort-menu">
+            <div className="tab-dropdown-item" onClick={() => handleSort("name")}>按名称排序</div>
+            <div className="tab-dropdown-item" onClick={() => handleSort("path")}>按路径排序</div>
+            <div className="tab-dropdown-item" onClick={() => handleSort("type")}>按类型排序</div>
+            <div className="tab-dropdown-item" onClick={() => handleSort("size")}>按大小排序</div>
           </div>
         )}
         <button className="tab-action-btn" onClick={() => setShowTabList((v) => !v)} title="标签列表">
           ☰
         </button>
         {showTabList && (
-          <div className="tab-list-menu">
+          <div className="tab-dropdown-menu tab-list-menu" ref={tabListRef}>
             <div className="tab-list-header">
               <input
                 type="text"

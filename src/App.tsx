@@ -859,11 +859,15 @@ export default function App() {
           ) : (
             <div className="no-tab">
               <div className="no-tab-content">
+                <div className="no-tab-logo">MPT</div>
                 <h2>MarkPT</h2>
-                <p>轻量化文本编辑器</p>
-                <button className="btn btn-primary" onClick={handleNewFile}>新建文件</button>
-                <button className="btn btn-default" onClick={handleOpenFile}>打开文件</button>
-                <p className="hint">拖拽文件到此处打开 · Cmd+P 命令面板</p>
+                <p>轻量化代码文本编辑器 v1.0.3</p>
+                <p className="hint">对标 Notepad++ · 基于 Tauri + Monaco Editor</p>
+                <div className="no-tab-actions">
+                  <button className="btn btn-primary" onClick={handleNewFile}>新建文件</button>
+                  <button className="btn btn-default" onClick={handleOpenFile}>打开文件</button>
+                </div>
+                <p className="hint">拖拽文件到此处打开 · Cmd+P 命令面板 · Cmd+/ 快捷键帮助</p>
               </div>
             </div>
           )}
@@ -989,12 +993,15 @@ export default function App() {
       {showAbout && (
         <div className="dialog-overlay" onClick={() => setShowAbout(false)}>
           <div className="dialog-content about-dialog" onClick={(e) => e.stopPropagation()}>
+            <div className="about-logo">MPT</div>
             <h2>MarkPT</h2>
-            <p>轻量化文本编辑器</p>
-            <p>版本 1.0.2</p>
-            <p>基于 Tauri + Rust + React + Monaco Editor</p>
-            <p>对标 Notepad++ 的跨平台文本编辑器</p>
-            <button className="btn btn-primary" onClick={() => setShowAbout(false)}>确定</button>
+            <p className="about-version">版本 1.0.3</p>
+            <p className="about-desc">轻量化代码文本编辑器</p>
+            <p className="about-tech">Tauri 2.x + Rust + React + Monaco Editor</p>
+            <p className="about-desc">对标 Notepad++ 的跨平台文本编辑器</p>
+            <div className="about-actions">
+              <button className="btn btn-primary" onClick={() => setShowAbout(false)}>确定</button>
+            </div>
           </div>
         </div>
       )}

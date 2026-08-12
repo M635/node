@@ -45,8 +45,8 @@
     "externalBin": [],
     "copyright": "",
     "category": "DeveloperTool",
-    "shortDescription": "轻量化文本编辑器",
-    "longDescription": "对标 Notepad++ 的 macOS 轻量化文本编辑器",
+    "shortDescription": "MarkPT 轻量化代码文本编辑器",
+    "longDescription": "MarkPT - 对标 Notepad++ 的跨平台轻量化代码文本编辑器，基于 Tauri + Rust + React + Monaco Editor",
     "macOS": {
       "frameworks": [],
       "minimumSystemVersion": "10.15",

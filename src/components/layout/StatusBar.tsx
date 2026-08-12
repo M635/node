@@ -64,6 +64,7 @@ export function StatusBar({
         </div>
         <div className="status-right">
           <EditorToolbar isRecordingMacro={isRecordingMacro} onToggleMacro={handleToggleMacro} onToggleDiff={handleToggleDiff} onExport={onExport} />
+          <span className="status-version" title="MarkPT v1.0.3">v1.0.3</span>
         </div>
       </div>
     );
@@ -109,6 +110,7 @@ export function StatusBar({
         </span>
         <span className="status-item" onClick={onOpenSettings} title="设置">⚙</span>
         <EditorToolbar isRecordingMacro={isRecordingMacro} onToggleMacro={handleToggleMacro} onToggleDiff={handleToggleDiff} onExport={onExport} />
+        <span className="status-version" title="MarkPT v1.0.3">v1.0.3</span>
       </div>
     </div>
   );
