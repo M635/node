@@ -801,12 +801,11 @@ export default function App() {
     return () => clearInterval(saveInterval);
   }, [saveSessionNow]);
 
-  // 窗口关闭时保存会话
+  // 窗口关闭时保存会话（使用 beforeunload 替代 onCloseRequested，兼容性更好）
   useEffect(() => {
-    const unlistenP = getCurrentWindow().onCloseRequested(() => {
-      saveSessionNow().catch(() => {});
-    });
-    return () => { unlistenP.then((unlisten) => unlisten()); };
+    const handler = () => { saveSessionNow().catch(() => {}); };
+    window.addEventListener("beforeunload", handler);
+    return () => window.removeEventListener("beforeunload", handler);
   }, [saveSessionNow]);
 
   // 会话恢复（启动时）
