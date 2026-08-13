@@ -741,7 +741,7 @@
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
   min-width: 300px;
   max-width: 500px;
-  max-height: 80vh;
+  max-height: 70vh;
   overflow: hidden;
   display: flex;
   flex-direction: column;
@@ -799,6 +799,7 @@
   padding: 16px;
   overflow-y: auto;
   flex: 1;
+  min-height: 0;
 }
 
 .dialog-footer {

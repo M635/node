@@ -319,7 +319,7 @@ export default function App() {
   }, [tabs, activeTab, activeTabId, showSidebar]);
 
   const handleQuit = useCallback(async () => {
-    await saveSessionNow();
+    try { await saveSessionNow(); } catch { /* ignore */ }
     await getCurrentWindow().destroy();
   }, [saveSessionNow]);
 
@@ -805,7 +805,7 @@ export default function App() {
   useEffect(() => {
     const unlistenP = getCurrentWindow().onCloseRequested(async (event) => {
       event.preventDefault();
-      await saveSessionNow();
+      try { await saveSessionNow(); } catch { /* ignore */ }
       await getCurrentWindow().destroy();
     });
     return () => { unlistenP.then((unlisten) => unlisten()); };
