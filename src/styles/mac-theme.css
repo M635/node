@@ -1112,6 +1112,12 @@
   border-right: 1px solid var(--mac-border);
   background: var(--mac-sidebar);
   overflow: hidden;
+  padding-top: 32px;
+  -webkit-app-region: drag;
+}
+
+.sidebar-container > * {
+  -webkit-app-region: no-drag;
 }
 
 .sidebar {
