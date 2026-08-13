@@ -1,4 +1,5 @@
 import { create } from "zustand";
+import { invoke } from "@tauri-apps/api/core";
 
 export type Language = "zh" | "en";
 
@@ -82,6 +83,14 @@ const translations: Record<string, Record<Language, string>> = {
   "tab.sortBySize": { zh: "按大小排序", en: "Sort by Size" },
   "tab.list": { zh: "标签列表", en: "Tab List" },
   "tab.filterPlaceholder": { zh: "过滤标签...", en: "Filter tabs..." },
+  "tab.close": { zh: "关闭标签", en: "Close Tab" },
+  "tab.closeOthers": { zh: "关闭其他", en: "Close Others" },
+  "tab.closeRight": { zh: "关闭右侧", en: "Close to the Right" },
+  "tab.closeLeft": { zh: "关闭左侧", en: "Close to the Left" },
+  "tab.closeAll": { zh: "关闭全部", en: "Close All" },
+  "tab.duplicate": { zh: "创建副本", en: "Duplicate" },
+  "tab.copyPath": { zh: "复制路径", en: "Copy Path" },
+  "tab.copyName": { zh: "复制文件名", en: "Copy Filename" },
 
   "dialog.settings": { zh: "设置", en: "Settings" },
   "dialog.settings.font": { zh: "字体", en: "Font" },
@@ -102,6 +111,7 @@ const translations: Record<string, Record<Language, string>> = {
   "dialog.settings.autoDetectIndent": { zh: "自动检测缩进", en: "Auto Detect Indent" },
   "dialog.settings.trimOnSave": { zh: "保存时去行尾空格", en: "Trim Trailing Whitespace on Save" },
   "dialog.settings.ensureFinalNewline": { zh: "确保文件末尾换行", en: "Ensure Final Newline" },
+  "dialog.settings.theme": { zh: "主题", en: "Theme" },
   "dialog.settings.themeMode": { zh: "主题模式", en: "Theme Mode" },
   "dialog.settings.followSystem": { zh: "跟随系统", en: "Follow System" },
   "dialog.settings.light": { zh: "浅色", en: "Light" },
@@ -119,7 +129,10 @@ interface I18nStore {
 
 export const useI18n = create<I18nStore>((set, get) => ({
   language: "zh",
-  setLanguage: (lang) => set({ language: lang }),
+  setLanguage: (lang) => {
+    set({ language: lang });
+    invoke("rebuild_menu", { lang }).catch(() => {});
+  },
   t: (key) => {
     const { language } = get();
     const entry = translations[key];

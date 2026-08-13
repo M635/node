@@ -57,14 +57,14 @@ export function SettingsDialog({ onClose }: SettingsDialogProps) {
     <div className="dialog-overlay" onClick={onClose}>
       <div className="dialog settings-dialog" onClick={(e) => e.stopPropagation()}>
         <div className="dialog-header">
-          <h2>MarkPT 设置</h2>
+          <h2>{t("dialog.settings")}</h2>
           <button className="dialog-close" onClick={onClose}>×</button>
         </div>
         <div className="dialog-body">
           <div className="settings-section">
-            <h3>字体</h3>
+            <h3>{t("dialog.settings.font")}</h3>
             <div className="settings-row">
-              <label>字号</label>
+              <label>{t("dialog.settings.fontSize")}</label>
               <input
                 type="number"
                 min="8"
@@ -78,22 +78,22 @@ export function SettingsDialog({ onClose }: SettingsDialogProps) {
               />
             </div>
             <div className="settings-row">
-              <label>字体族</label>
+              <label>{t("dialog.settings.fontFamily")}</label>
               <select value={fontFamily} onChange={(e) => setFontFamily(e.target.value)}>
                 <option value="'SF Mono', 'Menlo', monospace">SF Mono</option>
                 <option value="'Menlo', monospace">Menlo</option>
                 <option value="'Monaco', monospace">Monaco</option>
                 <option value="'Consolas', monospace">Consolas</option>
                 <option value="'Courier New', monospace">Courier New</option>
-                <option value="monospace">系统默认</option>
+                <option value="monospace">{language === "en" ? "System Default" : "系统默认"}</option>
               </select>
             </div>
           </div>
 
           <div className="settings-section">
-            <h3>编辑器</h3>
+            <h3>{t("dialog.settings.editor")}</h3>
             <div className="settings-row">
-              <label>Tab 大小</label>
+              <label>{t("dialog.settings.tabSize")}</label>
               <select value={tabSize} onChange={(e) => setTabSize(parseInt(e.target.value))}>
                 <option value={2}>2</option>
                 <option value={4}>4</option>
@@ -101,7 +101,7 @@ export function SettingsDialog({ onClose }: SettingsDialogProps) {
               </select>
             </div>
             <div className="settings-row">
-              <label>空格缩进</label>
+              <label>{t("dialog.settings.insertSpaces")}</label>
               <input
                 type="checkbox"
                 checked={insertSpaces}
@@ -109,7 +109,7 @@ export function SettingsDialog({ onClose }: SettingsDialogProps) {
               />
             </div>
             <div className="settings-row">
-              <label>自动换行</label>
+              <label>{t("dialog.settings.wordWrap")}</label>
               <input
                 type="checkbox"
                 checked={wordWrap}
@@ -117,7 +117,7 @@ export function SettingsDialog({ onClose }: SettingsDialogProps) {
               />
             </div>
             <div className="settings-row">
-              <label>显示行号</label>
+              <label>{t("dialog.settings.lineNumbers")}</label>
               <input
                 type="checkbox"
                 checked={showLineNumbers}
@@ -125,7 +125,7 @@ export function SettingsDialog({ onClose }: SettingsDialogProps) {
               />
             </div>
             <div className="settings-row">
-              <label>显示空白字符</label>
+              <label>{t("dialog.settings.whitespace")}</label>
               <input
                 type="checkbox"
                 checked={showWhitespace}
@@ -133,7 +133,7 @@ export function SettingsDialog({ onClose }: SettingsDialogProps) {
               />
             </div>
             <div className="settings-row">
-              <label>显示小地图</label>
+              <label>{t("dialog.settings.minimap")}</label>
               <input
                 type="checkbox"
                 checked={showMinimap}
@@ -141,7 +141,7 @@ export function SettingsDialog({ onClose }: SettingsDialogProps) {
               />
             </div>
             <div className="settings-row">
-              <label>代码折叠</label>
+              <label>{t("dialog.settings.folding")}</label>
               <input
                 type="checkbox"
                 checked={folding}
@@ -149,7 +149,7 @@ export function SettingsDialog({ onClose }: SettingsDialogProps) {
               />
             </div>
             <div className="settings-row">
-              <label>括号配对着色</label>
+              <label>{t("dialog.settings.bracketColor")}</label>
               <input
                 type="checkbox"
                 checked={bracketPairColorization}
@@ -157,7 +157,7 @@ export function SettingsDialog({ onClose }: SettingsDialogProps) {
               />
             </div>
             <div className="settings-row">
-              <label>自动缩进</label>
+              <label>{t("dialog.settings.autoIndent")}</label>
               <input
                 type="checkbox"
                 checked={autoIndent}
@@ -165,7 +165,7 @@ export function SettingsDialog({ onClose }: SettingsDialogProps) {
               />
             </div>
             <div className="settings-row">
-              <label>自动检测缩进</label>
+              <label>{t("dialog.settings.autoDetectIndent")}</label>
               <input
                 type="checkbox"
                 checked={autoDetectIndent}
@@ -175,9 +175,9 @@ export function SettingsDialog({ onClose }: SettingsDialogProps) {
           </div>
 
           <div className="settings-section">
-            <h3>保存</h3>
+            <h3>{t("dialog.settings.save")}</h3>
             <div className="settings-row">
-              <label>保存时去行尾空格</label>
+              <label>{t("dialog.settings.trimOnSave")}</label>
               <input
                 type="checkbox"
                 checked={trimTrailingWhitespaceOnSave}
@@ -185,7 +185,7 @@ export function SettingsDialog({ onClose }: SettingsDialogProps) {
               />
             </div>
             <div className="settings-row">
-              <label>确保文件末尾换行</label>
+              <label>{t("dialog.settings.ensureFinalNewline")}</label>
               <input
                 type="checkbox"
                 checked={ensureFinalNewline}
@@ -195,7 +195,7 @@ export function SettingsDialog({ onClose }: SettingsDialogProps) {
           </div>
 
           <div className="settings-section">
-            <h3>主题</h3>
+            <h3>{t("dialog.settings.theme")}</h3>
             <div className="settings-row">
               <label>{t("dialog.settings.themeMode")}</label>
               <select
@@ -222,10 +222,10 @@ export function SettingsDialog({ onClose }: SettingsDialogProps) {
         </div>
         <div className="dialog-footer">
           <button className="dialog-btn" onClick={resetToDefaults}>
-            恢复默认
+            {t("dialog.settings.reset")}
           </button>
           <button className="dialog-btn primary" onClick={onClose}>
-            完成
+            {t("dialog.settings.done")}
           </button>
         </div>
       </div>

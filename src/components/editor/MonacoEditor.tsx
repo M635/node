@@ -11,6 +11,7 @@ import { configureFolding } from "../../services/monaco/folding";
 import { registerKeybindings } from "../../services/monaco/keybindings";
 import { EditOperations } from "../../services/monaco/editOperations";
 import { macroRecorder } from "../../services/macro/recorder";
+import { clipboardWrite, clipboardRead } from "../../utils/clipboard";
 
 interface MonacoEditorProps {
   tabId: string;
@@ -188,6 +189,121 @@ export function MonacoEditor({
       run: (ed) => EditOperations.reverseLineOrder(ed),
     });
 
+    const doCopy = async (ed: Monaco.editor.IStandaloneCodeEditor) => {
+      const sel = ed.getSelection();
+      if (!sel) return;
+      const text = ed.getModel()?.getValueInRange(sel) || "";
+      if (text) await clipboardWrite(text);
+    };
+    const doCut = async (ed: Monaco.editor.IStandaloneCodeEditor) => {
+      const sel = ed.getSelection();
+      if (!sel) return;
+      const model = ed.getModel();
+      if (!model) return;
+      const text = model.getValueInRange(sel);
+      if (text) {
+        await clipboardWrite(text);
+        ed.executeEdits("cut", [{ range: sel, text: "" }]);
+      }
+    };
+    const doPaste = async (ed: Monaco.editor.IStandaloneCodeEditor) => {
+      const text = await clipboardRead();
+      if (!text) return;
+      const sel = ed.getSelection();
+      if (!sel) return;
+      ed.executeEdits("paste", [{ range: sel, text, forceMoveMarkers: true }]);
+    };
+
+    editor.addAction({
+      id: "markpt-clipboard-copy",
+      label: "复制",
+      keybindings: [Monaco.KeyMod.CtrlCmd | Monaco.KeyCode.KeyC],
+      contextMenuGroupId: "9_cutcopypaste",
+      run: (ed) => { doCopy(ed); return null; },
+    });
+    editor.addAction({
+      id: "markpt-clipboard-cut",
+      label: "剪切",
+      keybindings: [Monaco.KeyMod.CtrlCmd | Monaco.KeyCode.KeyX],
+      contextMenuGroupId: "9_cutcopypaste",
+      run: (ed) => { doCut(ed); return null; },
+    });
+    editor.addAction({
+      id: "markpt-clipboard-paste",
+      label: "粘贴",
+      keybindings: [Monaco.KeyMod.CtrlCmd | Monaco.KeyCode.KeyV],
+      contextMenuGroupId: "9_cutcopypaste",
+      run: (ed) => { doPaste(ed); return null; },
+    });
+
+    editor.addAction({
+      id: "markpt-context-find",
+      label: "查找",
+      keybindings: [Monaco.KeyMod.CtrlCmd | Monaco.KeyCode.KeyF],
+      contextMenuGroupId: "8_search",
+      run: () => { useSearchStore.getState().toggleSearchPanel(); },
+    });
+    editor.addAction({
+      id: "markpt-context-replace",
+      label: "替换",
+      keybindings: [Monaco.KeyMod.CtrlCmd | Monaco.KeyCode.KeyH],
+      contextMenuGroupId: "8_search",
+      run: () => { useSearchStore.getState().toggleReplacePanel(); },
+    });
+    editor.addAction({
+      id: "markpt-context-goto-line",
+      label: "转到行",
+      keybindings: [Monaco.KeyMod.CtrlCmd | Monaco.KeyCode.KeyG],
+      contextMenuGroupId: "8_search",
+      run: () => { window.dispatchEvent(new CustomEvent("markpt:goto-line")); },
+    });
+    editor.addAction({
+      id: "markpt-context-toggle-comment",
+      label: "切换注释",
+      keybindings: [Monaco.KeyMod.CtrlCmd | Monaco.KeyCode.Slash],
+      contextMenuGroupId: "7_edit",
+      run: (ed) => EditOperations.toggleLineComment(ed, monaco),
+    });
+    editor.addAction({
+      id: "markpt-context-format",
+      label: "格式化代码",
+      contextMenuGroupId: "7_edit",
+      run: (ed) => { ed.getAction("editor.action.formatDocument")?.run(); },
+    });
+    editor.addAction({
+      id: "markpt-context-duplicate",
+      label: "复制当前行",
+      contextMenuGroupId: "7_edit",
+      run: (ed) => EditOperations.duplicateCurrentLine(ed),
+    });
+    editor.addAction({
+      id: "markpt-context-delete-line",
+      label: "删除当前行",
+      contextMenuGroupId: "7_edit",
+      run: (ed) => EditOperations.deleteCurrentLine(ed, monaco),
+    });
+    editor.addAction({
+      id: "markpt-context-insert-datetime",
+      label: "插入日期时间",
+      contextMenuGroupId: "6_insert",
+      run: (ed) => {
+        const now = new Date();
+        const text = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}-${String(now.getDate()).padStart(2, "0")} ${String(now.getHours()).padStart(2, "0")}:${String(now.getMinutes()).padStart(2, "0")}:${String(now.getSeconds()).padStart(2, "0")}`;
+        const pos = ed.getPosition();
+        if (pos) ed.executeEdits("insert-datetime", [{ range: new monaco.Range(pos.lineNumber, pos.column, pos.lineNumber, pos.column), text }]);
+      },
+    });
+    editor.addAction({
+      id: "markpt-context-select-all",
+      label: "全选",
+      keybindings: [Monaco.KeyMod.CtrlCmd | Monaco.KeyCode.KeyA],
+      contextMenuGroupId: "9_cutcopypaste",
+      run: (ed) => {
+        const model = ed.getModel();
+        if (model) ed.setSelection(new monaco.Range(1, 1, model.getLineCount(), model.getLineMaxColumn(model.getLineCount()) + 1));
+      },
+    });
+
     const container = editor.getContainerDomNode();
     const resizeObserver = new ResizeObserver(() => {
       requestAnimationFrame(() => editor.layout());
@@ -281,6 +397,49 @@ export function MonacoEditor({
     };
     window.addEventListener("markpt:insert-text", handler);
     return () => window.removeEventListener("markpt:insert-text", handler);
+  }, []);
+
+  // 剪贴板操作（工具栏/菜单触发）
+  useEffect(() => {
+    const copyHandler = async () => {
+      const editor = editorRef.current;
+      if (!editor) return;
+      const sel = editor.getSelection();
+      if (!sel) return;
+      const text = editor.getModel()?.getValueInRange(sel) || "";
+      if (text) await clipboardWrite(text);
+    };
+    const cutHandler = async () => {
+      const editor = editorRef.current;
+      if (!editor) return;
+      const sel = editor.getSelection();
+      if (!sel) return;
+      const model = editor.getModel();
+      if (!model) return;
+      const text = model.getValueInRange(sel);
+      if (text) {
+        await clipboardWrite(text);
+        editor.executeEdits("cut", [{ range: sel, text: "" }]);
+      }
+    };
+    const pasteHandler = async () => {
+      const editor = editorRef.current;
+      if (!editor) return;
+      const text = await clipboardRead();
+      if (!text) return;
+      const sel = editor.getSelection();
+      if (!sel) return;
+      editor.executeEdits("paste", [{ range: sel, text, forceMoveMarkers: true }]);
+      editor.focus();
+    };
+    window.addEventListener("markpt:editor-copy", copyHandler);
+    window.addEventListener("markpt:editor-cut", cutHandler);
+    window.addEventListener("markpt:editor-paste", pasteHandler);
+    return () => {
+      window.removeEventListener("markpt:editor-copy", copyHandler);
+      window.removeEventListener("markpt:editor-cut", cutHandler);
+      window.removeEventListener("markpt:editor-paste", pasteHandler);
+    };
   }, []);
 
   // 代码格式化

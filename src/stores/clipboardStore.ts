@@ -37,8 +37,18 @@ export function initClipboardListener(): () => void {
   };
   document.addEventListener("copy", handler);
   document.addEventListener("cut", handler);
+  document.addEventListener("paste", handler);
+  const customHandler = (e: Event) => {
+    const text = (e as CustomEvent).detail?.text;
+    if (text) useClipboardStore.getState().addItem(text);
+  };
+  window.addEventListener("markpt:editor-copy", customHandler);
+  window.addEventListener("markpt:editor-cut", customHandler);
   return () => {
     document.removeEventListener("copy", handler);
     document.removeEventListener("cut", handler);
+    document.removeEventListener("paste", handler);
+    window.removeEventListener("markpt:editor-copy", customHandler);
+    window.removeEventListener("markpt:editor-cut", customHandler);
   };
 }

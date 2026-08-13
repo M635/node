@@ -241,13 +241,13 @@ export default function App() {
     if (!tab?.path) return;
     const parts = tab.path.split(/[/\\]/);
     parts.pop();
-    navigator.clipboard.writeText(parts.join("/"));
+    navigator.clipboard.writeText(parts.join("/")).catch(() => {});
   }, [getActiveTab]);
 
   const handleCopyFileName = useCallback(() => {
     const tab = getActiveTab();
     if (!tab?.path) return;
-    navigator.clipboard.writeText(tab.name);
+    navigator.clipboard.writeText(tab.name).catch(() => {});
   }, [getActiveTab]);
 
   const handleRunCommand = useCallback((command: string) => {
@@ -645,6 +645,9 @@ export default function App() {
     onToggleDiff: handleToggleDiff,
     onEncoding: () => setShowEncodingDialog(true),
     onSettings: () => setShowSettingsDialog(true),
+    onCopy: () => window.dispatchEvent(new CustomEvent("markpt:editor-copy")),
+    onPaste: () => window.dispatchEvent(new CustomEvent("markpt:editor-paste")),
+    onCut: () => window.dispatchEvent(new CustomEvent("markpt:editor-cut")),
     onToggleSidebar: () => setShowSidebar((v) => !v),
     onCommandPalette: () => setShowCommandPalette(true),
     onShortcutsHelp: () => setShowShortcutsHelp(true),
@@ -686,7 +689,7 @@ export default function App() {
     onClearBookmarks: () => window.dispatchEvent(new CustomEvent("markpt:clear-bookmarks")),
     onJumpToBracket: () => window.dispatchEvent(new CustomEvent("markpt:jump-to-bracket")),
     onSelectToBracket: () => window.dispatchEvent(new CustomEvent("markpt:select-to-bracket")),
-    onCopyPath: () => { if (activeTab?.path) navigator.clipboard.writeText(activeTab.path); },
+    onCopyPath: () => { if (activeTab?.path) navigator.clipboard.writeText(activeTab.path).catch(() => {}); },
     onReloadFromDisk: async () => {
       if (!activeTab?.path) return;
       try {

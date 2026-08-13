@@ -39,9 +39,9 @@ export function MainLayout({
   const dispatch = (event: string) => window.dispatchEvent(new CustomEvent(event));
   const handleUndo = () => dispatch("markpt:edit-undo");
   const handleRedo = () => dispatch("markpt:edit-redo");
-  const handleCut = () => document.execCommand("cut");
-  const handleCopy = () => document.execCommand("copy");
-  const handlePaste = () => document.execCommand("paste");
+  const handleCut = () => dispatch("markpt:editor-cut");
+  const handleCopy = () => dispatch("markpt:editor-copy");
+  const handlePaste = () => dispatch("markpt:editor-paste");
   const handleZoomIn = () => dispatch("markpt:zoom-in");
   const handleZoomOut = () => dispatch("markpt:zoom-out");
   const handleZoomReset = () => dispatch("markpt:zoom-reset");

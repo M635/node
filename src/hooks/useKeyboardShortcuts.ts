@@ -17,6 +17,9 @@ interface ShortcutHandlers {
   onToggleDiff?: () => void;
   onEncoding?: () => void;
   onSettings?: () => void;
+  onCopy?: () => void;
+  onPaste?: () => void;
+  onCut?: () => void;
   onToggleSidebar?: () => void;
   onCommandPalette?: () => void;
   onShortcutsHelp?: () => void;
@@ -148,6 +151,9 @@ export function useKeyboardShortcuts(handlers: ShortcutHandlers): void {
           case "edit_remove_dup": handlers.onEditAction?.("remove-duplicates"); break;
           case "edit_undo": handlers.onEditAction?.("undo"); break;
           case "edit_redo": handlers.onEditAction?.("redo"); break;
+          case "edit_copy": handlers.onCopy?.(); break;
+          case "edit_paste": handlers.onPaste?.(); break;
+          case "edit_cut": handlers.onCut?.(); break;
           case "split_horizontal": handlers.onSplitHorizontal?.(); break;
           case "split_vertical": handlers.onSplitVertical?.(); break;
           case "split_close": handlers.onSplitClose?.(); break;
