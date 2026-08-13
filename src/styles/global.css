@@ -161,13 +161,14 @@ input, select, textarea {
   margin: 0 auto 16px;
   background: white;
   border: 2px solid #00a857;
-  border-radius: 16px;
+  border-radius: 20px;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 28px;
-  font-weight: 700;
+  font-size: 26px;
+  font-weight: 800;
   color: #00a857;
+  letter-spacing: -1px;
 }
 
 .no-tab-actions {
