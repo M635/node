@@ -76,6 +76,12 @@ pub fn run() {
                     &m("zoom_in", "放大")?, &m("zoom_out", "缩小")?, &m("zoom_reset", "重置缩放")?,
                     &m("full_screen", "全屏")?, &m("always_on_top", "窗口置顶")?, &m("postit_mode", "便利贴模式")?,
                     &m("markdown_preview", "Markdown 预览...")?, &m("csv_viewer", "CSV/TSV 查看...")?, &m("regex_tester", "正则测试器...")?,
+                    &m("window_sort_name", "标签排序: 按名称")?,
+                    &m("window_sort_path", "标签排序: 按路径")?,
+                    &m("window_sort_time", "标签排序: 按类型")?,
+                    &m("window_cascade", "层叠窗口")?,
+                    &m("window_tile_horizontal", "水平平铺")?,
+                    &m("window_tile_vertical", "垂直平铺")?,
                 ])?;
 
                 // ========== 编码菜单 (encodingMenu) ==========
@@ -131,17 +137,6 @@ pub fn run() {
                     &m("compare_prev_diff", "上一差异")?,
                 ])?;
 
-                // ========== 窗口菜单 (windowMenu) ==========
-                let window_menu = Submenu::with_items(app_handle, "窗口", true, &[
-                    &m("window_sort_name", "按名称排序")?,
-                    &m("window_sort_path", "按路径排序")?,
-                    &m("window_sort_time", "按打开时间排序")?,
-                    &m("window_cascade", "层叠窗口")?,
-                    &m("window_tile_horizontal", "水平平铺")?,
-                    &m("window_tile_vertical", "垂直平铺")?,
-                    &m("window_list", "窗口列表...")?,
-                ])?;
-
                 // ========== 帮助菜单 (helpMenu) ==========
                 let help_menu = Submenu::with_items(app_handle, "帮助", true, &[
                     &m("about", "关于 MarkPT")?,
@@ -150,7 +145,7 @@ pub fn run() {
                 let menu = Menu::with_items(app_handle, &[
                     &file_menu, &edit_menu, &search_menu, &view_menu,
                     &encoding_menu, &language_menu, &settings_menu, &tools_menu,
-                    &compare_menu, &window_menu, &help_menu,
+                    &compare_menu, &help_menu,
                 ])?;
                 app_handle.set_menu(menu)?;
             }
