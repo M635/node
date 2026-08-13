@@ -219,21 +219,21 @@ export function MonacoEditor({
       label: "复制",
       keybindings: [Monaco.KeyMod.CtrlCmd | Monaco.KeyCode.KeyC],
       contextMenuGroupId: "9_cutcopypaste",
-      run: (ed) => { doCopy(ed); return null; },
+      run: (ed) => { doCopy(ed as Monaco.editor.IStandaloneCodeEditor); },
     });
     editor.addAction({
       id: "markpt-clipboard-cut",
       label: "剪切",
       keybindings: [Monaco.KeyMod.CtrlCmd | Monaco.KeyCode.KeyX],
       contextMenuGroupId: "9_cutcopypaste",
-      run: (ed) => { doCut(ed); return null; },
+      run: (ed) => { doCut(ed as Monaco.editor.IStandaloneCodeEditor); },
     });
     editor.addAction({
       id: "markpt-clipboard-paste",
       label: "粘贴",
       keybindings: [Monaco.KeyMod.CtrlCmd | Monaco.KeyCode.KeyV],
       contextMenuGroupId: "9_cutcopypaste",
-      run: (ed) => { doPaste(ed); return null; },
+      run: (ed) => { doPaste(ed as Monaco.editor.IStandaloneCodeEditor); },
     });
 
     editor.addAction({

@@ -111,7 +111,6 @@ const translations: Record<string, Record<Language, string>> = {
   "dialog.settings.autoDetectIndent": { zh: "自动检测缩进", en: "Auto Detect Indent" },
   "dialog.settings.trimOnSave": { zh: "保存时去行尾空格", en: "Trim Trailing Whitespace on Save" },
   "dialog.settings.ensureFinalNewline": { zh: "确保文件末尾换行", en: "Ensure Final Newline" },
-  "dialog.settings.theme": { zh: "主题", en: "Theme" },
   "dialog.settings.themeMode": { zh: "主题模式", en: "Theme Mode" },
   "dialog.settings.followSystem": { zh: "跟随系统", en: "Follow System" },
   "dialog.settings.light": { zh: "浅色", en: "Light" },
