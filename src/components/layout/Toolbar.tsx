@@ -1,4 +1,5 @@
 import { useSettingStore } from "../../stores/settingStore";
+import { useI18n } from "../../stores/i18nStore";
 import {
   IconNew, IconOpen, IconSave, IconSaveAll, IconPrint,
   IconUndo, IconRedo, IconCut, IconCopy, IconPaste,
@@ -41,47 +42,48 @@ export function Toolbar({
   onSettings,
 }: ToolbarProps) {
   const { wordWrap, showLineNumbers } = useSettingStore();
+  const { t } = useI18n();
 
   return (
     <div className="main-toolbar">
       <div className="toolbar-group">
-        <button className="toolbar-icon-btn" onClick={onNew} title="新建 (Cmd+N)"><IconNew /></button>
-        <button className="toolbar-icon-btn" onClick={onOpen} title="打开 (Cmd+O)"><IconOpen /></button>
-        <button className="toolbar-icon-btn" onClick={onSave} title="保存 (Cmd+S)"><IconSave /></button>
-        <button className="toolbar-icon-btn" onClick={onSaveAll} title="全部保存"><IconSaveAll /></button>
-        <button className="toolbar-icon-btn" onClick={onPrint} title="打印"><IconPrint /></button>
+        <button className="toolbar-icon-btn" onClick={onNew} title={t("toolbar.new")}><IconNew /></button>
+        <button className="toolbar-icon-btn" onClick={onOpen} title={t("toolbar.open")}><IconOpen /></button>
+        <button className="toolbar-icon-btn" onClick={onSave} title={t("toolbar.save")}><IconSave /></button>
+        <button className="toolbar-icon-btn" onClick={onSaveAll} title={t("toolbar.saveAll")}><IconSaveAll /></button>
+        <button className="toolbar-icon-btn" onClick={onPrint} title={t("toolbar.print")}><IconPrint /></button>
       </div>
       <div className="toolbar-divider" />
       <div className="toolbar-group">
-        <button className="toolbar-icon-btn" onClick={onUndo} title="撤销 (Cmd+Z)"><IconUndo /></button>
-        <button className="toolbar-icon-btn" onClick={onRedo} title="重做 (Cmd+Shift+Z)"><IconRedo /></button>
-        <button className="toolbar-icon-btn" onClick={onCut} title="剪切 (Cmd+X)"><IconCut /></button>
-        <button className="toolbar-icon-btn" onClick={onCopy} title="复制 (Cmd+C)"><IconCopy /></button>
-        <button className="toolbar-icon-btn" onClick={onPaste} title="粘贴 (Cmd+V)"><IconPaste /></button>
+        <button className="toolbar-icon-btn" onClick={onUndo} title={t("toolbar.undo")}><IconUndo /></button>
+        <button className="toolbar-icon-btn" onClick={onRedo} title={t("toolbar.redo")}><IconRedo /></button>
+        <button className="toolbar-icon-btn" onClick={onCut} title={t("toolbar.cut")}><IconCut /></button>
+        <button className="toolbar-icon-btn" onClick={onCopy} title={t("toolbar.copy")}><IconCopy /></button>
+        <button className="toolbar-icon-btn" onClick={onPaste} title={t("toolbar.paste")}><IconPaste /></button>
       </div>
       <div className="toolbar-divider" />
       <div className="toolbar-group">
-        <button className="toolbar-icon-btn" onClick={onFind} title="查找 (Cmd+F)"><IconFind /></button>
-        <button className="toolbar-icon-btn" onClick={onReplace} title="替换 (Cmd+H)"><IconReplace /></button>
-        <button className="toolbar-icon-btn" onClick={onGotoLine} title="转到行 (Cmd+G)"><IconGotoLine /></button>
+        <button className="toolbar-icon-btn" onClick={onFind} title={t("toolbar.find")}><IconFind /></button>
+        <button className="toolbar-icon-btn" onClick={onReplace} title={t("toolbar.replace")}><IconReplace /></button>
+        <button className="toolbar-icon-btn" onClick={onGotoLine} title={t("toolbar.gotoLine")}><IconGotoLine /></button>
       </div>
       <div className="toolbar-divider" />
       <div className="toolbar-group">
-        <button className="toolbar-icon-btn" onClick={onZoomIn} title="放大 (Cmd+=)"><IconZoomIn /></button>
-        <button className="toolbar-icon-btn" onClick={onZoomOut} title="缩小 (Cmd+-)"><IconZoomOut /></button>
-        <button className="toolbar-icon-btn" onClick={onZoomReset} title="重置缩放 (Cmd+0)"><IconZoomReset /></button>
-        <button className={`toolbar-icon-btn ${wordWrap ? "active" : ""}`} onClick={onToggleWordWrap} title="自动换行"><IconWordWrap /></button>
-        <button className={`toolbar-icon-btn ${showLineNumbers ? "active" : ""}`} onClick={onToggleLineNumbers} title="显示行号"><IconLineNumbers /></button>
+        <button className="toolbar-icon-btn" onClick={onZoomIn} title={t("toolbar.zoomIn")}><IconZoomIn /></button>
+        <button className="toolbar-icon-btn" onClick={onZoomOut} title={t("toolbar.zoomOut")}><IconZoomOut /></button>
+        <button className="toolbar-icon-btn" onClick={onZoomReset} title={t("toolbar.zoomReset")}><IconZoomReset /></button>
+        <button className={`toolbar-icon-btn ${wordWrap ? "active" : ""}`} onClick={onToggleWordWrap} title={t("toolbar.wordWrap")}><IconWordWrap /></button>
+        <button className={`toolbar-icon-btn ${showLineNumbers ? "active" : ""}`} onClick={onToggleLineNumbers} title={t("toolbar.lineNumbers")}><IconLineNumbers /></button>
       </div>
       <div className="toolbar-divider" />
       <div className="toolbar-group">
-        <button className="toolbar-icon-btn" onClick={onCompareStart} title="开始对比"><IconCompare /></button>
-        <button className="toolbar-icon-btn" onClick={onCompareClear} title="清除对比"><IconCompareClear /></button>
-        <button className="toolbar-icon-btn" onClick={onCompareSyncScroll} title="同步滚动"><IconSyncScroll /></button>
+        <button className="toolbar-icon-btn" onClick={onCompareStart} title={t("toolbar.compare")}><IconCompare /></button>
+        <button className="toolbar-icon-btn" onClick={onCompareClear} title={t("toolbar.compareClear")}><IconCompareClear /></button>
+        <button className="toolbar-icon-btn" onClick={onCompareSyncScroll} title={t("toolbar.syncScroll")}><IconSyncScroll /></button>
       </div>
       <div className="toolbar-divider" />
       <div className="toolbar-group">
-        <button className="toolbar-icon-btn" onClick={onSettings} title="设置"><IconSettings /></button>
+        <button className="toolbar-icon-btn" onClick={onSettings} title={t("toolbar.settings")}><IconSettings /></button>
       </div>
       <div className="toolbar-spacer" />
     </div>

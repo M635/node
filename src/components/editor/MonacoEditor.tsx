@@ -12,6 +12,7 @@ import { registerKeybindings } from "../../services/monaco/keybindings";
 import { EditOperations } from "../../services/monaco/editOperations";
 import { macroRecorder } from "../../services/macro/recorder";
 import { clipboardWrite, clipboardRead } from "../../utils/clipboard";
+import { useI18n } from "../../stores/i18nStore";
 
 interface MonacoEditorProps {
   tabId: string;
@@ -44,6 +45,7 @@ export function MonacoEditor({
     bracketPairColorization, autoIndent, showIndentGuides,
   } = useSettingStore();
   const { searchQuery, replaceQuery, isRegex, caseSensitive } = useSearchStore();
+  const { t } = useI18n();
 
   const handleMount: OnMount = useCallback((editor, monaco) => {
     editorRef.current = editor;
@@ -88,104 +90,104 @@ export function MonacoEditor({
 
     editor.addAction({
       id: "markpt-delete-line",
-      label: "删除当前行",
+      label: t("action.deleteLine"),
       keybindings: [Monaco.KeyMod.CtrlCmd | Monaco.KeyCode.KeyD],
       run: (ed) => EditOperations.deleteCurrentLine(ed, monaco),
     });
     editor.addAction({
       id: "markpt-duplicate-line",
-      label: "复制当前行",
+      label: t("action.duplicateLine"),
       keybindings: [Monaco.KeyMod.Shift | Monaco.KeyMod.Alt | Monaco.KeyCode.KeyD],
       run: (ed) => EditOperations.duplicateCurrentLine(ed),
     });
     editor.addAction({
       id: "markpt-move-line-up",
-      label: "上移当前行",
+      label: t("action.moveUp"),
       keybindings: [Monaco.KeyMod.Alt | Monaco.KeyCode.UpArrow],
       run: (ed) => EditOperations.moveLineUp(ed),
     });
     editor.addAction({
       id: "markpt-move-line-down",
-      label: "下移当前行",
+      label: t("action.moveDown"),
       keybindings: [Monaco.KeyMod.Alt | Monaco.KeyCode.DownArrow],
       run: (ed) => EditOperations.moveLineDown(ed),
     });
     editor.addAction({
       id: "markpt-delete-blank-lines",
-      label: "删除空行",
+      label: t("action.deleteBlank"),
       run: (ed) => EditOperations.deleteBlankLines(ed),
     });
     editor.addAction({
       id: "markpt-trim-trailing",
-      label: "去除行尾空格",
+      label: t("action.trimTrailing"),
       run: (ed) => EditOperations.trimTrailingWhitespace(ed),
     });
     editor.addAction({
       id: "markpt-trim-leading",
-      label: "去除行首空格",
+      label: t("action.trimTrailing"),
       run: (ed) => EditOperations.trimLeadingWhitespace(ed),
     });
     editor.addAction({
       id: "markpt-upper-case",
-      label: "转大写",
+      label: t("action.toUpperCase"),
       keybindings: [Monaco.KeyMod.CtrlCmd | Monaco.KeyMod.Shift | Monaco.KeyCode.KeyU],
       run: (ed) => EditOperations.toUpperCase(ed),
     });
     editor.addAction({
       id: "markpt-lower-case",
-      label: "转小写",
+      label: t("action.toLowerCase"),
       keybindings: [Monaco.KeyMod.CtrlCmd | Monaco.KeyMod.Shift | Monaco.KeyCode.KeyL],
       run: (ed) => EditOperations.toLowerCase(ed),
     });
     editor.addAction({
       id: "markpt-title-case",
-      label: "首字母大写",
+      label: t("action.toUpperCase"),
       run: (ed) => EditOperations.toTitleCase(ed),
     });
     editor.addAction({
       id: "markpt-invert-case",
-      label: "反转大小写",
+      label: t("action.toUpperCase"),
       run: (ed) => EditOperations.invertCase(ed),
     });
     editor.addAction({
       id: "markpt-sort-asc",
-      label: "行排序(升序)",
+      label: t("action.sortAsc"),
       run: (ed) => EditOperations.sortLinesAscending(ed),
     });
     editor.addAction({
       id: "markpt-sort-desc",
-      label: "行排序(降序)",
+      label: t("action.sortDesc"),
       run: (ed) => EditOperations.sortLinesDescending(ed),
     });
     editor.addAction({
       id: "markpt-toggle-comment",
-      label: "切换行注释",
+      label: t("action.toggleComment"),
       keybindings: [Monaco.KeyMod.CtrlCmd | Monaco.KeyCode.Slash],
       run: (ed) => EditOperations.toggleLineComment(ed, monaco),
     });
     editor.addAction({
       id: "markpt-remove-duplicates",
-      label: "去除重复行",
+      label: t("action.removeDuplicates"),
       run: (ed) => EditOperations.removeDuplicateLines(ed),
     });
     editor.addAction({
       id: "markpt-sort-length-asc",
-      label: "按长度排序(升序)",
+      label: t("action.sortAsc"),
       run: (ed) => EditOperations.sortLinesByLength(ed, false),
     });
     editor.addAction({
       id: "markpt-sort-length-desc",
-      label: "按长度排序(降序)",
+      label: t("action.sortDesc"),
       run: (ed) => EditOperations.sortLinesByLength(ed, true),
     });
     editor.addAction({
       id: "markpt-sort-random",
-      label: "随机排序",
+      label: t("action.sortDesc"),
       run: (ed) => EditOperations.sortLinesRandom(ed),
     });
     editor.addAction({
       id: "markpt-reverse-lines",
-      label: "反转行序",
+      label: t("action.sortDesc"),
       run: (ed) => EditOperations.reverseLineOrder(ed),
     });
 
@@ -216,21 +218,21 @@ export function MonacoEditor({
 
     editor.addAction({
       id: "markpt-clipboard-copy",
-      label: "复制",
+      label: t("toolbar.copy"),
       keybindings: [Monaco.KeyMod.CtrlCmd | Monaco.KeyCode.KeyC],
       contextMenuGroupId: "9_cutcopypaste",
       run: (ed) => { doCopy(ed as Monaco.editor.IStandaloneCodeEditor); },
     });
     editor.addAction({
       id: "markpt-clipboard-cut",
-      label: "剪切",
+      label: t("toolbar.cut"),
       keybindings: [Monaco.KeyMod.CtrlCmd | Monaco.KeyCode.KeyX],
       contextMenuGroupId: "9_cutcopypaste",
       run: (ed) => { doCut(ed as Monaco.editor.IStandaloneCodeEditor); },
     });
     editor.addAction({
       id: "markpt-clipboard-paste",
-      label: "粘贴",
+      label: t("toolbar.paste"),
       keybindings: [Monaco.KeyMod.CtrlCmd | Monaco.KeyCode.KeyV],
       contextMenuGroupId: "9_cutcopypaste",
       run: (ed) => { doPaste(ed as Monaco.editor.IStandaloneCodeEditor); },
@@ -238,53 +240,53 @@ export function MonacoEditor({
 
     editor.addAction({
       id: "markpt-context-find",
-      label: "查找",
+      label: t("search.find"),
       keybindings: [Monaco.KeyMod.CtrlCmd | Monaco.KeyCode.KeyF],
       contextMenuGroupId: "8_search",
       run: () => { useSearchStore.getState().toggleSearchPanel(); },
     });
     editor.addAction({
       id: "markpt-context-replace",
-      label: "替换",
+      label: t("search.replace"),
       keybindings: [Monaco.KeyMod.CtrlCmd | Monaco.KeyCode.KeyH],
       contextMenuGroupId: "8_search",
       run: () => { useSearchStore.getState().toggleReplacePanel(); },
     });
     editor.addAction({
       id: "markpt-context-goto-line",
-      label: "转到行",
+      label: t("toolbar.gotoLine"),
       keybindings: [Monaco.KeyMod.CtrlCmd | Monaco.KeyCode.KeyG],
       contextMenuGroupId: "8_search",
       run: () => { window.dispatchEvent(new CustomEvent("markpt:goto-line")); },
     });
     editor.addAction({
       id: "markpt-context-toggle-comment",
-      label: "切换注释",
+      label: t("action.toggleComment"),
       keybindings: [Monaco.KeyMod.CtrlCmd | Monaco.KeyCode.Slash],
       contextMenuGroupId: "7_edit",
       run: (ed) => EditOperations.toggleLineComment(ed, monaco),
     });
     editor.addAction({
       id: "markpt-context-format",
-      label: "格式化代码",
+      label: t("action.toggleComment"),
       contextMenuGroupId: "7_edit",
       run: (ed) => { ed.getAction("editor.action.formatDocument")?.run(); },
     });
     editor.addAction({
       id: "markpt-context-duplicate",
-      label: "复制当前行",
+      label: t("action.duplicateLine"),
       contextMenuGroupId: "7_edit",
       run: (ed) => EditOperations.duplicateCurrentLine(ed),
     });
     editor.addAction({
       id: "markpt-context-delete-line",
-      label: "删除当前行",
+      label: t("action.deleteLine"),
       contextMenuGroupId: "7_edit",
       run: (ed) => EditOperations.deleteCurrentLine(ed, monaco),
     });
     editor.addAction({
       id: "markpt-context-insert-datetime",
-      label: "插入日期时间",
+      label: t("dialog.insertDateTime"),
       contextMenuGroupId: "6_insert",
       run: (ed) => {
         const now = new Date();
@@ -295,7 +297,7 @@ export function MonacoEditor({
     });
     editor.addAction({
       id: "markpt-context-select-all",
-      label: "全选",
+      label: t("toolbar.lineNumbers"),
       keybindings: [Monaco.KeyMod.CtrlCmd | Monaco.KeyCode.KeyA],
       contextMenuGroupId: "9_cutcopypaste",
       run: (ed) => {
@@ -314,7 +316,7 @@ export function MonacoEditor({
     return () => {
       resizeObserver.disconnect();
     };
-  }, [onCursorChange, tabId]);
+  }, [onCursorChange, tabId, t]);
 
   // 行号跳转
   useEffect(() => {
@@ -360,12 +362,12 @@ export function MonacoEditor({
         case "sort-random": EditOperations.sortLinesRandom(editor); break;
         case "reverse-lines": EditOperations.reverseLineOrder(editor); break;
         case "filter-lines": {
-          const pattern = prompt("输入过滤模式（保留匹配行）:");
+          const pattern = prompt(t("editor.filterPrompt"));
           if (pattern) EditOperations.filterLines(editor, pattern, true, false);
           break;
         }
         case "filter-lines-remove": {
-          const pattern = prompt("输入过滤模式（移除匹配行）:");
+          const pattern = prompt(t("editor.filterRemovePrompt"));
           if (pattern) EditOperations.filterLines(editor, pattern, false, false);
           break;
         }
@@ -379,6 +381,18 @@ export function MonacoEditor({
     };
     window.addEventListener("markpt:edit-action", handler);
     return () => window.removeEventListener("markpt:edit-action", handler);
+  }, []);
+
+  // 撤销/重做
+  useEffect(() => {
+    const undoHandler = () => { editorRef.current?.trigger("markpt", "undo", null); editorRef.current?.focus(); };
+    const redoHandler = () => { editorRef.current?.trigger("markpt", "redo", null); editorRef.current?.focus(); };
+    window.addEventListener("markpt:edit-undo", undoHandler);
+    window.addEventListener("markpt:edit-redo", redoHandler);
+    return () => {
+      window.removeEventListener("markpt:edit-undo", undoHandler);
+      window.removeEventListener("markpt:edit-redo", redoHandler);
+    };
   }, []);
 
   // 插入文本（日期时间、特殊字符、颜色等）
@@ -885,7 +899,7 @@ export function MonacoEditor({
         onChange={handleChange}
         loading={
           <div className="editor-loading">
-            <span>加载编辑器...</span>
+            <span>{t("editor.loading")}</span>
           </div>
         }
       />

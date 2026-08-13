@@ -1,5 +1,6 @@
 import { useState, useRef, useEffect, type DragEvent } from "react";
 import { useFileStore } from "../../stores/fileStore";
+import { useI18n } from "../../stores/i18nStore";
 import { TabItem } from "./TabItem";
 import { TabContextMenu } from "./TabContextMenu";
 import type { FileTab } from "../../types/file";
@@ -11,6 +12,7 @@ interface TabBarProps {
 
 export function TabBar({ onNewTab, onCloseTab }: TabBarProps) {
   const { tabs, activeTabId, setActiveTab, reorderTabs, sortTabs } = useFileStore();
+  const { t } = useI18n();
   const [dragIndex, setDragIndex] = useState<number | null>(null);
   const [dragOverIndex, setDragOverIndex] = useState<number | null>(null);
   const [contextMenu, setContextMenu] = useState<{ x: number; y: number; tabId: string } | null>(null);
@@ -86,25 +88,25 @@ export function TabBar({ onNewTab, onCloseTab }: TabBarProps) {
       </div>
       <div className="tab-actions">
         <div ref={sortRef} style={{ position: "relative" }}>
-          <button className="tab-action-btn" onClick={() => setShowSortMenu(v => !v)} title="排序标签">⇅</button>
+          <button className="tab-action-btn" onClick={() => setShowSortMenu(v => !v)} title={t("tab.sortByName")}>⇅</button>
           {showSortMenu && (
             <div className="tab-dropdown-menu" style={{ right: 0 }}>
-              <div className="tab-dropdown-item" onClick={() => handleSort("name")}>按名称排序</div>
-              <div className="tab-dropdown-item" onClick={() => handleSort("path")}>按路径排序</div>
-              <div className="tab-dropdown-item" onClick={() => handleSort("type")}>按类型排序</div>
-              <div className="tab-dropdown-item" onClick={() => handleSort("size")}>按大小排序</div>
+              <div className="tab-dropdown-item" onClick={() => handleSort("name")}>{t("tab.sortByName")}</div>
+              <div className="tab-dropdown-item" onClick={() => handleSort("path")}>{t("tab.sortByPath")}</div>
+              <div className="tab-dropdown-item" onClick={() => handleSort("type")}>{t("tab.sortByType")}</div>
+              <div className="tab-dropdown-item" onClick={() => handleSort("size")}>{t("tab.sortBySize")}</div>
             </div>
           )}
         </div>
         <div ref={listRef} style={{ position: "relative" }}>
-          <button className="tab-action-btn" onClick={() => setShowTabList(v => !v)} title="标签列表">☰</button>
+          <button className="tab-action-btn" onClick={() => setShowTabList(v => !v)} title={t("tab.list")}>☰</button>
           {showTabList && (
             <div className="tab-dropdown-menu tab-list-dropdown" style={{ right: 0 }}>
               <div className="tab-list-header">
                 <input
                   type="text"
                   className="tab-list-filter"
-                  placeholder="过滤标签..."
+                  placeholder={t("tab.filterPlaceholder")}
                   value={tabListFilter}
                   onChange={(e) => setTabListFilter(e.target.value)}
                   autoFocus
@@ -123,12 +125,12 @@ export function TabBar({ onNewTab, onCloseTab }: TabBarProps) {
                     {tab.is_dirty && <span className="tab-list-dirty">●</span>}
                   </div>
                 ))}
-                {filteredTabs.length === 0 && <div className="tab-list-empty">无匹配标签</div>}
+                {filteredTabs.length === 0 && <div className="tab-list-empty">{t("cmd.noResult")}</div>}
               </div>
             </div>
           )}
         </div>
-        <button className="tab-new-btn" onClick={onNewTab} title="新建标签">+</button>
+        <button className="tab-new-btn" onClick={onNewTab} title={t("tab.new")}>+</button>
       </div>
       {contextMenu && (
         <TabContextMenu

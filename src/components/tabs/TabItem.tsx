@@ -1,6 +1,7 @@
 import type { DragEvent } from "react";
 import type { FileTab } from "../../types/file";
 import { truncatePath } from "../../utils/fileUtils";
+import { useI18n } from "../../stores/i18nStore";
 
 interface TabItemProps {
   tab: FileTab;
@@ -56,7 +57,8 @@ export function TabItem({
   onDragEnd,
   onContextMenu,
 }: TabItemProps) {
-  const title = tab.is_new ? "未命名" : truncatePath(tab.path, 30);
+  const { t } = useI18n();
+  const title = tab.is_new ? t("common.unnamed") : truncatePath(tab.path, 30);
   const color = getTabColor(tab);
 
   return (
@@ -69,7 +71,7 @@ export function TabItem({
       onDragEnd={onDragEnd}
       onContextMenu={onContextMenu}
       draggable
-      title={tab.path || "未命名"}
+      title={tab.path || t("common.unnamed")}
     >
       {color && (
         <span className="tab-color-dot" style={{ background: color }} />
@@ -86,7 +88,7 @@ export function TabItem({
           e.stopPropagation();
           onClose();
         }}
-        title="关闭"
+        title={t("common.close")}
       >
         ×
       </button>

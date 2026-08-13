@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import { useFileStore } from "../../stores/fileStore";
 import { useSearchStore } from "../../stores/searchStore";
+import { useI18n } from "../../stores/i18nStore";
 import { getFileName } from "../../utils/fileUtils";
 
 interface Command {
@@ -35,33 +36,34 @@ export function CommandPalette({
   const [selectedIndex, setSelectedIndex] = useState(0);
   const inputRef = useRef<HTMLInputElement>(null);
   const { tabs, setActiveTab, closeTab } = useFileStore();
+  const { t } = useI18n();
 
   const commands: Command[] = useCallback(() => {
     const cmds: Command[] = [
-      { id: "new", label: "新建文件", category: "文件", shortcut: "Cmd+N", action: onNewFile },
-      { id: "open", label: "打开文件", category: "文件", shortcut: "Cmd+O", action: onOpenFile },
-      { id: "save", label: "保存", category: "文件", shortcut: "Cmd+S", action: onSave },
-      { id: "find", label: "查找", category: "搜索", shortcut: "Cmd+F", action: onFind },
-      { id: "replace", label: "替换", category: "搜索", shortcut: "Cmd+Alt+F", action: onReplace },
-      { id: "find-in-files", label: "在文件中查找", category: "搜索", shortcut: "Cmd+Shift+F", action: onFindInFiles },
-      { id: "goto", label: "跳转到行", category: "导航", shortcut: "Cmd+G", action: onGotoLine },
-      { id: "encoding", label: "编码转换", category: "工具", action: onEncoding },
-      { id: "settings", label: "设置", category: "工具", action: onSettings },
-      { id: "diff", label: "双文件对比", category: "工具", shortcut: "Cmd+Alt+D", action: onToggleDiff },
-      { id: "macro", label: "宏管理", category: "工具", shortcut: "Cmd+M", action: onToggleMacro },
+      { id: "new", label: t("cmd.newFile"), category: t("cmd.category.file"), shortcut: "Cmd+N", action: onNewFile },
+      { id: "open", label: t("cmd.openFile"), category: t("cmd.category.file"), shortcut: "Cmd+O", action: onOpenFile },
+      { id: "save", label: t("cmd.save"), category: t("cmd.category.file"), shortcut: "Cmd+S", action: onSave },
+      { id: "find", label: t("cmd.find"), category: t("cmd.category.search"), shortcut: "Cmd+F", action: onFind },
+      { id: "replace", label: t("cmd.replace"), category: t("cmd.category.search"), shortcut: "Cmd+Alt+F", action: onReplace },
+      { id: "find-in-files", label: t("cmd.findInFiles"), category: t("cmd.category.search"), shortcut: "Cmd+Shift+F", action: onFindInFiles },
+      { id: "goto", label: t("cmd.gotoLine"), category: t("cmd.category.nav"), shortcut: "Cmd+G", action: onGotoLine },
+      { id: "encoding", label: t("cmd.encoding"), category: t("cmd.category.tool"), action: onEncoding },
+      { id: "settings", label: t("cmd.settings"), category: t("cmd.category.tool"), action: onSettings },
+      { id: "diff", label: t("cmd.compare"), category: t("cmd.category.tool"), shortcut: "Cmd+Alt+D", action: onToggleDiff },
+      { id: "macro", label: t("cmd.macro"), category: t("cmd.category.tool"), shortcut: "Cmd+M", action: onToggleMacro },
     ];
 
     tabs.forEach((tab) => {
       cmds.push({
         id: `tab-${tab.id}`,
         label: tab.name,
-        category: "已打开",
+        category: t("cmd.category.opened"),
         action: () => setActiveTab(tab.id),
       });
     });
 
     return cmds;
-  }, [tabs, onNewFile, onOpenFile, onSave, onFind, onReplace, onFindInFiles, onGotoLine, onEncoding, onSettings, onToggleDiff, onToggleMacro, setActiveTab])();
+  }, [tabs, onNewFile, onOpenFile, onSave, onFind, onReplace, onFindInFiles, onGotoLine, onEncoding, onSettings, onToggleDiff, onToggleMacro, setActiveTab, t])();
 
   const filtered = query
     ? commands.filter((c) =>
@@ -102,13 +104,13 @@ export function CommandPalette({
           ref={inputRef}
           type="text"
           className="command-input"
-          placeholder="输入命令或文件名..."
+          placeholder={t("cmd.placeholder")}
           value={query}
           onChange={(e) => setQuery(e.target.value)}
         />
         <div className="command-list">
           {filtered.length === 0 ? (
-            <div className="command-empty">无匹配结果</div>
+            <div className="command-empty">{t("cmd.noResult")}</div>
           ) : (
             filtered.map((cmd, idx) => (
               <div

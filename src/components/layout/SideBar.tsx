@@ -2,6 +2,7 @@ import { useState, useCallback, useEffect } from "react";
 import { open } from "@tauri-apps/plugin-dialog";
 import { invoke } from "@tauri-apps/api/core";
 import { useFileStore } from "../../stores/fileStore";
+import { useI18n } from "../../stores/i18nStore";
 import { getFileName, getFileExtension } from "../../utils/fileUtils";
 import { getLanguageFromPath } from "../../services/monaco/languages";
 
@@ -22,6 +23,7 @@ export function SideBar({ onOpenFile }: SideBarProps) {
   const [tree, setTree] = useState<FileNode[]>([]);
   const [loading, setLoading] = useState(false);
   const { tabs, activeTabId, setActiveTab } = useFileStore();
+  const { t } = useI18n();
 
   const loadDirectory = useCallback(async (dirPath: string): Promise<FileNode[]> => {
     try {
@@ -127,21 +129,21 @@ export function SideBar({ onOpenFile }: SideBarProps) {
   return (
     <div className="sidebar">
       <div className="sidebar-header">
-        <span className="sidebar-title">资源管理器</span>
-        <button className="sidebar-btn" onClick={handleOpenFolder} title="打开文件夹">
+        <span className="sidebar-title">{t("sidebar.explorer")}</span>
+        <button className="sidebar-btn" onClick={handleOpenFolder} title={t("sidebar.openFolder")}>
           📂+
         </button>
       </div>
       <div className="sidebar-content">
         {loading ? (
-          <div className="sidebar-loading">加载中...</div>
+          <div className="sidebar-loading">{t("common.loading")}</div>
         ) : tree.length > 0 ? (
           <div className="file-tree">{renderTree(tree)}</div>
         ) : (
           <div className="sidebar-empty">
-            <p>未打开文件夹</p>
+            <p>{t("sidebar.noFolder")}</p>
             <button className="btn btn-primary" onClick={handleOpenFolder}>
-              打开文件夹
+              {t("sidebar.openFolder")}
             </button>
           </div>
         )}

@@ -1,6 +1,7 @@
 import { useState, useCallback, useRef, useEffect } from "react";
 import { useSearchStore } from "../../stores/searchStore";
 import { useFileStore } from "../../stores/fileStore";
+import { useI18n } from "../../stores/i18nStore";
 import { searchInFile } from "../../services/tauri/searchService";
 
 export function SearchPanel() {
@@ -37,6 +38,7 @@ export function SearchPanel() {
   } = useSearchStore();
 
   const { getActiveTab } = useFileStore();
+  const { t } = useI18n();
   const [isSearching, setIsSearching] = useState(false);
   const [showSearchHistory, setShowSearchHistory] = useState(false);
   const [showReplaceHistory, setShowReplaceHistory] = useState(false);
@@ -136,7 +138,7 @@ export function SearchPanel() {
             ref={searchInputRef}
             type="text"
             className="search-input"
-            placeholder="输入查找内容..."
+            placeholder={t("search.inputPlaceholder")}
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             onKeyDown={handleKeyDown}
@@ -162,16 +164,16 @@ export function SearchPanel() {
           )}
         </div>
         <button className="search-btn" onClick={handleSearch} disabled={isSearching}>
-          {isSearching ? "..." : "查找"}
+          {isSearching ? "..." : t("search.find")}
         </button>
-        <button className="search-btn" onClick={prevMatch} disabled={searchResults.length === 0} title="上一个">↑</button>
-        <button className="search-btn" onClick={nextMatch} disabled={searchResults.length === 0} title="下一个">↓</button>
-        <button className={`search-toggle ${isRegex ? "active" : ""}`} onClick={toggleRegex} title="正则表达式">.*</button>
-        <button className={`search-toggle ${caseSensitive ? "active" : ""}`} onClick={toggleCaseSensitive} title="区分大小写">Aa</button>
-        <button className={`search-toggle ${wholeWord ? "active" : ""}`} onClick={toggleWholeWord} title="全词匹配">W</button>
-        <button className={`search-toggle ${searchInSelection ? "active" : ""}`} onClick={() => setSearchInSelection(!searchInSelection)} title="选区内查找">≡</button>
-        <button className={`search-toggle ${surroundMode ? "active" : ""}`} onClick={() => setSurroundMode(!surroundMode)} title="环绕搜索">⌐</button>
-        <button className="search-toggle" onClick={toggleReplacePanel} title="展开替换">
+        <button className="search-btn" onClick={prevMatch} disabled={searchResults.length === 0} title={t("search.prev")}>↑</button>
+        <button className="search-btn" onClick={nextMatch} disabled={searchResults.length === 0} title={t("search.next")}>↓</button>
+        <button className={`search-toggle ${isRegex ? "active" : ""}`} onClick={toggleRegex} title={t("search.regex")}>.*</button>
+        <button className={`search-toggle ${caseSensitive ? "active" : ""}`} onClick={toggleCaseSensitive} title={t("search.caseSensitive")}>Aa</button>
+        <button className={`search-toggle ${wholeWord ? "active" : ""}`} onClick={toggleWholeWord} title={t("search.wholeWord")}>W</button>
+        <button className={`search-toggle ${searchInSelection ? "active" : ""}`} onClick={() => setSearchInSelection(!searchInSelection)} title={t("search.inSelection")}>≡</button>
+        <button className={`search-toggle ${surroundMode ? "active" : ""}`} onClick={() => setSurroundMode(!surroundMode)} title={t("search.surround")}>⌐</button>
+        <button className="search-toggle" onClick={toggleReplacePanel} title={t("search.expandReplace")}>
           {isReplacePanelOpen ? "▾" : "▸"}
         </button>
       </div>
@@ -182,7 +184,7 @@ export function SearchPanel() {
               ref={replaceInputRef}
               type="text"
               className="search-input"
-              placeholder="替换为..."
+              placeholder={t("search.replacePlaceholder")}
               value={replaceQuery}
               onChange={(e) => setReplaceQuery(e.target.value)}
               onKeyDown={handleKeyDown}
@@ -206,13 +208,13 @@ export function SearchPanel() {
               </div>
             )}
           </div>
-          <button className="search-btn" onClick={handleReplace}>替换</button>
-          <button className="search-btn" onClick={handleReplaceAll}>全部替换</button>
+          <button className="search-btn" onClick={handleReplace}>{t("search.replace")}</button>
+          <button className="search-btn" onClick={handleReplaceAll}>{t("search.replaceAll")}</button>
         </div>
       )}
       {surroundMode && (
         <div className="search-row surround-row">
-          <span className="surround-label">环绕字符:</span>
+          <span className="surround-label">{t("search.surroundChar")}</span>
           <input
             type="text"
             className="surround-input"
@@ -227,7 +229,7 @@ export function SearchPanel() {
             onChange={(e) => setSurroundChars([surroundChars[0], e.target.value])}
             placeholder="后"
           />
-          <button className="search-btn" onClick={handleSurroundSelection}>环绕选中</button>
+          <button className="search-btn" onClick={handleSurroundSelection}>{t("search.surroundSelect")}</button>
           <button className="search-btn" onClick={() => setSurroundChars(["(", ")"])}>()</button>
           <button className="search-btn" onClick={() => setSurroundChars(["[", "]"])}>[]</button>
           <button className="search-btn" onClick={() => setSurroundChars(["{", "}"])}>{"{}"}</button>
@@ -237,7 +239,7 @@ export function SearchPanel() {
       )}
       {totalMatches > 0 && (
         <div className="search-info">
-          {currentMatchIndex + 1} / {totalMatches} 个匹配
+          {currentMatchIndex + 1} / {totalMatches} {t("search.matchCount")}
         </div>
       )}
     </div>

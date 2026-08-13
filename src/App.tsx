@@ -41,6 +41,7 @@ import { useFileStore, generateId } from "./stores/fileStore";
 import { useEditorStore } from "./stores/editorStore";
 import { useSearchStore } from "./stores/searchStore";
 import { useSettingStore } from "./stores/settingStore";
+import { useI18n } from "./stores/i18nStore";
 import { useTheme } from "./hooks/useTheme";
 import { useKeyboardShortcuts } from "./hooks/useKeyboardShortcuts";
 import { useFileWatcher } from "./hooks/useFileWatcher";
@@ -63,6 +64,7 @@ export default function App() {
   const { isDark, setIsDark, toggleBookmark } = useEditorStore();
   const { toggleSearchPanel, toggleReplacePanel, toggleFindInFiles } = useSearchStore();
   const { themeMode } = useSettingStore();
+  const { t } = useI18n();
 
   const [showEncodingDialog, setShowEncodingDialog] = useState(false);
   const [showSettingsDialog, setShowSettingsDialog] = useState(false);
@@ -129,12 +131,12 @@ export default function App() {
 
   const handleNewFile = useCallback(() => {
     openTab({
-      id: generateId(), path: "", name: "未命名", content: "", meta: null,
+      id: generateId(), path: "", name: t("common.unnamed"), content: "", meta: null,
       is_dirty: false, is_large_file: false, readonly: false,
       encoding: "UTF-8", language: "plaintext",
       cursor_position: { line: 1, column: 1 }, scroll_position: 0, is_new: true,
     });
-  }, [openTab]);
+  }, [openTab, t]);
 
   const handleOpenFile = useCallback(async () => {
     const selected = await open({ multiple: true, filters: [{ name: "所有文件", extensions: ["*"] }] });
@@ -821,7 +823,7 @@ export default function App() {
               openTab({
                 id,
                 path: "",
-                name: tab.name || "未命名",
+                name: tab.name || t("common.unnamed"),
                 content: tab.content || "",
                 meta: null,
                 is_dirty: tab.is_dirty,
@@ -866,7 +868,7 @@ export default function App() {
             <SideBar onOpenFile={openFileByPath} />
             {recentFiles.length > 0 && (
               <div className="recent-files">
-                <div className="recent-files-header">最近打开</div>
+                <div className="recent-files-header">{t("sidebar.recentFiles")}</div>
                 {recentFiles.slice(0, 10).map((path) => (
                   <div key={path} className="recent-file-item" onClick={() => openFileByPath(path)} title={path}>
                     {getFileName(path)}
@@ -923,13 +925,13 @@ export default function App() {
               <div className="no-tab-content">
                 <div className="no-tab-logo">MPT</div>
                 <h2>MarkPT</h2>
-                <p>轻量化代码文本编辑器 v2.0.0</p>
-                <p className="hint">对标 Notepad++ · 基于 Tauri + Monaco Editor</p>
+                <p>{t("welcome.subtitle")} v2.0.0</p>
+                <p className="hint">{t("welcome.desc")}</p>
                 <div className="no-tab-actions">
-                  <button className="btn btn-primary" onClick={handleNewFile}>新建文件</button>
-                  <button className="btn btn-default" onClick={handleOpenFile}>打开文件</button>
+                  <button className="btn btn-primary" onClick={handleNewFile}>{t("app.newFile")}</button>
+                  <button className="btn btn-default" onClick={handleOpenFile}>{t("app.openFile")}</button>
                 </div>
-                <p className="hint">拖拽文件到此处打开 · Cmd+P 命令面板 · Cmd+/ 快捷键帮助</p>
+                <p className="hint">{t("welcome.hint")}</p>
               </div>
             </div>
           )}
@@ -1057,12 +1059,12 @@ export default function App() {
           <div className="dialog-content about-dialog" onClick={(e) => e.stopPropagation()}>
             <div className="about-logo">MPT</div>
             <h2>MarkPT</h2>
-            <p className="about-version">版本 2.0.0</p>
-            <p className="about-desc">轻量化代码文本编辑器</p>
-            <p className="about-tech">Tauri 2.x + Rust + React + Monaco Editor</p>
-            <p className="about-desc">对标 Notepad++ 的跨平台文本编辑器</p>
+            <p className="about-version">{t("about.version")} 2.0.0</p>
+            <p className="about-desc">{t("about.desc")}</p>
+            <p className="about-tech">{t("about.tech")}</p>
+            <p className="about-desc">{t("about.mission")}</p>
             <div className="about-actions">
-              <button className="btn btn-primary" onClick={() => setShowAbout(false)}>确定</button>
+              <button className="btn btn-primary" onClick={() => setShowAbout(false)}>{t("about.ok")}</button>
             </div>
           </div>
         </div>
