@@ -4,6 +4,9 @@ import { appDataDir, join } from "@tauri-apps/api/path";
 export interface SessionTab {
   path: string;
   name: string;
+  content: string;
+  is_new: boolean;
+  is_dirty: boolean;
   cursor_line: number;
   cursor_column: number;
   scroll_position: number;
@@ -14,6 +17,7 @@ export interface SessionTab {
 export interface SessionData {
   tabs: SessionTab[];
   active_tab_path: string | null;
+  active_tab_id: string | null;
   sidebar_visible: boolean;
   window_width: number;
   window_height: number;
@@ -52,6 +56,7 @@ export async function clearSession(): Promise<void> {
     const data: SessionData = {
       tabs: [],
       active_tab_path: null,
+      active_tab_id: null,
       sidebar_visible: true,
       window_width: 800,
       window_height: 600,

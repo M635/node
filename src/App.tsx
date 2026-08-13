@@ -1,5 +1,6 @@
 import { useState, useCallback, useEffect, type DragEvent } from "react";
 import { open, save } from "@tauri-apps/plugin-dialog";
+import { getCurrentWindow } from "@tauri-apps/api/window";
 import { MainLayout } from "./components/layout/MainLayout";
 import { SideBar } from "./components/layout/SideBar";
 import { MonacoEditor } from "./components/editor/MonacoEditor";
@@ -71,6 +72,7 @@ export default function App() {
   const [showShortcutsHelp, setShowShortcutsHelp] = useState(false);
   const [showDiffView, setShowDiffView] = useState(false);
   const [showSidebar, setShowSidebar] = useState(true);
+  const [sessionRestored, setSessionRestored] = useState(false);
   const [diffContent, setDiffContent] = useState({ original: "", modified: "" });
   const [reloadDialog, setReloadDialog] = useState<string | null>(null);
   const [selectionInfo, setSelectionInfo] = useState<{ chars: number; lines: number } | null>(null);
@@ -290,9 +292,34 @@ export default function App() {
     }
   }, [getActiveTab, updateTab, markClean]);
 
-  const handleQuit = useCallback(() => {
-    window.close();
-  }, []);
+  const saveSessionNow = useCallback(async () => {
+    const sessionData: SessionData = {
+      tabs: tabs.map((t) => ({
+        path: t.path,
+        name: t.name,
+        content: t.content,
+        is_new: t.is_new,
+        is_dirty: t.is_dirty,
+        cursor_line: t.cursor_position.line,
+        cursor_column: t.cursor_position.column,
+        scroll_position: t.scroll_position,
+        encoding: t.encoding,
+        language: t.language || "plaintext",
+      })),
+      active_tab_path: activeTab?.path || null,
+      active_tab_id: activeTabId,
+      sidebar_visible: showSidebar,
+      window_width: window.innerWidth,
+      window_height: window.innerHeight,
+      saved_at: Date.now(),
+    };
+    await saveSession(sessionData);
+  }, [tabs, activeTab, activeTabId, showSidebar]);
+
+  const handleQuit = useCallback(async () => {
+    await saveSessionNow();
+    await getCurrentWindow().destroy();
+  }, [saveSessionNow]);
 
   const handleMarkAll = useCallback(() => {
     window.dispatchEvent(new CustomEvent("markpt:mark-all-matches"));
@@ -761,32 +788,26 @@ export default function App() {
   });
 
   useEffect(() => {
-    if (tabs.length === 0) handleNewFile();
-  }, [tabs.length, handleNewFile]);
+    if (sessionRestored && tabs.length === 0) handleNewFile();
+  }, [tabs.length, handleNewFile, sessionRestored]);
 
-  // 会话保存（退出时）
+  // 会话保存（定时 + 退出时）
   useEffect(() => {
     const saveInterval = setInterval(() => {
-      const sessionData: SessionData = {
-        tabs: tabs.filter((t) => !t.is_new && t.path).map((t) => ({
-          path: t.path,
-          name: t.name,
-          cursor_line: t.cursor_position.line,
-          cursor_column: t.cursor_position.column,
-          scroll_position: t.scroll_position,
-          encoding: t.encoding,
-          language: t.language || "plaintext",
-        })),
-        active_tab_path: activeTab?.path || null,
-        sidebar_visible: showSidebar,
-        window_width: window.innerWidth,
-        window_height: window.innerHeight,
-        saved_at: Date.now(),
-      };
-      saveSession(sessionData).catch(() => {});
+      saveSessionNow().catch(() => {});
     }, 60000);
     return () => clearInterval(saveInterval);
-  }, [tabs, activeTab, showSidebar]);
+  }, [saveSessionNow]);
+
+  // 窗口关闭时保存会话
+  useEffect(() => {
+    const unlistenP = getCurrentWindow().onCloseRequested(async (event) => {
+      event.preventDefault();
+      await saveSessionNow();
+      await getCurrentWindow().destroy();
+    });
+    return () => { unlistenP.then((unlisten) => unlisten()); };
+  }, [saveSessionNow]);
 
   // 会话恢复（启动时）
   useEffect(() => {
@@ -795,15 +816,34 @@ export default function App() {
       if (session && session.tabs.length > 0) {
         for (const tab of session.tabs) {
           try {
-            const result = await openFileService(tab.path);
-            openTab({
-              id: generateId(), path: tab.path, name: tab.name, content: result.content,
-              meta: result.meta, is_dirty: false, is_large_file: result.is_large_file,
-              readonly: result.meta.readonly, encoding: tab.encoding as EncodingType,
-              language: tab.language,
-              cursor_position: { line: tab.cursor_line, column: tab.cursor_column },
-              scroll_position: tab.scroll_position, is_new: false,
-            });
+            if (tab.is_new || !tab.path) {
+              const id = generateId();
+              openTab({
+                id,
+                path: "",
+                name: tab.name || "未命名",
+                content: tab.content || "",
+                meta: null,
+                is_dirty: tab.is_dirty,
+                is_large_file: false,
+                readonly: false,
+                encoding: (tab.encoding as EncodingType) || "UTF-8",
+                language: tab.language || "plaintext",
+                cursor_position: { line: tab.cursor_line || 1, column: tab.cursor_column || 1 },
+                scroll_position: tab.scroll_position || 0,
+                is_new: true,
+              });
+            } else {
+              const result = await openFileService(tab.path);
+              openTab({
+                id: generateId(), path: tab.path, name: tab.name, content: result.content,
+                meta: result.meta, is_dirty: false, is_large_file: result.is_large_file,
+                readonly: result.meta.readonly, encoding: tab.encoding as EncodingType,
+                language: tab.language,
+                cursor_position: { line: tab.cursor_line, column: tab.cursor_column },
+                scroll_position: tab.scroll_position, is_new: false,
+              });
+            }
           } catch { /* ignore */ }
         }
         if (session.active_tab_path) {
@@ -812,6 +852,7 @@ export default function App() {
         }
         setShowSidebar(session.sidebar_visible);
       }
+      setSessionRestored(true);
     })();
   }, []);
 
