@@ -376,15 +376,25 @@
   align-items: center;
   justify-content: center;
   border-radius: var(--mac-radius-sm);
-  font-size: 13px;
   color: var(--mac-fg);
-  transition: background 0.1s;
+  transition: background 0.1s, color 0.1s;
   cursor: pointer;
   flex-shrink: 0;
+  border: none;
+  background: transparent;
+  padding: 0;
+}
+
+.toolbar-icon-btn svg {
+  width: 16px;
+  height: 16px;
+  stroke: currentColor;
+  pointer-events: none;
 }
 
 .toolbar-icon-btn:hover {
   background: var(--mac-hover);
+  color: var(--mac-accent);
 }
 
 .toolbar-icon-btn:active {
@@ -395,25 +405,6 @@
 .toolbar-icon-btn.active {
   background: var(--mac-accent);
   color: white;
-}
-
-.toolbar-icon-bold {
-  font-weight: 900;
-  font-size: 15px;
-}
-
-.toolbar-icon-wrap {
-  position: relative;
-  flex-direction: column;
-  gap: 1px;
-}
-
-.toolbar-icon-wrap::before {
-  content: "≡";
-  font-size: 8px;
-  font-weight: 700;
-  line-height: 1;
-  opacity: 0.7;
 }
 
 .toolbar-spacer {
