@@ -4,12 +4,15 @@
   height: var(--mac-tabbar-height);
   background: var(--mac-tab-inactive);
   border-bottom: 1px solid var(--mac-border);
-  padding-left: 80px;
   flex-shrink: 0;
   overflow: visible;
   -webkit-app-region: drag;
   position: relative;
   z-index: 100;
+}
+
+.platform-mac .tab-bar {
+  padding-left: 80px;
 }
 
 .tab-item {
@@ -1122,8 +1125,11 @@
   border-right: 1px solid var(--mac-border);
   background: var(--mac-sidebar);
   overflow: hidden;
-  padding-top: 32px;
   -webkit-app-region: drag;
+}
+
+.platform-mac .sidebar-container {
+  padding-top: 32px;
 }
 
 .sidebar-container > * {

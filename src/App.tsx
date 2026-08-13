@@ -856,8 +856,10 @@ export default function App() {
     })();
   }, []);
 
+  const platformClass = typeof navigator !== "undefined" && /Mac/.test(navigator.platform) ? "platform-mac" : "platform-win";
+
   return (
-    <div className={`app ${isDark ? "dark" : "light"} ${postItMode ? "postit-mode" : ""}`} onDrop={handleDrop} onDragOver={handleDragOver}>
+    <div className={`app ${platformClass} ${isDark ? "dark" : "light"} ${postItMode ? "postit-mode" : ""}`} onDrop={handleDrop} onDragOver={handleDragOver}>
       <div className="app-body">
         {showSidebar && (
           <div className="sidebar-container">

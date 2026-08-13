@@ -15,11 +15,8 @@ pub fn run() {
         .plugin(tauri_plugin_clipboard_manager::init())
         .manage(WatcherState(std::sync::Mutex::new(FileWatcher::new())))
         .setup(|app| {
-            #[cfg(target_os = "macos")]
-            {
-                let app_handle = app.handle();
-                let _ = commands::menu::build_menu(app_handle, "zh");
-            }
+            let app_handle = app.handle();
+            let _ = commands::menu::build_menu(app_handle, "zh");
             Ok(())
         })
         .on_menu_event(|app, event| {
