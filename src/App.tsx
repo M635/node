@@ -318,9 +318,9 @@ export default function App() {
     await saveSession(sessionData);
   }, [tabs, activeTab, activeTabId, showSidebar]);
 
-  const handleQuit = useCallback(async () => {
-    try { await saveSessionNow(); } catch { /* ignore */ }
-    await getCurrentWindow().destroy();
+  const handleQuit = useCallback(() => {
+    saveSessionNow().catch(() => {});
+    getCurrentWindow().close();
   }, [saveSessionNow]);
 
   const handleMarkAll = useCallback(() => {
@@ -803,10 +803,8 @@ export default function App() {
 
   // 窗口关闭时保存会话
   useEffect(() => {
-    const unlistenP = getCurrentWindow().onCloseRequested(async (event) => {
-      event.preventDefault();
-      try { await saveSessionNow(); } catch { /* ignore */ }
-      await getCurrentWindow().destroy();
+    const unlistenP = getCurrentWindow().onCloseRequested(() => {
+      saveSessionNow().catch(() => {});
     });
     return () => { unlistenP.then((unlisten) => unlisten()); };
   }, [saveSessionNow]);

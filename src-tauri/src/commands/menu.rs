@@ -17,10 +17,12 @@ pub fn build_menu(app_handle: &AppHandle, lang: &str) -> tauri::Result<()> {
         &m("reload_from_disk", tr(lang, "从磁盘重载", "Reload from Disk"))?,
         &m("save", tr(lang, "保存", "Save"))?, &m("save_as", tr(lang, "另存为...", "Save As..."))?, &m("save_copy", tr(lang, "保存副本...", "Save Copy..."))?, &m("save_all", tr(lang, "全部保存", "Save All"))?,
         &m("close", tr(lang, "关闭", "Close"))?, &m("close_all", tr(lang, "关闭所有", "Close All"))?, &m("close_all_but_current", tr(lang, "关闭所有但当前", "Close All but Current"))?,
-        &m("copy_path", tr(lang, "复制文件路径", "Copy File Path"))?, &m("copy_directory", tr(lang, "复制目录路径", "Copy Directory Path"))?, &m("copy_filename", tr(lang, "复制文件名", "Copy Filename"))?,
-        &m("toggle_bom", tr(lang, "切换 BOM", "Toggle BOM"))?,
-        &m("open_in_default", tr(lang, "在默认程序打开", "Open in Default App"))?, &m("run_command", tr(lang, "运行命令...", "Run Command..."))?,
-        &m("file_props", tr(lang, "文件属性...", "File Properties..."))?,
+        &Submenu::with_items(app_handle, tr(lang, "文件操作", "File Operations"), true, &[
+            &m("copy_path", tr(lang, "复制文件路径", "Copy File Path"))?, &m("copy_directory", tr(lang, "复制目录路径", "Copy Directory Path"))?, &m("copy_filename", tr(lang, "复制文件名", "Copy Filename"))?,
+            &m("toggle_bom", tr(lang, "切换 BOM", "Toggle BOM"))?,
+            &m("open_in_default", tr(lang, "在默认程序打开", "Open in Default App"))?, &m("run_command", tr(lang, "运行命令...", "Run Command..."))?,
+            &m("file_props", tr(lang, "文件属性...", "File Properties..."))?,
+        ])?,
         &m("quit", tr(lang, "退出 MarkPT", "Quit MarkPT"))?,
     ])?;
 
@@ -30,22 +32,34 @@ pub fn build_menu(app_handle: &AppHandle, lang: &str) -> tauri::Result<()> {
         &m("edit_toggle_comment", tr(lang, "切换注释", "Toggle Comment"))?,
         &m("edit_delete_line", tr(lang, "删除当前行", "Delete Current Line"))?, &m("edit_duplicate_line", tr(lang, "复制当前行", "Duplicate Current Line"))?,
         &m("edit_move_up", tr(lang, "上移行", "Move Line Up"))?, &m("edit_move_down", tr(lang, "下移行", "Move Line Down"))?,
-        &m("edit_delete_blank", tr(lang, "删除空行", "Delete Blank Lines"))?, &m("edit_remove_dup", tr(lang, "去重复行", "Remove Duplicate Lines"))?,
-        &m("edit_trim_trailing", tr(lang, "去行尾空格", "Trim Trailing Whitespace"))?,
-        &m("edit_upper", tr(lang, "转大写", "UPPERCASE"))?, &m("edit_lower", tr(lang, "转小写", "lowercase"))?,
-        &m("edit_sentence_case", tr(lang, "句首大写", "Sentence Case"))?, &m("edit_random_case", tr(lang, "随机大小写", "Random Case"))?,
-        &m("edit_sort_asc", tr(lang, "行排序(升序)", "Sort Lines (Asc)"))?, &m("edit_sort_desc", tr(lang, "行排序(降序)", "Sort Lines (Desc)"))?,
-        &m("edit_sort_length_asc", tr(lang, "按长度排序(升序)", "Sort by Length (Asc)"))?, &m("edit_sort_length_desc", tr(lang, "按长度排序(降序)", "Sort by Length (Desc)"))?,
-        &m("edit_sort_random", tr(lang, "随机排序", "Sort Randomly"))?, &m("edit_reverse_lines", tr(lang, "反转行序", "Reverse Line Order"))?,
-        &m("edit_filter_lines", tr(lang, "过滤行...", "Filter Lines..."))?, &m("edit_filter_lines_remove", tr(lang, "移除匹配行...", "Remove Matching Lines..."))?,
-        &m("edit_merge_lines", tr(lang, "合并行(空格)", "Merge Lines (Space)"))?, &m("edit_merge_lines_comma", tr(lang, "合并行(逗号)", "Merge Lines (Comma)"))?, &m("edit_split_line", tr(lang, "拆分行", "Split Line"))?,
+        &Submenu::with_items(app_handle, tr(lang, "大小写转换", "Case Conversion"), true, &[
+            &m("edit_upper", tr(lang, "转大写", "UPPERCASE"))?, &m("edit_lower", tr(lang, "转小写", "lowercase"))?,
+            &m("edit_sentence_case", tr(lang, "句首大写", "Sentence Case"))?, &m("edit_random_case", tr(lang, "随机大小写", "Random Case"))?,
+        ])?,
+        &Submenu::with_items(app_handle, tr(lang, "行排序", "Line Sorting"), true, &[
+            &m("edit_sort_asc", tr(lang, "行排序(升序)", "Sort Lines (Asc)"))?, &m("edit_sort_desc", tr(lang, "行排序(降序)", "Sort Lines (Desc)"))?,
+            &m("edit_sort_length_asc", tr(lang, "按长度排序(升序)", "Sort by Length (Asc)"))?, &m("edit_sort_length_desc", tr(lang, "按长度排序(降序)", "Sort by Length (Desc)"))?,
+            &m("edit_sort_random", tr(lang, "随机排序", "Sort Randomly"))?, &m("edit_reverse_lines", tr(lang, "反转行序", "Reverse Line Order"))?,
+        ])?,
+        &Submenu::with_items(app_handle, tr(lang, "行操作", "Line Operations"), true, &[
+            &m("edit_delete_blank", tr(lang, "删除空行", "Delete Blank Lines"))?, &m("edit_remove_dup", tr(lang, "去重复行", "Remove Duplicate Lines"))?,
+            &m("edit_trim_trailing", tr(lang, "去行尾空格", "Trim Trailing Whitespace"))?,
+            &m("edit_filter_lines", tr(lang, "过滤行...", "Filter Lines..."))?, &m("edit_filter_lines_remove", tr(lang, "移除匹配行...", "Remove Matching Lines..."))?,
+            &m("edit_merge_lines", tr(lang, "合并行(空格)", "Merge Lines (Space)"))?, &m("edit_merge_lines_comma", tr(lang, "合并行(逗号)", "Merge Lines (Comma)"))?, &m("edit_split_line", tr(lang, "拆分行", "Split Line"))?,
+        ])?,
+        &Submenu::with_items(app_handle, tr(lang, "格式化", "Format"), true, &[
+            &m("format_code", tr(lang, "格式化代码", "Format Code"))?,
+            &m("format_json", tr(lang, "格式化 JSON", "Format JSON"))?, &m("format_xml", tr(lang, "格式化 XML", "Format XML"))?, &m("format_html", tr(lang, "格式化 HTML", "Format HTML"))?, &m("format_css", tr(lang, "格式化 CSS", "Format CSS"))?, &m("format_sql", tr(lang, "格式化 SQL", "Format SQL"))?,
+        ])?,
         &m("eol_lf", tr(lang, "行尾: LF", "EOL: LF"))?, &m("eol_crlf", tr(lang, "行尾: CRLF", "EOL: CRLF"))?, &m("eol_cr", tr(lang, "行尾: CR", "EOL: CR"))?,
         &m("tab_to_space", tr(lang, "Tab 转空格", "Tab to Space"))?, &m("space_to_tab", tr(lang, "空格转 Tab", "Space to Tab"))?,
-        &m("format_code", tr(lang, "格式化代码", "Format Code"))?,
-        &m("format_json", tr(lang, "格式化 JSON", "Format JSON"))?, &m("format_xml", tr(lang, "格式化 XML", "Format XML"))?, &m("format_html", tr(lang, "格式化 HTML", "Format HTML"))?, &m("format_css", tr(lang, "格式化 CSS", "Format CSS"))?, &m("format_sql", tr(lang, "格式化 SQL", "Format SQL"))?,
-        &m("insert_datetime", tr(lang, "插入日期时间...", "Insert DateTime..."))?, &m("special_char", tr(lang, "特殊字符...", "Special Characters..."))?, &m("color_picker", tr(lang, "颜色选择器...", "Color Picker..."))?, &m("insert_file", tr(lang, "插入文件内容...", "Insert File Content..."))?,
-        &m("char_full_width", tr(lang, "转全角", "To Full Width"))?, &m("char_half_width", tr(lang, "转半角", "To Half Width"))?, &m("char_remove_non_printable", tr(lang, "删除非打印字符", "Remove Non-printable"))?,
-        &m("char_normalize_nfc", tr(lang, "Unicode NFC", "Unicode NFC"))?, &m("char_to_snake", tr(lang, "转 snake_case", "To snake_case"))?, &m("char_to_camel", tr(lang, "转 camelCase", "To camelCase"))?, &m("char_to_pascal", tr(lang, "转 PascalCase", "To PascalCase"))?, &m("char_to_kebab", tr(lang, "转 kebab-case", "To kebab-case"))?,
+        &Submenu::with_items(app_handle, tr(lang, "插入", "Insert"), true, &[
+            &m("insert_datetime", tr(lang, "插入日期时间...", "Insert DateTime..."))?, &m("special_char", tr(lang, "特殊字符...", "Special Characters..."))?, &m("color_picker", tr(lang, "颜色选择器...", "Color Picker..."))?, &m("insert_file", tr(lang, "插入文件内容...", "Insert File Content..."))?,
+        ])?,
+        &Submenu::with_items(app_handle, tr(lang, "字符转换", "Character Conversion"), true, &[
+            &m("char_full_width", tr(lang, "转全角", "To Full Width"))?, &m("char_half_width", tr(lang, "转半角", "To Half Width"))?, &m("char_remove_non_printable", tr(lang, "删除非打印字符", "Remove Non-printable"))?,
+            &m("char_normalize_nfc", tr(lang, "Unicode NFC", "Unicode NFC"))?, &m("char_to_snake", tr(lang, "转 snake_case", "To snake_case"))?, &m("char_to_camel", tr(lang, "转 camelCase", "To camelCase"))?, &m("char_to_pascal", tr(lang, "转 PascalCase", "To PascalCase"))?, &m("char_to_kebab", tr(lang, "转 kebab-case", "To kebab-case"))?,
+        ])?,
     ])?;
 
     let search_menu = Submenu::with_items(app_handle, tr(lang, "查找", "Search"), true, &[
@@ -64,13 +78,19 @@ pub fn build_menu(app_handle: &AppHandle, lang: &str) -> tauri::Result<()> {
         &m("toggle_word_wrap", tr(lang, "自动换行", "Word Wrap"))?,
         &m("zoom_in", tr(lang, "放大", "Zoom In"))?, &m("zoom_out", tr(lang, "缩小", "Zoom Out"))?, &m("zoom_reset", tr(lang, "重置缩放", "Reset Zoom"))?,
         &m("full_screen", tr(lang, "全屏", "Full Screen"))?, &m("always_on_top", tr(lang, "窗口置顶", "Always on Top"))?, &m("postit_mode", tr(lang, "便利贴模式", "Post-it Mode"))?,
-        &m("markdown_preview", tr(lang, "Markdown 预览...", "Markdown Preview..."))?, &m("csv_viewer", tr(lang, "CSV/TSV 查看...", "CSV/TSV Viewer..."))?, &m("regex_tester", tr(lang, "正则测试器...", "Regex Tester..."))?,
-        &m("window_sort_name", tr(lang, "标签排序: 按名称", "Sort Tabs: by Name"))?,
-        &m("window_sort_path", tr(lang, "标签排序: 按路径", "Sort Tabs: by Path"))?,
-        &m("window_sort_time", tr(lang, "标签排序: 按类型", "Sort Tabs: by Type"))?,
-        &m("window_cascade", tr(lang, "层叠窗口", "Cascade Windows"))?,
-        &m("window_tile_horizontal", tr(lang, "水平平铺", "Tile Horizontally"))?,
-        &m("window_tile_vertical", tr(lang, "垂直平铺", "Tile Vertically"))?,
+        &Submenu::with_items(app_handle, tr(lang, "工具窗口", "Tool Windows"), true, &[
+            &m("markdown_preview", tr(lang, "Markdown 预览...", "Markdown Preview..."))?, &m("csv_viewer", tr(lang, "CSV/TSV 查看...", "CSV/TSV Viewer..."))?, &m("regex_tester", tr(lang, "正则测试器...", "Regex Tester..."))?,
+        ])?,
+        &Submenu::with_items(app_handle, tr(lang, "标签排序", "Sort Tabs"), true, &[
+            &m("window_sort_name", tr(lang, "按名称", "by Name"))?,
+            &m("window_sort_path", tr(lang, "按路径", "by Path"))?,
+            &m("window_sort_time", tr(lang, "按类型", "by Type"))?,
+        ])?,
+        &Submenu::with_items(app_handle, tr(lang, "窗口排列", "Window Layout"), true, &[
+            &m("window_cascade", tr(lang, "层叠窗口", "Cascade Windows"))?,
+            &m("window_tile_horizontal", tr(lang, "水平平铺", "Tile Horizontally"))?,
+            &m("window_tile_vertical", tr(lang, "垂直平铺", "Tile Vertically"))?,
+        ])?,
     ])?;
 
     let encoding_menu = Submenu::with_items(app_handle, tr(lang, "编码", "Encoding"), true, &[
