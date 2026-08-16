@@ -1278,9 +1278,11 @@
   background: var(--mac-bg);
   border-radius: var(--mac-radius);
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
-  width: 500px;
-  max-width: 90vw;
-  max-height: 400px;
+  width: min(560px, 92vw);
+  max-width: 92vw;
+  min-width: 280px;
+  height: min(480px, 80vh);
+  max-height: 80vh;
   display: flex;
   flex-direction: column;
   overflow: hidden;

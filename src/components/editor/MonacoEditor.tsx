@@ -141,12 +141,12 @@ export function MonacoEditor({
     });
     editor.addAction({
       id: "markpt-title-case",
-      label: t("action.toUpperCase"),
+      label: t("action.toTitleCase"),
       run: (ed) => EditOperations.toTitleCase(ed),
     });
     editor.addAction({
       id: "markpt-invert-case",
-      label: t("action.toUpperCase"),
+      label: t("action.invertCase"),
       run: (ed) => EditOperations.invertCase(ed),
     });
     editor.addAction({
@@ -172,22 +172,22 @@ export function MonacoEditor({
     });
     editor.addAction({
       id: "markpt-sort-length-asc",
-      label: t("action.sortAsc"),
+      label: t("action.sortLengthAsc"),
       run: (ed) => EditOperations.sortLinesByLength(ed, false),
     });
     editor.addAction({
       id: "markpt-sort-length-desc",
-      label: t("action.sortDesc"),
+      label: t("action.sortLengthDesc"),
       run: (ed) => EditOperations.sortLinesByLength(ed, true),
     });
     editor.addAction({
       id: "markpt-sort-random",
-      label: t("action.sortDesc"),
+      label: t("action.sortRandom"),
       run: (ed) => EditOperations.sortLinesRandom(ed),
     });
     editor.addAction({
       id: "markpt-reverse-lines",
-      label: t("action.sortDesc"),
+      label: t("action.reverseLines"),
       run: (ed) => EditOperations.reverseLineOrder(ed),
     });
 
@@ -268,7 +268,7 @@ export function MonacoEditor({
     });
     editor.addAction({
       id: "markpt-context-format",
-      label: t("action.toggleComment"),
+      label: t("action.formatDocument"),
       contextMenuGroupId: "7_edit",
       run: (ed) => { ed.getAction("editor.action.formatDocument")?.run(); },
     });
@@ -297,7 +297,7 @@ export function MonacoEditor({
     });
     editor.addAction({
       id: "markpt-context-select-all",
-      label: t("toolbar.lineNumbers"),
+      label: t("action.selectAll"),
       keybindings: [Monaco.KeyMod.CtrlCmd | Monaco.KeyCode.KeyA],
       contextMenuGroupId: "9_cutcopypaste",
       run: (ed) => {
@@ -317,6 +317,56 @@ export function MonacoEditor({
       resizeObserver.disconnect();
     };
   }, [onCursorChange, tabId, t]);
+
+  // 语言切换时同步更新 Monaco 上下文菜单 Action 标签，避免中英文混杂
+  useEffect(() => {
+    const editor = editorRef.current;
+    if (!editor) return;
+    const ACTIONS: { id: string; labelKey: string }[] = [
+      { id: "markpt-delete-line", labelKey: "action.deleteLine" },
+      { id: "markpt-duplicate-line", labelKey: "action.duplicateLine" },
+      { id: "markpt-move-line-up", labelKey: "action.moveUp" },
+      { id: "markpt-move-line-down", labelKey: "action.moveDown" },
+      { id: "markpt-delete-blank-lines", labelKey: "action.deleteBlank" },
+      { id: "markpt-trim-trailing", labelKey: "action.trimTrailing" },
+      { id: "markpt-trim-leading", labelKey: "action.trimTrailing" },
+      { id: "markpt-upper-case", labelKey: "action.toUpperCase" },
+      { id: "markpt-lower-case", labelKey: "action.toLowerCase" },
+      { id: "markpt-title-case", labelKey: "action.toTitleCase" },
+      { id: "markpt-invert-case", labelKey: "action.invertCase" },
+      { id: "markpt-sort-asc", labelKey: "action.sortAsc" },
+      { id: "markpt-sort-desc", labelKey: "action.sortDesc" },
+      { id: "markpt-toggle-comment", labelKey: "action.toggleComment" },
+      { id: "markpt-remove-duplicates", labelKey: "action.removeDuplicates" },
+      { id: "markpt-sort-length-asc", labelKey: "action.sortLengthAsc" },
+      { id: "markpt-sort-length-desc", labelKey: "action.sortLengthDesc" },
+      { id: "markpt-sort-random", labelKey: "action.sortRandom" },
+      { id: "markpt-reverse-lines", labelKey: "action.reverseLines" },
+      { id: "markpt-clipboard-copy", labelKey: "toolbar.copy" },
+      { id: "markpt-clipboard-cut", labelKey: "toolbar.cut" },
+      { id: "markpt-clipboard-paste", labelKey: "toolbar.paste" },
+      { id: "markpt-context-find", labelKey: "search.find" },
+      { id: "markpt-context-replace", labelKey: "search.replace" },
+      { id: "markpt-context-goto-line", labelKey: "toolbar.gotoLine" },
+      { id: "markpt-context-format", labelKey: "action.formatDocument" },
+      { id: "markpt-context-duplicate", labelKey: "action.duplicateLine" },
+      { id: "markpt-context-delete-line", labelKey: "action.deleteLine" },
+      { id: "markpt-context-insert-datetime", labelKey: "dialog.insertDateTime" },
+      { id: "markpt-context-select-all", labelKey: "action.selectAll" },
+    ];
+    const applyLabels = () => {
+      const { t } = useI18n.getState();
+      ACTIONS.forEach(({ id, labelKey }) => {
+        try {
+          const action = editor.getAction(id);
+          if (action) (action as any)._setLabel?.(t(labelKey));
+        } catch { /* 忽略 */ }
+      });
+    };
+    applyLabels();
+    window.addEventListener("markpt:lang-changed", applyLabels);
+    return () => window.removeEventListener("markpt:lang-changed", applyLabels);
+  }, []);
 
   // 行号跳转
   useEffect(() => {

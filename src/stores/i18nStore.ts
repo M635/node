@@ -42,6 +42,7 @@ const translations: Record<string, Record<Language, string>> = {
   "action.undo": { zh: "撤销", en: "Undo" },
   "action.redo": { zh: "重做", en: "Redo" },
   "action.deleteLine": { zh: "删除当前行", en: "Delete Current Line" },
+  "action.selectAll": { zh: "全选", en: "Select All" },
   "action.duplicateLine": { zh: "复制当前行", en: "Duplicate Current Line" },
   "action.moveUp": { zh: "上移行", en: "Move Line Up" },
   "action.moveDown": { zh: "下移行", en: "Move Line Down" },
@@ -50,10 +51,23 @@ const translations: Record<string, Record<Language, string>> = {
   "action.toggleComment": { zh: "切换注释", en: "Toggle Comment" },
   "action.toUpperCase": { zh: "转大写", en: "To Uppercase" },
   "action.toLowerCase": { zh: "转小写", en: "To Lowercase" },
+  "action.toTitleCase": { zh: "标题大小写", en: "Title Case" },
+  "action.invertCase": { zh: "反转大小写", en: "Invert Case" },
   "action.sortAsc": { zh: "行排序(升序)", en: "Sort Lines (Asc)" },
   "action.sortDesc": { zh: "行排序(降序)", en: "Sort Lines (Desc)" },
+  "action.sortLengthAsc": { zh: "按长度排序(升序)", en: "Sort by Length (Asc)" },
+  "action.sortLengthDesc": { zh: "按长度排序(降序)", en: "Sort by Length (Desc)" },
+  "action.sortRandom": { zh: "随机排序", en: "Sort Randomly" },
+  "action.reverseLines": { zh: "反转行序", en: "Reverse Line Order" },
   "action.removeDuplicates": { zh: "去重复行", en: "Remove Duplicate Lines" },
-  "action.format": { zh: "格式化失败", en: "Format failed" },
+  "action.formatDocument": { zh: "格式化文档", en: "Format Document" },
+  "action.mergeLines": { zh: "合并行为空格", en: "Merge Lines (Space)" },
+  "action.mergeLinesComma": { zh: "合并行为逗号", en: "Merge Lines (Comma)" },
+  "action.splitLine": { zh: "拆分行", en: "Split Line" },
+  "action.jumpToBracket": { zh: "跳转到匹配括号", en: "Jump to Bracket" },
+  "action.selectToBracket": { zh: "选中到匹配括号", en: "Select to Bracket" },
+  "action.filterLines": { zh: "过滤行...", en: "Filter Lines..." },
+  "action.filterLinesRemove": { zh: "移除匹配行...", en: "Remove Matching Lines..." },
 
   "action.find": { zh: "查找...", en: "Find..." },
   "action.replace": { zh: "替换...", en: "Replace..." },
@@ -554,6 +568,8 @@ export const useI18n = create<I18nStore>((set, get) => ({
     // 同步页面语言标记，并重建原生菜单，保证界面与菜单文案一致
     document.documentElement.lang = lang === "en" ? "en" : "zh-CN";
     invoke("rebuild_menu", { lang }).catch(() => {});
+    // 通知 Monaco 编辑器更新上下文菜单 Action 标签
+    window.dispatchEvent(new Event("markpt:lang-changed"));
   },
   t: (key, params, fallback) => {
     const { language } = get();
