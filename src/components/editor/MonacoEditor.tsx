@@ -13,6 +13,99 @@ import { EditOperations } from "../../services/monaco/editOperations";
 import { macroRecorder, replayMacro } from "../../services/macro/recorder";
 import { clipboardWrite, clipboardRead } from "../../utils/clipboard";
 import { useI18n } from "../../stores/i18nStore";
+import { localizeBuiltinContextMenu } from "../../services/monaco/i18n";
+
+type TFunc = (key: string) => string;
+
+/**
+ * 注册自定义编辑器 Action（含右键菜单项）。
+ * 通过 dispose + 重新注册的方式，在语言切换时刷新所有 Action 的 label，
+ * 规避 Monaco 的 IAction.label 为只读、无法动态更新导致的中英文混杂。
+ * 注意：copy/cut/paste 不再设置 contextMenuGroupId，避免与 Monaco 内置
+ * Cut/Copy/Paste 菜单项重复显示。
+ */
+function registerEditorActions(
+  editor: Monaco.editor.IStandaloneCodeEditor,
+  monaco: typeof Monaco,
+  t: TFunc,
+  disposables: Monaco.IDisposable[],
+): void {
+  for (const d of disposables) {
+    try { d.dispose(); } catch { /* 忽略 */ }
+  }
+  disposables.length = 0;
+  const add = (descriptor: Monaco.editor.IActionDescriptor) => {
+    const d = editor.addAction(descriptor);
+    if (d) disposables.push(d);
+  };
+
+  add({ id: "markpt-delete-line", label: t("action.deleteLine"), keybindings: [monaco.KeyMod.CtrlCmd | monaco.KeyCode.KeyD], run: (ed) => EditOperations.deleteCurrentLine(ed, monaco) });
+  add({ id: "markpt-duplicate-line", label: t("action.duplicateLine"), keybindings: [monaco.KeyMod.Shift | monaco.KeyMod.Alt | monaco.KeyCode.KeyD], run: (ed) => EditOperations.duplicateCurrentLine(ed) });
+  add({ id: "markpt-move-line-up", label: t("action.moveUp"), keybindings: [monaco.KeyMod.Alt | monaco.KeyCode.UpArrow], run: (ed) => EditOperations.moveLineUp(ed) });
+  add({ id: "markpt-move-line-down", label: t("action.moveDown"), keybindings: [monaco.KeyMod.Alt | monaco.KeyCode.DownArrow], run: (ed) => EditOperations.moveLineDown(ed) });
+  add({ id: "markpt-delete-blank-lines", label: t("action.deleteBlank"), run: (ed) => EditOperations.deleteBlankLines(ed) });
+  add({ id: "markpt-trim-trailing", label: t("action.trimTrailing"), run: (ed) => EditOperations.trimTrailingWhitespace(ed) });
+  add({ id: "markpt-trim-leading", label: t("action.trimTrailing"), run: (ed) => EditOperations.trimLeadingWhitespace(ed) });
+  add({ id: "markpt-upper-case", label: t("action.toUpperCase"), keybindings: [monaco.KeyMod.CtrlCmd | monaco.KeyMod.Shift | monaco.KeyCode.KeyU], run: (ed) => EditOperations.toUpperCase(ed) });
+  add({ id: "markpt-lower-case", label: t("action.toLowerCase"), keybindings: [monaco.KeyMod.CtrlCmd | monaco.KeyMod.Shift | monaco.KeyCode.KeyL], run: (ed) => EditOperations.toLowerCase(ed) });
+  add({ id: "markpt-title-case", label: t("action.toTitleCase"), run: (ed) => EditOperations.toTitleCase(ed) });
+  add({ id: "markpt-invert-case", label: t("action.invertCase"), run: (ed) => EditOperations.invertCase(ed) });
+  add({ id: "markpt-sort-asc", label: t("action.sortAsc"), run: (ed) => EditOperations.sortLinesAscending(ed) });
+  add({ id: "markpt-sort-desc", label: t("action.sortDesc"), run: (ed) => EditOperations.sortLinesDescending(ed) });
+  add({ id: "markpt-toggle-comment", label: t("action.toggleComment"), keybindings: [monaco.KeyMod.CtrlCmd | monaco.KeyCode.Slash], run: (ed) => EditOperations.toggleLineComment(ed, monaco) });
+  add({ id: "markpt-remove-duplicates", label: t("action.removeDuplicates"), run: (ed) => EditOperations.removeDuplicateLines(ed) });
+  add({ id: "markpt-sort-length-asc", label: t("action.sortLengthAsc"), run: (ed) => EditOperations.sortLinesByLength(ed, false) });
+  add({ id: "markpt-sort-length-desc", label: t("action.sortLengthDesc"), run: (ed) => EditOperations.sortLinesByLength(ed, true) });
+  add({ id: "markpt-sort-random", label: t("action.sortRandom"), run: (ed) => EditOperations.sortLinesRandom(ed) });
+  add({ id: "markpt-reverse-lines", label: t("action.reverseLines"), run: (ed) => EditOperations.reverseLineOrder(ed) });
+
+  const doCopy = async (ed: Monaco.editor.IStandaloneCodeEditor) => {
+    const sel = ed.getSelection();
+    if (!sel) return;
+    const text = ed.getModel()?.getValueInRange(sel) || "";
+    if (text) await clipboardWrite(text);
+  };
+  const doCut = async (ed: Monaco.editor.IStandaloneCodeEditor) => {
+    const sel = ed.getSelection();
+    if (!sel) return;
+    const model = ed.getModel();
+    if (!model) return;
+    const text = model.getValueInRange(sel);
+    if (text) {
+      await clipboardWrite(text);
+      ed.executeEdits("cut", [{ range: sel, text: "" }]);
+    }
+  };
+  const doPaste = async (ed: Monaco.editor.IStandaloneCodeEditor) => {
+    const text = await clipboardRead();
+    if (!text) return;
+    const sel = ed.getSelection();
+    if (!sel) return;
+    ed.executeEdits("paste", [{ range: sel, text, forceMoveMarkers: true }]);
+  };
+
+  add({ id: "markpt-clipboard-copy", label: t("toolbar.copy"), keybindings: [monaco.KeyMod.CtrlCmd | monaco.KeyCode.KeyC], run: (ed) => { doCopy(ed as Monaco.editor.IStandaloneCodeEditor); } });
+  add({ id: "markpt-clipboard-cut", label: t("toolbar.cut"), keybindings: [monaco.KeyMod.CtrlCmd | monaco.KeyCode.KeyX], run: (ed) => { doCut(ed as Monaco.editor.IStandaloneCodeEditor); } });
+  add({ id: "markpt-clipboard-paste", label: t("toolbar.paste"), keybindings: [monaco.KeyMod.CtrlCmd | monaco.KeyCode.KeyV], run: (ed) => { doPaste(ed as Monaco.editor.IStandaloneCodeEditor); } });
+
+  add({ id: "markpt-context-find", label: t("search.find"), keybindings: [monaco.KeyMod.CtrlCmd | monaco.KeyCode.KeyF], contextMenuGroupId: "8_search", run: () => { useSearchStore.getState().toggleSearchPanel(); } });
+  add({ id: "markpt-context-replace", label: t("search.replace"), keybindings: [monaco.KeyMod.CtrlCmd | monaco.KeyCode.KeyH], contextMenuGroupId: "8_search", run: () => { useSearchStore.getState().toggleReplacePanel(); } });
+  add({ id: "markpt-context-goto-line", label: t("toolbar.gotoLine"), keybindings: [monaco.KeyMod.CtrlCmd | monaco.KeyCode.KeyG], contextMenuGroupId: "8_search", run: () => { window.dispatchEvent(new CustomEvent("markpt:goto-line")); } });
+  add({ id: "markpt-context-toggle-comment", label: t("action.toggleComment"), keybindings: [monaco.KeyMod.CtrlCmd | monaco.KeyCode.Slash], contextMenuGroupId: "7_edit", run: (ed) => EditOperations.toggleLineComment(ed, monaco) });
+  add({ id: "markpt-context-format", label: t("action.formatDocument"), contextMenuGroupId: "7_edit", run: (ed) => { ed.getAction("editor.action.formatDocument")?.run(); } });
+  add({ id: "markpt-context-duplicate", label: t("action.duplicateLine"), contextMenuGroupId: "7_edit", run: (ed) => EditOperations.duplicateCurrentLine(ed) });
+  add({ id: "markpt-context-delete-line", label: t("action.deleteLine"), contextMenuGroupId: "7_edit", run: (ed) => EditOperations.deleteCurrentLine(ed, monaco) });
+  add({ id: "markpt-context-insert-datetime", label: t("dialog.insertDateTime"), contextMenuGroupId: "6_insert", run: (ed) => {
+    const now = new Date();
+    const text = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}-${String(now.getDate()).padStart(2, "0")} ${String(now.getHours()).padStart(2, "0")}:${String(now.getMinutes()).padStart(2, "0")}:${String(now.getSeconds()).padStart(2, "0")}`;
+    const pos = ed.getPosition();
+    if (pos) ed.executeEdits("insert-datetime", [{ range: new monaco.Range(pos.lineNumber, pos.column, pos.lineNumber, pos.column), text }]);
+  } });
+  add({ id: "markpt-context-select-all", label: t("action.selectAll"), keybindings: [monaco.KeyMod.CtrlCmd | monaco.KeyCode.KeyA], contextMenuGroupId: "9_cutcopypaste", run: (ed) => {
+    const model = ed.getModel();
+    if (model) ed.setSelection(new monaco.Range(1, 1, model.getLineCount(), model.getLineMaxColumn(model.getLineCount()) + 1));
+  } });
+}
 
 interface MonacoEditorProps {
   tabId: string;
@@ -38,6 +131,7 @@ export function MonacoEditor({
   const editorRef = useRef<Monaco.editor.IStandaloneCodeEditor | null>(null);
   const monacoRef = useRef<typeof Monaco | null>(null);
   const decorationIdsRef = useRef<string[]>([]);
+  const actionDisposablesRef = useRef<Monaco.IDisposable[]>([]);
   const { isDark, getBookmarks } = useEditorStore();
   const {
     fontSize, fontFamily, tabSize, insertSpaces, wordWrap,
@@ -88,223 +182,8 @@ export function MonacoEditor({
       }
     });
 
-    editor.addAction({
-      id: "markpt-delete-line",
-      label: t("action.deleteLine"),
-      keybindings: [Monaco.KeyMod.CtrlCmd | Monaco.KeyCode.KeyD],
-      run: (ed) => EditOperations.deleteCurrentLine(ed, monaco),
-    });
-    editor.addAction({
-      id: "markpt-duplicate-line",
-      label: t("action.duplicateLine"),
-      keybindings: [Monaco.KeyMod.Shift | Monaco.KeyMod.Alt | Monaco.KeyCode.KeyD],
-      run: (ed) => EditOperations.duplicateCurrentLine(ed),
-    });
-    editor.addAction({
-      id: "markpt-move-line-up",
-      label: t("action.moveUp"),
-      keybindings: [Monaco.KeyMod.Alt | Monaco.KeyCode.UpArrow],
-      run: (ed) => EditOperations.moveLineUp(ed),
-    });
-    editor.addAction({
-      id: "markpt-move-line-down",
-      label: t("action.moveDown"),
-      keybindings: [Monaco.KeyMod.Alt | Monaco.KeyCode.DownArrow],
-      run: (ed) => EditOperations.moveLineDown(ed),
-    });
-    editor.addAction({
-      id: "markpt-delete-blank-lines",
-      label: t("action.deleteBlank"),
-      run: (ed) => EditOperations.deleteBlankLines(ed),
-    });
-    editor.addAction({
-      id: "markpt-trim-trailing",
-      label: t("action.trimTrailing"),
-      run: (ed) => EditOperations.trimTrailingWhitespace(ed),
-    });
-    editor.addAction({
-      id: "markpt-trim-leading",
-      label: t("action.trimTrailing"),
-      run: (ed) => EditOperations.trimLeadingWhitespace(ed),
-    });
-    editor.addAction({
-      id: "markpt-upper-case",
-      label: t("action.toUpperCase"),
-      keybindings: [Monaco.KeyMod.CtrlCmd | Monaco.KeyMod.Shift | Monaco.KeyCode.KeyU],
-      run: (ed) => EditOperations.toUpperCase(ed),
-    });
-    editor.addAction({
-      id: "markpt-lower-case",
-      label: t("action.toLowerCase"),
-      keybindings: [Monaco.KeyMod.CtrlCmd | Monaco.KeyMod.Shift | Monaco.KeyCode.KeyL],
-      run: (ed) => EditOperations.toLowerCase(ed),
-    });
-    editor.addAction({
-      id: "markpt-title-case",
-      label: t("action.toTitleCase"),
-      run: (ed) => EditOperations.toTitleCase(ed),
-    });
-    editor.addAction({
-      id: "markpt-invert-case",
-      label: t("action.invertCase"),
-      run: (ed) => EditOperations.invertCase(ed),
-    });
-    editor.addAction({
-      id: "markpt-sort-asc",
-      label: t("action.sortAsc"),
-      run: (ed) => EditOperations.sortLinesAscending(ed),
-    });
-    editor.addAction({
-      id: "markpt-sort-desc",
-      label: t("action.sortDesc"),
-      run: (ed) => EditOperations.sortLinesDescending(ed),
-    });
-    editor.addAction({
-      id: "markpt-toggle-comment",
-      label: t("action.toggleComment"),
-      keybindings: [Monaco.KeyMod.CtrlCmd | Monaco.KeyCode.Slash],
-      run: (ed) => EditOperations.toggleLineComment(ed, monaco),
-    });
-    editor.addAction({
-      id: "markpt-remove-duplicates",
-      label: t("action.removeDuplicates"),
-      run: (ed) => EditOperations.removeDuplicateLines(ed),
-    });
-    editor.addAction({
-      id: "markpt-sort-length-asc",
-      label: t("action.sortLengthAsc"),
-      run: (ed) => EditOperations.sortLinesByLength(ed, false),
-    });
-    editor.addAction({
-      id: "markpt-sort-length-desc",
-      label: t("action.sortLengthDesc"),
-      run: (ed) => EditOperations.sortLinesByLength(ed, true),
-    });
-    editor.addAction({
-      id: "markpt-sort-random",
-      label: t("action.sortRandom"),
-      run: (ed) => EditOperations.sortLinesRandom(ed),
-    });
-    editor.addAction({
-      id: "markpt-reverse-lines",
-      label: t("action.reverseLines"),
-      run: (ed) => EditOperations.reverseLineOrder(ed),
-    });
-
-    const doCopy = async (ed: Monaco.editor.IStandaloneCodeEditor) => {
-      const sel = ed.getSelection();
-      if (!sel) return;
-      const text = ed.getModel()?.getValueInRange(sel) || "";
-      if (text) await clipboardWrite(text);
-    };
-    const doCut = async (ed: Monaco.editor.IStandaloneCodeEditor) => {
-      const sel = ed.getSelection();
-      if (!sel) return;
-      const model = ed.getModel();
-      if (!model) return;
-      const text = model.getValueInRange(sel);
-      if (text) {
-        await clipboardWrite(text);
-        ed.executeEdits("cut", [{ range: sel, text: "" }]);
-      }
-    };
-    const doPaste = async (ed: Monaco.editor.IStandaloneCodeEditor) => {
-      const text = await clipboardRead();
-      if (!text) return;
-      const sel = ed.getSelection();
-      if (!sel) return;
-      ed.executeEdits("paste", [{ range: sel, text, forceMoveMarkers: true }]);
-    };
-
-    editor.addAction({
-      id: "markpt-clipboard-copy",
-      label: t("toolbar.copy"),
-      keybindings: [Monaco.KeyMod.CtrlCmd | Monaco.KeyCode.KeyC],
-      contextMenuGroupId: "9_cutcopypaste",
-      run: (ed) => { doCopy(ed as Monaco.editor.IStandaloneCodeEditor); },
-    });
-    editor.addAction({
-      id: "markpt-clipboard-cut",
-      label: t("toolbar.cut"),
-      keybindings: [Monaco.KeyMod.CtrlCmd | Monaco.KeyCode.KeyX],
-      contextMenuGroupId: "9_cutcopypaste",
-      run: (ed) => { doCut(ed as Monaco.editor.IStandaloneCodeEditor); },
-    });
-    editor.addAction({
-      id: "markpt-clipboard-paste",
-      label: t("toolbar.paste"),
-      keybindings: [Monaco.KeyMod.CtrlCmd | Monaco.KeyCode.KeyV],
-      contextMenuGroupId: "9_cutcopypaste",
-      run: (ed) => { doPaste(ed as Monaco.editor.IStandaloneCodeEditor); },
-    });
-
-    editor.addAction({
-      id: "markpt-context-find",
-      label: t("search.find"),
-      keybindings: [Monaco.KeyMod.CtrlCmd | Monaco.KeyCode.KeyF],
-      contextMenuGroupId: "8_search",
-      run: () => { useSearchStore.getState().toggleSearchPanel(); },
-    });
-    editor.addAction({
-      id: "markpt-context-replace",
-      label: t("search.replace"),
-      keybindings: [Monaco.KeyMod.CtrlCmd | Monaco.KeyCode.KeyH],
-      contextMenuGroupId: "8_search",
-      run: () => { useSearchStore.getState().toggleReplacePanel(); },
-    });
-    editor.addAction({
-      id: "markpt-context-goto-line",
-      label: t("toolbar.gotoLine"),
-      keybindings: [Monaco.KeyMod.CtrlCmd | Monaco.KeyCode.KeyG],
-      contextMenuGroupId: "8_search",
-      run: () => { window.dispatchEvent(new CustomEvent("markpt:goto-line")); },
-    });
-    editor.addAction({
-      id: "markpt-context-toggle-comment",
-      label: t("action.toggleComment"),
-      keybindings: [Monaco.KeyMod.CtrlCmd | Monaco.KeyCode.Slash],
-      contextMenuGroupId: "7_edit",
-      run: (ed) => EditOperations.toggleLineComment(ed, monaco),
-    });
-    editor.addAction({
-      id: "markpt-context-format",
-      label: t("action.formatDocument"),
-      contextMenuGroupId: "7_edit",
-      run: (ed) => { ed.getAction("editor.action.formatDocument")?.run(); },
-    });
-    editor.addAction({
-      id: "markpt-context-duplicate",
-      label: t("action.duplicateLine"),
-      contextMenuGroupId: "7_edit",
-      run: (ed) => EditOperations.duplicateCurrentLine(ed),
-    });
-    editor.addAction({
-      id: "markpt-context-delete-line",
-      label: t("action.deleteLine"),
-      contextMenuGroupId: "7_edit",
-      run: (ed) => EditOperations.deleteCurrentLine(ed, monaco),
-    });
-    editor.addAction({
-      id: "markpt-context-insert-datetime",
-      label: t("dialog.insertDateTime"),
-      contextMenuGroupId: "6_insert",
-      run: (ed) => {
-        const now = new Date();
-        const text = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}-${String(now.getDate()).padStart(2, "0")} ${String(now.getHours()).padStart(2, "0")}:${String(now.getMinutes()).padStart(2, "0")}:${String(now.getSeconds()).padStart(2, "0")}`;
-        const pos = ed.getPosition();
-        if (pos) ed.executeEdits("insert-datetime", [{ range: new monaco.Range(pos.lineNumber, pos.column, pos.lineNumber, pos.column), text }]);
-      },
-    });
-    editor.addAction({
-      id: "markpt-context-select-all",
-      label: t("action.selectAll"),
-      keybindings: [Monaco.KeyMod.CtrlCmd | Monaco.KeyCode.KeyA],
-      contextMenuGroupId: "9_cutcopypaste",
-      run: (ed) => {
-        const model = ed.getModel();
-        if (model) ed.setSelection(new monaco.Range(1, 1, model.getLineCount(), model.getLineMaxColumn(model.getLineCount()) + 1));
-      },
-    });
+    registerEditorActions(editor, monaco, useI18n.getState().t, actionDisposablesRef.current);
+    localizeBuiltinContextMenu(useI18n.getState().t);
 
     const container = editor.getContainerDomNode();
     const resizeObserver = new ResizeObserver(() => {
@@ -316,56 +195,19 @@ export function MonacoEditor({
     return () => {
       resizeObserver.disconnect();
     };
-  }, [onCursorChange, tabId, t]);
+  }, [onCursorChange, tabId]);
 
-  // 语言切换时同步更新 Monaco 上下文菜单 Action 标签，避免中英文混杂
+  // 语言切换时重新注册自定义 Action 并本地化内置菜单，避免中英文混杂
   useEffect(() => {
-    const editor = editorRef.current;
-    if (!editor) return;
-    const ACTIONS: { id: string; labelKey: string }[] = [
-      { id: "markpt-delete-line", labelKey: "action.deleteLine" },
-      { id: "markpt-duplicate-line", labelKey: "action.duplicateLine" },
-      { id: "markpt-move-line-up", labelKey: "action.moveUp" },
-      { id: "markpt-move-line-down", labelKey: "action.moveDown" },
-      { id: "markpt-delete-blank-lines", labelKey: "action.deleteBlank" },
-      { id: "markpt-trim-trailing", labelKey: "action.trimTrailing" },
-      { id: "markpt-trim-leading", labelKey: "action.trimTrailing" },
-      { id: "markpt-upper-case", labelKey: "action.toUpperCase" },
-      { id: "markpt-lower-case", labelKey: "action.toLowerCase" },
-      { id: "markpt-title-case", labelKey: "action.toTitleCase" },
-      { id: "markpt-invert-case", labelKey: "action.invertCase" },
-      { id: "markpt-sort-asc", labelKey: "action.sortAsc" },
-      { id: "markpt-sort-desc", labelKey: "action.sortDesc" },
-      { id: "markpt-toggle-comment", labelKey: "action.toggleComment" },
-      { id: "markpt-remove-duplicates", labelKey: "action.removeDuplicates" },
-      { id: "markpt-sort-length-asc", labelKey: "action.sortLengthAsc" },
-      { id: "markpt-sort-length-desc", labelKey: "action.sortLengthDesc" },
-      { id: "markpt-sort-random", labelKey: "action.sortRandom" },
-      { id: "markpt-reverse-lines", labelKey: "action.reverseLines" },
-      { id: "markpt-clipboard-copy", labelKey: "toolbar.copy" },
-      { id: "markpt-clipboard-cut", labelKey: "toolbar.cut" },
-      { id: "markpt-clipboard-paste", labelKey: "toolbar.paste" },
-      { id: "markpt-context-find", labelKey: "search.find" },
-      { id: "markpt-context-replace", labelKey: "search.replace" },
-      { id: "markpt-context-goto-line", labelKey: "toolbar.gotoLine" },
-      { id: "markpt-context-format", labelKey: "action.formatDocument" },
-      { id: "markpt-context-duplicate", labelKey: "action.duplicateLine" },
-      { id: "markpt-context-delete-line", labelKey: "action.deleteLine" },
-      { id: "markpt-context-insert-datetime", labelKey: "dialog.insertDateTime" },
-      { id: "markpt-context-select-all", labelKey: "action.selectAll" },
-    ];
-    const applyLabels = () => {
-      const { t } = useI18n.getState();
-      ACTIONS.forEach(({ id, labelKey }) => {
-        try {
-          const action = editor.getAction(id);
-          if (action) (action as any)._setLabel?.(t(labelKey));
-        } catch { /* 忽略 */ }
-      });
+    const handler = () => {
+      const editor = editorRef.current;
+      const monaco = monacoRef.current;
+      if (!editor || !monaco) return;
+      registerEditorActions(editor, monaco, useI18n.getState().t, actionDisposablesRef.current);
+      localizeBuiltinContextMenu(useI18n.getState().t);
     };
-    applyLabels();
-    window.addEventListener("markpt:lang-changed", applyLabels);
-    return () => window.removeEventListener("markpt:lang-changed", applyLabels);
+    window.addEventListener("markpt:lang-changed", handler);
+    return () => window.removeEventListener("markpt:lang-changed", handler);
   }, []);
 
   // 行号跳转

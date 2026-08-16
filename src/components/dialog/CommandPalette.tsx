@@ -37,20 +37,21 @@ export function CommandPalette({
   const inputRef = useRef<HTMLInputElement>(null);
   const { tabs, setActiveTab, closeTab } = useFileStore();
   const { t } = useI18n();
+  const mod = /Mac|iPod|iPhone|iPad/.test(navigator.platform || navigator.userAgent) ? "Cmd" : "Ctrl";
 
   const commands: Command[] = useCallback(() => {
     const cmds: Command[] = [
-      { id: "new", label: t("cmd.newFile"), category: t("cmd.category.file"), shortcut: "Cmd+N", action: onNewFile },
-      { id: "open", label: t("cmd.openFile"), category: t("cmd.category.file"), shortcut: "Cmd+O", action: onOpenFile },
-      { id: "save", label: t("cmd.save"), category: t("cmd.category.file"), shortcut: "Cmd+S", action: onSave },
-      { id: "find", label: t("cmd.find"), category: t("cmd.category.search"), shortcut: "Cmd+F", action: onFind },
-      { id: "replace", label: t("cmd.replace"), category: t("cmd.category.search"), shortcut: "Cmd+Alt+F", action: onReplace },
-      { id: "find-in-files", label: t("cmd.findInFiles"), category: t("cmd.category.search"), shortcut: "Cmd+Shift+F", action: onFindInFiles },
-      { id: "goto", label: t("cmd.gotoLine"), category: t("cmd.category.nav"), shortcut: "Cmd+G", action: onGotoLine },
+      { id: "new", label: t("cmd.newFile"), category: t("cmd.category.file"), shortcut: `${mod}+N`, action: onNewFile },
+      { id: "open", label: t("cmd.openFile"), category: t("cmd.category.file"), shortcut: `${mod}+O`, action: onOpenFile },
+      { id: "save", label: t("cmd.save"), category: t("cmd.category.file"), shortcut: `${mod}+S`, action: onSave },
+      { id: "find", label: t("cmd.find"), category: t("cmd.category.search"), shortcut: `${mod}+F`, action: onFind },
+      { id: "replace", label: t("cmd.replace"), category: t("cmd.category.search"), shortcut: `${mod}+Alt+F`, action: onReplace },
+      { id: "find-in-files", label: t("cmd.findInFiles"), category: t("cmd.category.search"), shortcut: `${mod}+Shift+F`, action: onFindInFiles },
+      { id: "goto", label: t("cmd.gotoLine"), category: t("cmd.category.nav"), shortcut: `${mod}+G`, action: onGotoLine },
       { id: "encoding", label: t("cmd.encoding"), category: t("cmd.category.tool"), action: onEncoding },
       { id: "settings", label: t("cmd.settings"), category: t("cmd.category.tool"), action: onSettings },
-      { id: "diff", label: t("cmd.compare"), category: t("cmd.category.tool"), shortcut: "Cmd+Alt+D", action: onToggleDiff },
-      { id: "macro", label: t("cmd.macro"), category: t("cmd.category.tool"), shortcut: "Cmd+M", action: onToggleMacro },
+      { id: "diff", label: t("cmd.compare"), category: t("cmd.category.tool"), shortcut: `${mod}+Alt+D`, action: onToggleDiff },
+      { id: "macro", label: t("cmd.macro"), category: t("cmd.category.tool"), shortcut: `${mod}+M`, action: onToggleMacro },
     ];
 
     tabs.forEach((tab) => {
@@ -63,7 +64,7 @@ export function CommandPalette({
     });
 
     return cmds;
-  }, [tabs, onNewFile, onOpenFile, onSave, onFind, onReplace, onFindInFiles, onGotoLine, onEncoding, onSettings, onToggleDiff, onToggleMacro, setActiveTab, t])();
+  }, [tabs, onNewFile, onOpenFile, onSave, onFind, onReplace, onFindInFiles, onGotoLine, onEncoding, onSettings, onToggleDiff, onToggleMacro, setActiveTab, t, mod])();
 
   const filtered = query
     ? commands.filter((c) =>
