@@ -1,9 +1,10 @@
 use crate::models::file_meta::Encoding;
 use crate::services::encoding_detect;
+use crate::services::errors::friendly;
 
 #[tauri::command]
 pub fn detect_encoding(path: String) -> Result<String, String> {
-    let bytes = std::fs::read(&path).map_err(|e| e.to_string())?;
+    let bytes = std::fs::read(&path).map_err(|e| friendly("读取文件", &e))?;
     let sample = if bytes.len() > 8192 {
         &bytes[..8192]
     } else {
@@ -29,20 +30,16 @@ pub fn convert_encoding(
 
 #[tauri::command]
 pub fn reload_with_encoding(path: String, encoding: String) -> Result<String, String> {
-    let bytes = std::fs::read(&path).map_err(|e| e.to_string())?;
+    let bytes = std::fs::read(&path).map_err(|e| friendly("读取文件", &e))?;
     let enc = Encoding::from_str(&encoding);
     Ok(encoding_detect::decode_bytes(&bytes, &enc))
 }
 
 #[tauri::command]
-pub fn save_with_encoding(
-    path: String,
-    content: String,
-    encoding: String,
-) -> Result<(), String> {
+pub fn save_with_encoding(path: String, content: String, encoding: String) -> Result<(), String> {
     let enc = Encoding::from_str(&encoding);
     let bytes = encoding_detect::encode_string(&content, &enc);
-    std::fs::write(&path, bytes).map_err(|e| e.to_string())?;
+    std::fs::write(&path, bytes).map_err(|e| friendly("保存文件", &e))?;
     Ok(())
 }
 

@@ -43,25 +43,91 @@ interface SettingStore {
   resetToDefaults: () => void;
 }
 
+const STORAGE_KEY = "markpt:settings";
+
+interface PersistedSettings {
+  fontSize?: number;
+  fontFamily?: string;
+  tabSize?: number;
+  insertSpaces?: boolean;
+  wordWrap?: boolean;
+  showLineNumbers?: boolean;
+  showWhitespace?: boolean;
+  showMinimap?: boolean;
+  themeMode?: ThemeMode;
+  autoIndent?: boolean;
+  bracketPairColorization?: boolean;
+  folding?: boolean;
+  recentFiles?: string[];
+  showStatusBar?: boolean;
+  trimTrailingWhitespaceOnSave?: boolean;
+  ensureFinalNewline?: boolean;
+  autoDetectIndent?: boolean;
+  showIndentGuides?: boolean;
+}
+
+/** 读取已保存的设置；失败或不可用时返回空对象（使用默认值）。 */
+function loadPersistedSettings(): PersistedSettings {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (!raw) return {};
+    const parsed = JSON.parse(raw);
+    if (typeof parsed === "object" && parsed !== null) return parsed as PersistedSettings;
+  } catch {
+    // 忽略损坏的数据
+  }
+  return {};
+}
+
+function persistSettings(state: SettingStore): void {
+  try {
+    const data: PersistedSettings = {
+      fontSize: state.fontSize,
+      fontFamily: state.fontFamily,
+      tabSize: state.tabSize,
+      insertSpaces: state.insertSpaces,
+      wordWrap: state.wordWrap,
+      showLineNumbers: state.showLineNumbers,
+      showWhitespace: state.showWhitespace,
+      showMinimap: state.showMinimap,
+      themeMode: state.themeMode,
+      autoIndent: state.autoIndent,
+      bracketPairColorization: state.bracketPairColorization,
+      folding: state.folding,
+      recentFiles: state.recentFiles,
+      showStatusBar: state.showStatusBar,
+      trimTrailingWhitespaceOnSave: state.trimTrailingWhitespaceOnSave,
+      ensureFinalNewline: state.ensureFinalNewline,
+      autoDetectIndent: state.autoDetectIndent,
+      showIndentGuides: state.showIndentGuides,
+    };
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+  } catch {
+    // 忽略存储失败
+  }
+}
+
+const saved = loadPersistedSettings();
+
 export const useSettingStore = create<SettingStore>((set) => ({
-  fontSize: defaultEditorConfig.fontSize,
-  fontFamily: defaultEditorConfig.fontFamily,
-  tabSize: defaultEditorConfig.tabSize,
-  insertSpaces: defaultEditorConfig.insertSpaces,
-  wordWrap: defaultEditorConfig.wordWrap,
-  showLineNumbers: defaultEditorConfig.lineNumbers,
-  showWhitespace: false,
-  showMinimap: defaultEditorConfig.minimap,
-  themeMode: "auto",
-  autoIndent: defaultEditorConfig.autoIndent,
-  bracketPairColorization: defaultEditorConfig.bracketPairColorization,
-  folding: defaultEditorConfig.folding,
-  recentFiles: [],
-  showStatusBar: true,
-  trimTrailingWhitespaceOnSave: false,
-  ensureFinalNewline: true,
-  autoDetectIndent: true,
-  showIndentGuides: true,
+  fontSize: saved.fontSize ?? defaultEditorConfig.fontSize,
+  fontFamily: saved.fontFamily ?? defaultEditorConfig.fontFamily,
+  tabSize: saved.tabSize ?? defaultEditorConfig.tabSize,
+  insertSpaces: saved.insertSpaces ?? defaultEditorConfig.insertSpaces,
+  wordWrap: saved.wordWrap ?? defaultEditorConfig.wordWrap,
+  showLineNumbers: saved.showLineNumbers ?? defaultEditorConfig.lineNumbers,
+  showWhitespace: saved.showWhitespace ?? false,
+  showMinimap: saved.showMinimap ?? defaultEditorConfig.minimap,
+  themeMode: saved.themeMode ?? "auto",
+  autoIndent: saved.autoIndent ?? defaultEditorConfig.autoIndent,
+  bracketPairColorization: saved.bracketPairColorization ?? defaultEditorConfig.bracketPairColorization,
+  folding: saved.folding ?? defaultEditorConfig.folding,
+  recentFiles: saved.recentFiles ?? [],
+  showStatusBar: saved.showStatusBar ?? true,
+  trimTrailingWhitespaceOnSave: saved.trimTrailingWhitespaceOnSave ?? false,
+  ensureFinalNewline: saved.ensureFinalNewline ?? true,
+  autoDetectIndent: saved.autoDetectIndent ?? true,
+  showIndentGuides: saved.showIndentGuides ?? true,
 
   setFontSize: (size) => set({ fontSize: size }),
   setFontFamily: (family) => set({ fontFamily: family }),
@@ -102,3 +168,8 @@ export const useSettingStore = create<SettingStore>((set) => ({
       folding: defaultEditorConfig.folding,
     }),
 }));
+
+// 设置变化时自动持久化，重启后设置仍然生效
+useSettingStore.subscribe((state) => {
+  persistSettings(state);
+});

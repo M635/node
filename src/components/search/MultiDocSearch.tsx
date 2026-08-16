@@ -1,5 +1,6 @@
 import { useState, useCallback } from "react";
 import { useFileStore } from "../../stores/fileStore";
+import { useI18n } from "../../stores/i18nStore";
 
 interface MultiDocSearchProps {
   onClose: () => void;
@@ -13,6 +14,7 @@ interface SearchResult {
 
 export function MultiDocSearch({ onClose }: MultiDocSearchProps) {
   const { tabs, setActiveTab } = useFileStore();
+  const { t } = useI18n();
   const [searchQuery, setSearchQuery] = useState("");
   const [replaceQuery, setReplaceQuery] = useState("");
   const [caseSensitive, setCaseSensitive] = useState(false);
@@ -59,7 +61,7 @@ export function MultiDocSearch({ onClose }: MultiDocSearchProps) {
   }, [searchQuery, caseSensitive, isRegex, tabs]);
 
   const handleReplaceAll = useCallback(() => {
-    if (!searchQuery || !window.confirm("确认在所有打开的文件中替换？")) return;
+    if (!searchQuery || !window.confirm(t("mdFind.replaceAllConfirm"))) return;
     const flags = caseSensitive ? "g" : "gi";
     let regex: RegExp;
     try {
@@ -77,7 +79,7 @@ export function MultiDocSearch({ onClose }: MultiDocSearchProps) {
       }
     }
     handleSearch();
-  }, [searchQuery, replaceQuery, caseSensitive, isRegex, tabs, handleSearch]);
+  }, [searchQuery, replaceQuery, caseSensitive, isRegex, tabs, handleSearch, t]);
 
   const handleJumpTo = (tabId: string, line: number) => {
     setActiveTab(tabId);
@@ -102,43 +104,43 @@ export function MultiDocSearch({ onClose }: MultiDocSearchProps) {
     <div className="multi-doc-search-overlay" onClick={onClose}>
       <div className="multi-doc-search" onClick={(e) => e.stopPropagation()}>
         <div className="multi-doc-search-header">
-          <h3>多文档查找替换</h3>
+          <h3>{t("mdFind.title")}</h3>
           <button className="dialog-close" onClick={onClose}>×</button>
         </div>
         <div className="multi-doc-search-input">
           <div className="search-row">
             <input
               type="text"
-              placeholder="查找..."
+              placeholder={t("search.placeholder")}
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               onKeyDown={(e) => e.key === "Enter" && handleSearch()}
               autoFocus
             />
-            <button className="btn btn-small btn-primary" onClick={handleSearch}>查找全部</button>
+            <button className="btn btn-small btn-primary" onClick={handleSearch}>{t("mdFind.findAll")}</button>
           </div>
           <div className="search-row">
             <input
               type="text"
-              placeholder="替换..."
+              placeholder={t("search.replacePlaceholder")}
               value={replaceQuery}
               onChange={(e) => setReplaceQuery(e.target.value)}
             />
-            <button className="btn btn-small" onClick={handleReplaceAll}>全部替换</button>
+            <button className="btn btn-small" onClick={handleReplaceAll}>{t("search.replaceAll")}</button>
           </div>
           <div className="search-options">
             <label>
               <input type="checkbox" checked={caseSensitive} onChange={(e) => setCaseSensitive(e.target.checked)} />
-              区分大小写
+              {t("search.caseSensitive")}
             </label>
             <label>
               <input type="checkbox" checked={isRegex} onChange={(e) => setIsRegex(e.target.checked)} />
-              正则表达式
+              {t("search.regex")}
             </label>
           </div>
         </div>
         <div className="multi-doc-search-summary">
-          {totalMatches > 0 && `${results.length} 个文件中找到 ${totalMatches} 处匹配`}
+          {totalMatches > 0 && t("mdFind.foundSummary", { files: results.length, matches: totalMatches })}
         </div>
         <div className="multi-doc-search-results">
           {results.map((result) => (
@@ -146,7 +148,7 @@ export function MultiDocSearch({ onClose }: MultiDocSearchProps) {
               <div className="multi-doc-result-header" onClick={() => toggleExpand(result.tabId)}>
                 <span className="expand-icon">{expandedTabs.has(result.tabId) ? "▼" : "▶"}</span>
                 <span className="tab-name">{result.tabName}</span>
-                <span className="match-count">{result.matches.length} 处匹配</span>
+                <span className="match-count">{t("mdFind.matchesCount", { n: result.matches.length })}</span>
               </div>
               {expandedTabs.has(result.tabId) && (
                 <div className="multi-doc-result-items">
@@ -156,7 +158,7 @@ export function MultiDocSearch({ onClose }: MultiDocSearchProps) {
                       className="multi-doc-result-item"
                       onClick={() => handleJumpTo(result.tabId, match.line)}
                     >
-                      <span className="match-line">行 {match.line}</span>
+                      <span className="match-line">{t("mdFind.line", { n: match.line })}</span>
                       <span className="match-preview">{match.preview}</span>
                     </div>
                   ))}
@@ -165,7 +167,7 @@ export function MultiDocSearch({ onClose }: MultiDocSearchProps) {
             </div>
           ))}
           {results.length === 0 && searchQuery && (
-            <div className="multi-doc-no-results">未找到匹配</div>
+            <div className="multi-doc-no-results">{t("search.noMatch")}</div>
           )}
         </div>
       </div>

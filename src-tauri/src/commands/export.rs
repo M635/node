@@ -1,17 +1,15 @@
 use std::fs;
 
+use crate::services::errors::friendly;
+
 #[tauri::command]
 pub fn export_as_txt(path: String, content: String) -> Result<(), String> {
-    fs::write(&path, content).map_err(|e| e.to_string())?;
+    fs::write(&path, content).map_err(|e| friendly("导出文件", &e))?;
     Ok(())
 }
 
 #[tauri::command]
-pub fn export_as_html(
-    path: String,
-    content: String,
-    title: String,
-) -> Result<(), String> {
+pub fn export_as_html(path: String, content: String, title: String) -> Result<(), String> {
     let escaped = html_escape(&content);
     let html = format!(
         r#"<!DOCTYPE html>
@@ -32,7 +30,7 @@ pre {{ white-space: pre-wrap; word-wrap: break-word; tab-size: 4; }}
         escaped
     );
 
-    fs::write(&path, html).map_err(|e| e.to_string())?;
+    fs::write(&path, html).map_err(|e| friendly("导出文件", &e))?;
     Ok(())
 }
 
@@ -56,7 +54,7 @@ pub fn export_as_rtf(path: String, content: String) -> Result<(), String> {
     }
     rtf.push_str("}");
 
-    fs::write(&path, rtf).map_err(|e| e.to_string())?;
+    fs::write(&path, rtf).map_err(|e| friendly("导出文件", &e))?;
     Ok(())
 }
 

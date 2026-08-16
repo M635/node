@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { useFileStore } from "../../stores/fileStore";
+import { useI18n } from "../../stores/i18nStore";
 
 interface DocumentSwitcherProps {
   onClose: () => void;
@@ -7,6 +8,7 @@ interface DocumentSwitcherProps {
 
 export function DocumentSwitcher({ onClose }: DocumentSwitcherProps) {
   const { tabs, activeTabId, setActiveTab } = useFileStore();
+  const { t } = useI18n();
   const [selectedIndex, setSelectedIndex] = useState(0);
   const listRef = useRef<HTMLDivElement>(null);
 
@@ -49,8 +51,8 @@ export function DocumentSwitcher({ onClose }: DocumentSwitcherProps) {
     <div className="dialog-overlay" onClick={onClose}>
       <div className="dialog doc-switcher-dialog" onClick={(e) => e.stopPropagation()}>
         <div className="doc-switcher-header">
-          <h3>切换文档</h3>
-          <span className="doc-switcher-hint">↑↓ 选择 · Enter 确认 · Esc 取消</span>
+          <h3>{t("dialog.docSwitcher")}</h3>
+          <span className="doc-switcher-hint">{t("docSwitcher.hint")}</span>
         </div>
         <div className="doc-switcher-list" ref={listRef}>
           {sortedTabs.map((tab, idx) => (
@@ -65,12 +67,12 @@ export function DocumentSwitcher({ onClose }: DocumentSwitcherProps) {
             >
               <span className="doc-icon">{tab.is_dirty ? "●" : "○"}</span>
               <span className="doc-name">{tab.name}</span>
-              <span className="doc-path">{tab.path || "(未命名)"}</span>
+              <span className="doc-path">{tab.path || `(${t("common.unnamed")})`}</span>
               <span className="doc-lang">{tab.language}</span>
             </div>
           ))}
           {tabs.length === 0 && (
-            <div className="doc-switcher-empty">没有打开的文档</div>
+            <div className="doc-switcher-empty">{t("docSwitcher.empty")}</div>
           )}
         </div>
       </div>

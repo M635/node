@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { ENCODING_LIST, getEncodingDisplayName } from "../../utils/encodingUtils";
+import { useI18n } from "../../stores/i18nStore";
 import type { EncodingType } from "../../types/file";
 
 interface EncodingDialogProps {
@@ -13,6 +14,7 @@ export function EncodingDialog({
   onConfirm,
   onClose,
 }: EncodingDialogProps) {
+  const { t } = useI18n();
   const [selected, setSelected] = useState<EncodingType>(currentEncoding);
 
   useEffect(() => {
@@ -28,12 +30,12 @@ export function EncodingDialog({
     <div className="dialog-overlay" onClick={onClose}>
       <div className="dialog encoding-dialog" onClick={(e) => e.stopPropagation()}>
         <div className="dialog-header">
-          <h2>编码</h2>
+          <h2>{t("dialog.encoding")}</h2>
           <button className="dialog-close" onClick={onClose}>×</button>
         </div>
         <div className="dialog-body">
           <div className="dialog-current">
-            当前编码: {getEncodingDisplayName(currentEncoding)}
+            {t("dialog.encodingCurrent", { encoding: getEncodingDisplayName(currentEncoding) })}
           </div>
           <div className="encoding-list">
             {ENCODING_LIST.map((enc) => (
@@ -48,12 +50,12 @@ export function EncodingDialog({
           </div>
         </div>
         <div className="dialog-footer">
-          <button className="dialog-btn" onClick={onClose}>取消</button>
+          <button className="dialog-btn" onClick={onClose}>{t("common.cancel")}</button>
           <button
             className="dialog-btn primary"
             onClick={() => onConfirm(selected)}
           >
-            确认
+            {t("common.confirm")}
           </button>
         </div>
       </div>

@@ -23,3 +23,7 @@ Thumbs.db
 # Env
 .env
 .env.local
+
+# npm 本地安装产物（项目使用 pnpm）
+package-lock.json
+src-tauri/gen/

@@ -1,5 +1,6 @@
 import { useEffect, useState, useRef } from "react";
 import * as Monaco from "monaco-editor";
+import { useI18n } from "../../stores/i18nStore";
 
 interface FunctionSymbol {
   name: string;
@@ -83,6 +84,7 @@ const FUNCTION_PATTERNS: Record<string, RegExp[]> = {
 };
 
 export function FunctionListPanel({ editor, onClose }: FunctionListPanelProps) {
+  const { t } = useI18n();
   const [symbols, setSymbols] = useState<FunctionSymbol[]>([]);
   const [filter, setFilter] = useState("");
   const containerRef = useRef<HTMLDivElement>(null);
@@ -110,14 +112,14 @@ export function FunctionListPanel({ editor, onClose }: FunctionListPanelProps) {
           else if (line.includes("enum ")) type = "enum";
           else if (line.includes("struct ")) type = "class";
           else if (line.includes("trait ") || line.includes("protocol ")) type = "interface";
-          result.push({ name, line: i, type, detail: `第 ${i} 行` });
+          result.push({ name, line: i, type, detail: t("fnList.line", { n: i }) });
           break;
         }
       }
     }
 
     setSymbols(result);
-  }, [editor]);
+  }, [editor, t]);
 
   const filtered = filter
     ? symbols.filter((s) => s.name.toLowerCase().includes(filter.toLowerCase()))
@@ -146,11 +148,11 @@ export function FunctionListPanel({ editor, onClose }: FunctionListPanelProps) {
   return (
     <div className="function-list-panel" ref={containerRef}>
       <div className="function-list-header">
-        <h3>函数列表</h3>
+        <h3>{t("dialog.functionList")}</h3>
         <input
           type="text"
           className="function-list-filter"
-          placeholder="过滤..."
+          placeholder={t("fnList.placeholder")}
           value={filter}
           onChange={(e) => setFilter(e.target.value)}
           autoFocus
@@ -159,7 +161,7 @@ export function FunctionListPanel({ editor, onClose }: FunctionListPanelProps) {
       </div>
       <div className="function-list-body">
         {filtered.length === 0 ? (
-          <div className="function-list-empty">未找到符号</div>
+          <div className="function-list-empty">{t("fnList.empty")}</div>
         ) : (
           filtered.map((sym, idx) => (
             <div

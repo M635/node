@@ -70,7 +70,7 @@ export function SearchPanel() {
       );
       setResults(summary);
     } catch (err) {
-      console.error("搜索失败:", err);
+      console.debug("[MarkPT][调试] 搜索失败:", err);
     } finally {
       setIsSearching(false);
     }
@@ -220,14 +220,14 @@ export function SearchPanel() {
             className="surround-input"
             value={surroundChars[0]}
             onChange={(e) => setSurroundChars([e.target.value, surroundChars[1]])}
-            placeholder="前"
+            placeholder={t("search.surroundOpen")}
           />
           <input
             type="text"
             className="surround-input"
             value={surroundChars[1]}
             onChange={(e) => setSurroundChars([surroundChars[0], e.target.value])}
-            placeholder="后"
+            placeholder={t("search.surroundClose")}
           />
           <button className="search-btn" onClick={handleSurroundSelection}>{t("search.surroundSelect")}</button>
           <button className="search-btn" onClick={() => setSurroundChars(["(", ")"])}>()</button>

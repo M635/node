@@ -1,3 +1,5 @@
+import { useI18n } from "../../stores/i18nStore";
+
 interface ShortcutMapperProps {
   onClose: () => void;
 }
@@ -9,73 +11,79 @@ interface ShortcutItem {
   description: string;
 }
 
-const SHORTCUTS: ShortcutItem[] = [
-  { category: "文件", action: "新建", shortcut: "Cmd/Ctrl+N", description: "创建新文件" },
-  { category: "文件", action: "打开", shortcut: "Cmd/Ctrl+O", description: "打开文件" },
-  { category: "文件", action: "保存", shortcut: "Cmd/Ctrl+S", description: "保存当前文件" },
-  { category: "文件", action: "关闭标签", shortcut: "Cmd/Ctrl+W", description: "关闭当前标签" },
-  { category: "搜索", action: "查找", shortcut: "Cmd/Ctrl+F", description: "打开查找面板" },
-  { category: "搜索", action: "替换", shortcut: "Cmd/Ctrl+H", description: "打开替换面板" },
-  { category: "搜索", action: "跳转行", shortcut: "Cmd/Ctrl+G", description: "跳转到指定行" },
-  { category: "搜索", action: "在文件中查找", shortcut: "Cmd/Ctrl+Shift+F", description: "全局目录搜索" },
-  { category: "搜索", action: "多文档查找替换", shortcut: "Cmd/Ctrl+Shift+F", description: "在所有打开文件中搜索替换" },
-  { category: "编辑", action: "删除当前行", shortcut: "Cmd/Ctrl+D", description: "删除光标所在行" },
-  { category: "编辑", action: "复制当前行", shortcut: "Shift+Alt+D", description: "复制光标所在行" },
-  { category: "编辑", action: "上移行", shortcut: "Alt+↑", description: "将当前行上移" },
-  { category: "编辑", action: "下移行", shortcut: "Alt+↓", description: "将当前行下移" },
-  { category: "编辑", action: "转大写", shortcut: "Cmd/Ctrl+Shift+U", description: "选区转大写" },
-  { category: "编辑", action: "转小写", shortcut: "Cmd/Ctrl+Shift+L", description: "选区转小写" },
-  { category: "编辑", action: "切换注释", shortcut: "Cmd/Ctrl+/", description: "切换行注释" },
-  { category: "编辑", action: "撤销", shortcut: "Cmd/Ctrl+Z", description: "撤销" },
-  { category: "编辑", action: "重做", shortcut: "Cmd/Ctrl+Shift+Z", description: "重做" },
-  { category: "编辑", action: "全选", shortcut: "Cmd/Ctrl+A", description: "全选" },
-  { category: "视图", action: "命令面板", shortcut: "Cmd/Ctrl+P", description: "打开命令面板" },
-  { category: "视图", action: "切换侧边栏", shortcut: "Cmd/Ctrl+\\", description: "显示/隐藏侧边栏" },
-  { category: "视图", action: "函数列表", shortcut: "Cmd/Ctrl+Shift+O", description: "显示函数列表" },
-  { category: "视图", action: "字符统计", shortcut: "Cmd/Ctrl+Shift+C", description: "显示字符统计" },
-  { category: "视图", action: "十六进制查看", shortcut: "Cmd/Ctrl+Shift+H", description: "十六进制模式查看" },
-  { category: "视图", action: "快捷键帮助", shortcut: "Cmd/Ctrl+/", description: "显示快捷键帮助" },
-  { category: "工具", action: "编码设置", shortcut: "—", description: "设置文件编码" },
-  { category: "工具", action: "设置", shortcut: "—", description: "打开设置对话框" },
-  { category: "工具", action: "宏录制", shortcut: "—", description: "开始/停止宏录制" },
-  { category: "工具", action: "Diff对比", shortcut: "—", description: "双文件对比" },
-  { category: "书签", action: "切换书签", shortcut: "—", description: "在当前行切换书签" },
-  { category: "书签", action: "下一书签", shortcut: "F2", description: "跳转到下一书签" },
-  { category: "书签", action: "上一书签", shortcut: "Shift+F2", description: "跳转到上一书签" },
-  { category: "编辑器", action: "多光标", shortcut: "Cmd/Ctrl+Click", description: "添加光标" },
-  { category: "编辑器", action: "列选择", shortcut: "Shift+Alt+Drag", description: "列块选择" },
-  { category: "编辑器", action: "查找下一个", shortcut: "F3", description: "查找下一个匹配" },
-  { category: "编辑器", action: "查找上一个", shortcut: "Shift+F3", description: "查找上一个匹配" },
-];
-
 export function ShortcutMapper({ onClose }: ShortcutMapperProps) {
-  const categories = [...new Set(SHORTCUTS.map((s) => s.category))];
+  const { t } = useI18n();
+
+  const SHORTCUTS: ShortcutItem[] = [
+    { category: "help.categoryFile", action: "action.new", shortcut: "Cmd/Ctrl+N", description: "action.new" },
+    { category: "help.categoryFile", action: "action.open", shortcut: "Cmd/Ctrl+O", description: "action.open" },
+    { category: "help.categoryFile", action: "action.save", shortcut: "Cmd/Ctrl+S", description: "action.save" },
+    { category: "help.categoryFile", action: "action.close", shortcut: "Cmd/Ctrl+W", description: "action.close" },
+    { category: "help.categorySearch", action: "action.find", shortcut: "Cmd/Ctrl+F", description: "action.find" },
+    { category: "help.categorySearch", action: "action.replace", shortcut: "Cmd/Ctrl+H", description: "action.replace" },
+    { category: "help.categorySearch", action: "action.goto", shortcut: "Cmd/Ctrl+G", description: "action.goto" },
+    { category: "help.categorySearch", action: "action.findInFiles", shortcut: "Cmd/Ctrl+Shift+F", description: "action.findInFiles" },
+    { category: "help.categorySearch", action: "mdFind.title", shortcut: "Cmd/Ctrl+Shift+F", description: "mdFind.title" },
+    { category: "help.categoryEdit", action: "action.deleteLine", shortcut: "Cmd/Ctrl+D", description: "action.deleteLine" },
+    { category: "help.categoryEdit", action: "action.duplicateLine", shortcut: "Shift+Alt+D", description: "action.duplicateLine" },
+    { category: "help.categoryEdit", action: "action.moveUp", shortcut: "Alt+↑", description: "action.moveUp" },
+    { category: "help.categoryEdit", action: "action.moveDown", shortcut: "Alt+↓", description: "action.moveDown" },
+    { category: "help.categoryEdit", action: "action.toUpperCase", shortcut: "Cmd/Ctrl+Shift+U", description: "action.toUpperCase" },
+    { category: "help.categoryEdit", action: "action.toLowerCase", shortcut: "Cmd/Ctrl+Shift+L", description: "action.toLowerCase" },
+    { category: "help.categoryEdit", action: "action.toggleComment", shortcut: "Cmd/Ctrl+/", description: "action.toggleComment" },
+    { category: "help.categoryEdit", action: "action.undo", shortcut: "Cmd/Ctrl+Z", description: "action.undo" },
+    { category: "help.categoryEdit", action: "action.redo", shortcut: "Cmd/Ctrl+Shift+Z", description: "action.redo" },
+    { category: "help.categoryView", action: "help.cmdPalette", shortcut: "Cmd/Ctrl+P", description: "help.cmdPalette" },
+    { category: "help.categoryView", action: "help.toggleSidebar", shortcut: "Cmd/Ctrl+\\", description: "help.toggleSidebar" },
+    { category: "help.categoryView", action: "dialog.functionList", shortcut: "Cmd/Ctrl+Shift+O", description: "dialog.functionList" },
+    { category: "help.categoryView", action: "dialog.charStats", shortcut: "Cmd/Ctrl+Shift+C", description: "dialog.charStats" },
+    { category: "help.categoryView", action: "dialog.hexViewer", shortcut: "Cmd/Ctrl+Shift+H", description: "dialog.hexViewer" },
+    { category: "help.categoryView", action: "dialog.shortcutsHelp", shortcut: "Cmd/Ctrl+/", description: "dialog.shortcutsHelp" },
+    { category: "cmd.category.tool", action: "dialog.encoding", shortcut: "—", description: "dialog.encoding" },
+    { category: "cmd.category.tool", action: "dialog.settings", shortcut: "—", description: "dialog.settings" },
+    { category: "cmd.category.tool", action: "dialog.macroPanel", shortcut: "—", description: "dialog.macroPanel" },
+    { category: "cmd.category.tool", action: "cmd.compare", shortcut: "—", description: "cmd.compare" },
+    { category: "editor.bookmark", action: "help.toggleBookmark", shortcut: "—", description: "help.toggleBookmark" },
+    { category: "editor.bookmark", action: "help.nextBookmark", shortcut: "F2", description: "help.nextBookmark" },
+    { category: "editor.bookmark", action: "help.prevBookmark", shortcut: "Shift+F2", description: "help.prevBookmark" },
+    { category: "help.categoryMultiCursor", action: "help.addCursor", shortcut: "Cmd/Ctrl+Click", description: "help.addCursor" },
+    { category: "help.categoryMultiCursor", action: "help.columnSelect", shortcut: "Shift+Alt+Drag", description: "help.columnSelect" },
+    { category: "help.categoryMultiCursor", action: "action.findNext", shortcut: "F3", description: "action.findNext" },
+    { category: "help.categoryMultiCursor", action: "action.findPrev", shortcut: "Shift+F3", description: "action.findPrev" },
+  ];
+
+  const grouped = SHORTCUTS.reduce<Record<string, ShortcutItem[]>>((acc, s) => {
+    if (!acc[s.category]) acc[s.category] = [];
+    acc[s.category].push(s);
+    return acc;
+  }, {});
+  const categories = Object.keys(grouped);
 
   return (
     <div className="dialog-overlay" onClick={onClose}>
       <div className="dialog shortcut-mapper-dialog" onClick={(e) => e.stopPropagation()}>
         <div className="dialog-header">
-          <h3>快捷键映射</h3>
+          <h3>{t("dialog.shortcutMapper")}</h3>
           <button className="dialog-close" onClick={onClose}>×</button>
         </div>
         <div className="dialog-body">
           {categories.map((cat) => (
             <div key={cat} className="shortcut-category">
-              <h4>{cat}</h4>
+              <h4>{t(cat)}</h4>
               <table className="shortcut-table">
                 <thead>
                   <tr>
-                    <th>操作</th>
-                    <th>快捷键</th>
-                    <th>说明</th>
+                    <th>{t("help.operation")}</th>
+                    <th>{t("help.shortcut")}</th>
+                    <th>{t("help.description")}</th>
                   </tr>
                 </thead>
                 <tbody>
-                  {SHORTCUTS.filter((s) => s.category === cat).map((s, idx) => (
+                  {grouped[cat].map((s, idx) => (
                     <tr key={idx}>
-                      <td>{s.action}</td>
+                      <td>{t(s.action)}</td>
                       <td><kbd>{s.shortcut}</kbd></td>
-                      <td>{s.description}</td>
+                      <td>{t(s.description)}</td>
                     </tr>
                   ))}
                 </tbody>

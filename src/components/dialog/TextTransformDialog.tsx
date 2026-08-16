@@ -1,5 +1,6 @@
 import { useState, useCallback } from "react";
 import { TextTransform } from "../../services/text/textTransform";
+import { useI18n } from "../../stores/i18nStore";
 
 interface TextTransformDialogProps {
   content: string;
@@ -15,23 +16,24 @@ type TransformType =
   | "remove-whitespace" | "collapse-whitespace"
   | "add-line-numbers" | "remove-line-numbers";
 
-const TRANSFORM_LABELS: Record<TransformType, string> = {
-  "base64-encode": "Base64 编码",
-  "base64-decode": "Base64 解码",
-  "url-encode": "URL 编码",
-  "url-decode": "URL 解码",
-  "rot13": "ROT13",
-  "hex-encode": "转十六进制",
-  "hex-decode": "十六进制转文本",
-  "reverse-text": "反转文本",
-  "reverse-lines": "反转行序",
-  "remove-whitespace": "移除所有空白",
-  "collapse-whitespace": "合并连续空白",
-  "add-line-numbers": "添加行号",
-  "remove-line-numbers": "移除行号",
+const TRANSFORM_LABEL_KEYS: Record<TransformType, string> = {
+  "base64-encode": "tt.base64Encode",
+  "base64-decode": "tt.base64Decode",
+  "url-encode": "tt.urlEncode",
+  "url-decode": "tt.urlDecode",
+  "rot13": "tt.rot13",
+  "hex-encode": "tt.hexEncode",
+  "hex-decode": "tt.hexDecode",
+  "reverse-text": "tt.reverseText",
+  "reverse-lines": "tt.reverseLines",
+  "remove-whitespace": "tt.removeWhitespace",
+  "collapse-whitespace": "tt.collapseWhitespace",
+  "add-line-numbers": "tt.addLineNumbers",
+  "remove-line-numbers": "tt.removeLineNumbers",
 };
 
 export function TextTransformDialog({ content, onApply, onClose }: TextTransformDialogProps) {
+  const { t } = useI18n();
   const [selected, setSelected] = useState<TransformType | null>(null);
   const [result, setResult] = useState("");
   const [hashResult, setHashResult] = useState("");
@@ -70,27 +72,27 @@ export function TextTransformDialog({ content, onApply, onClose }: TextTransform
     <div className="dialog-overlay" onClick={onClose}>
       <div className="dialog text-transform-dialog" onClick={(e) => e.stopPropagation()}>
         <div className="dialog-header">
-          <h3>文本转换</h3>
+          <h3>{t("dialog.textTransform")}</h3>
           <button className="dialog-close" onClick={onClose}>×</button>
         </div>
         <div className="dialog-body">
           <div className="transform-section">
-            <h4>编码/解码</h4>
+            <h4>{t("tt.encodeDecode")}</h4>
             <div className="transform-buttons">
-              {(Object.keys(TRANSFORM_LABELS) as TransformType[]).map((type) => (
+              {(Object.keys(TRANSFORM_LABEL_KEYS) as TransformType[]).map((type) => (
                 <button
                   key={type}
                   className={`btn btn-small ${selected === type ? "btn-primary" : "btn-default"}`}
                   onClick={() => handleTransform(type)}
                 >
-                  {TRANSFORM_LABELS[type]}
+                  {t(TRANSFORM_LABEL_KEYS[type])}
                 </button>
               ))}
             </div>
           </div>
 
           <div className="transform-section">
-            <h4>哈希计算</h4>
+            <h4>{t("tt.hash")}</h4>
             <div className="transform-buttons">
               <button className="btn btn-small btn-default" onClick={handleMd5}>MD5</button>
               <button className="btn btn-small btn-default" onClick={handleSha256}>SHA-256</button>
@@ -104,7 +106,7 @@ export function TextTransformDialog({ content, onApply, onClose }: TextTransform
 
           {result && (
             <div className="transform-section">
-              <h4>转换结果</h4>
+              <h4>{t("tt.result")}</h4>
               <textarea
                 className="transform-result"
                 value={result}
@@ -113,13 +115,13 @@ export function TextTransformDialog({ content, onApply, onClose }: TextTransform
               />
               <div className="transform-actions">
                 <button className="btn btn-primary" onClick={() => onApply(result)}>
-                  应用到编辑器
+                  {t("tt.applyToEditor")}
                 </button>
                 <button
                   className="btn btn-default"
                   onClick={() => navigator.clipboard.writeText(result)}
                 >
-                  复制到剪贴板
+                  {t("tt.copyToClipboard")}
                 </button>
               </div>
             </div>

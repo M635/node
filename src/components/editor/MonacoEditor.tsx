@@ -10,7 +10,7 @@ import { configureLanguages, getLanguageFromPath } from "../../services/monaco/l
 import { configureFolding } from "../../services/monaco/folding";
 import { registerKeybindings } from "../../services/monaco/keybindings";
 import { EditOperations } from "../../services/monaco/editOperations";
-import { macroRecorder } from "../../services/macro/recorder";
+import { macroRecorder, replayMacro } from "../../services/macro/recorder";
 import { clipboardWrite, clipboardRead } from "../../utils/clipboard";
 import { useI18n } from "../../stores/i18nStore";
 
@@ -523,6 +523,59 @@ export function MonacoEditor({
     };
   }, [tabId]);
 
+  // 宏操作（菜单触发）：此前这些事件派发后无人监听，菜单项点击无反应
+  useEffect(() => {
+    const toggleMacro = () => {
+      const state = useEditorStore.getState();
+      if (state.isRecordingMacro) {
+        const macro = macroRecorder.stop();
+        state.stopMacroRecording();
+        if (macro) state.saveMacro(macro);
+      } else {
+        macroRecorder.start();
+        state.startMacroRecording();
+      }
+    };
+    const playMacro = () => {
+      const state = useEditorStore.getState();
+      const macro = state.macros[state.macros.length - 1];
+      const editor = editorRef.current;
+      if (macro && editor) replayMacro(editor, macro);
+    };
+    const saveMacro = () => {
+      const state = useEditorStore.getState();
+      if (state.isRecordingMacro) {
+        const macro = macroRecorder.stop();
+        state.stopMacroRecording();
+        if (macro) state.saveMacro(macro);
+      }
+    };
+    const runMacroMultiple = (e: Event) => {
+      const times: number = (e as CustomEvent).detail?.times ?? 1;
+      const state = useEditorStore.getState();
+      const macro = state.macros[state.macros.length - 1];
+      const editor = editorRef.current;
+      if (!macro || !editor) return;
+      const maxTimes = times < 0 ? 10000 : times;
+      for (let i = 0; i < maxTimes; i++) {
+        const before = editor.getValue();
+        replayMacro(editor, macro);
+        // 内容不再变化（例如光标已到文件末尾）时提前停止
+        if (editor.getValue() === before) break;
+      }
+    };
+    window.addEventListener("markpt:toggle-macro", toggleMacro);
+    window.addEventListener("markpt:play-macro", playMacro);
+    window.addEventListener("markpt:save-macro", saveMacro);
+    window.addEventListener("markpt:run-macro-multiple", runMacroMultiple);
+    return () => {
+      window.removeEventListener("markpt:toggle-macro", toggleMacro);
+      window.removeEventListener("markpt:play-macro", playMacro);
+      window.removeEventListener("markpt:save-macro", saveMacro);
+      window.removeEventListener("markpt:run-macro-multiple", runMacroMultiple);
+    };
+  }, []);
+
   // 语言切换
   useEffect(() => {
     const handler = (e: Event) => {
@@ -771,7 +824,7 @@ export function MonacoEditor({
       options: {
         isWholeLine: true,
         glyphMarginClassName: "markpt-bookmark-glyph",
-        glyphMarginHoverMessage: { value: "书签" },
+        glyphMarginHoverMessage: { value: t("editor.bookmark") },
         stickiness: 1,
         overviewRuler: {
           color: isDark ? "#0a84ff" : "#007aff",
@@ -781,7 +834,7 @@ export function MonacoEditor({
     }));
 
     decorationIdsRef.current = editor.deltaDecorations(decorationIdsRef.current, decorations);
-  }, [tabId, getBookmarks, isDark]);
+  }, [tabId, getBookmarks, isDark, t]);
 
   // 主题切换
   useEffect(() => {
@@ -825,14 +878,14 @@ export function MonacoEditor({
           startColumn: match.index + 1,
           endLineNumber: i,
           endColumn: match.index + match[0].length + 1,
-          message: "匹配",
+          message: t("editor.match"),
           severity: monaco.MarkerSeverity.Info,
         });
         if (match.index === regex.lastIndex) regex.lastIndex++;
       }
     }
     monaco.editor.setModelMarkers(model, "search", matches);
-  }, [searchQuery, isRegex, caseSensitive]);
+  }, [searchQuery, isRegex, caseSensitive, t]);
 
   const handleChange: OnChange = useCallback((value) => {
     onContentChange?.(value || "");

@@ -1,3 +1,5 @@
+import { useI18n } from "../../stores/i18nStore";
+
 interface ReloadConfirmDialogProps {
   fileName: string;
   onReload: () => void;
@@ -9,22 +11,24 @@ export function ReloadConfirmDialog({
   onReload,
   onIgnore,
 }: ReloadConfirmDialogProps) {
+  const { t } = useI18n();
+
   return (
     <div className="dialog-overlay">
       <div className="dialog reload-dialog">
         <div className="dialog-header">
-          <h2>文件已修改</h2>
+          <h2>{t("dialog.reloadConfirm")}</h2>
         </div>
         <div className="dialog-body">
           <p>
-            <strong>{fileName}</strong> 已被外部程序修改。
+            <strong>{fileName}</strong> {t("dialog.reloadConfirmDesc")}
           </p>
-          <p>是否重新加载？</p>
+          <p>{t("dialog.reloadConfirmAsk")}</p>
         </div>
         <div className="dialog-footer">
-          <button className="dialog-btn" onClick={onIgnore}>忽略</button>
+          <button className="dialog-btn" onClick={onIgnore}>{t("dialog.ignore")}</button>
           <button className="dialog-btn primary" onClick={onReload}>
-            重新加载
+            {t("dialog.reload")}
           </button>
         </div>
       </div>

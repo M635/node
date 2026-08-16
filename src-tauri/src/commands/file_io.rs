@@ -1,5 +1,6 @@
 use crate::models::file_meta::{Encoding, FileMeta, LineEnding};
 use crate::services::encoding_detect;
+use crate::services::errors::friendly;
 use std::fs;
 use std::path::Path;
 
@@ -10,7 +11,7 @@ pub fn open_file(path: String) -> Result<FileOpenResult, String> {
         return Err("文件不存在".to_string());
     }
 
-    let metadata = fs::metadata(&path).map_err(|e| e.to_string())?;
+    let metadata = fs::metadata(&path).map_err(|e| friendly("打开文件", &e))?;
     let file_size = metadata.len();
     let readonly = metadata.permissions().readonly();
 
@@ -18,8 +19,9 @@ pub fn open_file(path: String) -> Result<FileOpenResult, String> {
     let mut sample = vec![0u8; read_size];
     if read_size > 0 {
         use std::io::Read;
-        let mut file = fs::File::open(&path).map_err(|e| e.to_string())?;
-        file.read_exact(&mut sample).map_err(|e| e.to_string())?;
+        let mut file = fs::File::open(&path).map_err(|e| friendly("打开文件", &e))?;
+        file.read_exact(&mut sample)
+            .map_err(|e| friendly("打开文件", &e))?;
     }
 
     let is_binary = encoding_detect::is_binary(&sample);
@@ -32,7 +34,7 @@ pub fn open_file(path: String) -> Result<FileOpenResult, String> {
     let has_bom = sample.starts_with(&[0xEF, 0xBB, 0xBF]);
 
     let content = if file_size <= 64 * 1024 * 1024 && !is_binary {
-        let bytes = fs::read(&path).map_err(|e| e.to_string())?;
+        let bytes = fs::read(&path).map_err(|e| friendly("打开文件", &e))?;
         encoding_detect::decode_bytes(&bytes, &encoding)
     } else {
         String::new()
@@ -70,7 +72,7 @@ pub struct FileOpenResult {
 pub fn save_file(path: String, content: String, encoding: String) -> Result<(), String> {
     let enc = Encoding::from_str(&encoding);
     let bytes = encoding_detect::encode_string(&content, &enc);
-    fs::write(&path, bytes).map_err(|e| e.to_string())?;
+    fs::write(&path, bytes).map_err(|e| friendly("保存文件", &e))?;
     Ok(())
 }
 
@@ -84,16 +86,16 @@ pub fn create_file(path: String) -> Result<(), String> {
     let path_ref = Path::new(&path);
     if let Some(parent) = path_ref.parent() {
         if !parent.exists() {
-            fs::create_dir_all(parent).map_err(|e| e.to_string())?;
+            fs::create_dir_all(parent).map_err(|e| friendly("创建文件", &e))?;
         }
     }
-    fs::write(&path, "").map_err(|e| e.to_string())?;
+    fs::write(&path, "").map_err(|e| friendly("创建文件", &e))?;
     Ok(())
 }
 
 #[tauri::command]
 pub fn get_file_meta(path: String) -> Result<FileMeta, String> {
-    let metadata = fs::metadata(&path).map_err(|e| e.to_string())?;
+    let metadata = fs::metadata(&path).map_err(|e| friendly("读取文件信息", &e))?;
     let file_size = metadata.len();
     let readonly = metadata.permissions().readonly();
 
@@ -101,8 +103,9 @@ pub fn get_file_meta(path: String) -> Result<FileMeta, String> {
     let sample = if read_size > 0 {
         let mut s = vec![0u8; read_size];
         use std::io::Read;
-        let mut file = fs::File::open(&path).map_err(|e| e.to_string())?;
-        file.read_exact(&mut s).map_err(|e| e.to_string())?;
+        let mut file = fs::File::open(&path).map_err(|e| friendly("读取文件信息", &e))?;
+        file.read_exact(&mut s)
+            .map_err(|e| friendly("读取文件信息", &e))?;
         s
     } else {
         Vec::new()
@@ -143,14 +146,17 @@ fn detect_line_ending(content: &str) -> LineEnding {
 #[tauri::command]
 pub fn list_directory(path: String) -> Result<Vec<(String, bool)>, String> {
     let mut entries: Vec<(String, bool)> = Vec::new();
-    let dir = fs::read_dir(&path).map_err(|e| e.to_string())?;
+    let dir = fs::read_dir(&path).map_err(|e| friendly("读取目录", &e))?;
     for entry in dir {
-        let entry = entry.map_err(|e| e.to_string())?;
+        let entry = entry.map_err(|e| friendly("读取目录", &e))?;
         let name = entry.file_name().to_string_lossy().to_string();
         if name.starts_with('.') && name != ".env" {
             continue;
         }
-        let is_dir = entry.file_type().map_err(|e| e.to_string())?.is_dir();
+        let is_dir = entry
+            .file_type()
+            .map_err(|e| friendly("读取目录", &e))?
+            .is_dir();
         entries.push((name, is_dir));
     }
     Ok(entries)
@@ -158,13 +164,26 @@ pub fn list_directory(path: String) -> Result<Vec<(String, bool)>, String> {
 
 #[tauri::command]
 pub fn get_file_info(path: String) -> Result<FileInfo, String> {
-    let metadata = fs::metadata(&path).map_err(|e| e.to_string())?;
+    let metadata = fs::metadata(&path).map_err(|e| friendly("读取文件信息", &e))?;
     Ok(FileInfo {
         size: metadata.len(),
         is_dir: metadata.is_dir(),
-        is_readonly: metadata.permissions().readonly(),
+        is_file: metadata.is_file(),
+        readonly: metadata.permissions().readonly(),
+        created: metadata
+            .created()
+            .ok()
+            .and_then(|t| t.duration_since(std::time::UNIX_EPOCH).ok())
+            .map(|d| d.as_secs())
+            .unwrap_or(0),
         modified: metadata
             .modified()
+            .ok()
+            .and_then(|t| t.duration_since(std::time::UNIX_EPOCH).ok())
+            .map(|d| d.as_secs())
+            .unwrap_or(0),
+        accessed: metadata
+            .accessed()
             .ok()
             .and_then(|t| t.duration_since(std::time::UNIX_EPOCH).ok())
             .map(|d| d.as_secs())
@@ -176,6 +195,9 @@ pub fn get_file_info(path: String) -> Result<FileInfo, String> {
 pub struct FileInfo {
     pub size: u64,
     pub is_dir: bool,
-    pub is_readonly: bool,
+    pub is_file: bool,
+    pub readonly: bool,
+    pub created: u64,
     pub modified: u64,
+    pub accessed: u64,
 }

@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef, useCallback } from "react";
+import { useI18n } from "../../stores/i18nStore";
 
 interface HexViewerProps {
   content: string;
@@ -9,6 +10,7 @@ const BYTES_PER_LINE = 16;
 const MAX_BYTES = 1024 * 1024;
 
 export function HexViewer({ content, onClose }: HexViewerProps) {
+  const { t } = useI18n();
   const [offset, setOffset] = useState(0);
   const [search, setSearch] = useState("");
   const containerRef = useRef<HTMLDivElement>(null);
@@ -47,7 +49,7 @@ export function HexViewer({ content, onClose }: HexViewerProps) {
         return;
       }
     }
-    alert("未找到");
+    alert(t("hex.notFound"));
   };
 
   useEffect(() => {
@@ -62,25 +64,29 @@ export function HexViewer({ content, onClose }: HexViewerProps) {
     <div className="hex-viewer-overlay" onClick={onClose}>
       <div className="hex-viewer" onClick={(e) => e.stopPropagation()} ref={containerRef}>
         <div className="hex-viewer-header">
-          <h3>十六进制查看</h3>
+          <h3>{t("dialog.hexViewer")}</h3>
           <div className="hex-search">
             <input
               type="text"
-              placeholder="搜索..."
+              placeholder={t("hex.search")}
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               onKeyDown={(e) => e.key === "Enter" && handleSearch()}
             />
-            <button className="btn btn-small" onClick={handleSearch}>查找</button>
+            <button className="btn btn-small" onClick={handleSearch}>{t("hex.find")}</button>
           </div>
           <button className="dialog-close" onClick={onClose}>×</button>
         </div>
         <div className="hex-viewer-info">
-          总字节数: {totalBytes.toLocaleString()} | 偏移: 0x{offset.toString(16).toUpperCase()} | 显示: {pageData.length} 字节
+          {t("hex.info", {
+            total: totalBytes.toLocaleString(),
+            offset: offset.toString(16).toUpperCase(),
+            shown: pageData.length,
+          })}
         </div>
         <div className="hex-viewer-body">
           <div className="hex-line hex-header-line">
-            <span className="hex-addr">地址</span>
+            <span className="hex-addr">{t("hex.address")}</span>
             <span className="hex-bytes">00 01 02 03 04 05 06 07  08 09 0A 0B 0C 0D 0E 0F</span>
             <span className="hex-ascii">ASCII</span>
           </div>
@@ -98,10 +104,10 @@ export function HexViewer({ content, onClose }: HexViewerProps) {
         </div>
         <div className="hex-viewer-footer">
           <button className="btn btn-small" disabled={offset === 0} onClick={() => setOffset(Math.max(0, offset - bytesPerPage))}>
-            上一页
+            {t("hex.prevPage")}
           </button>
           <button className="btn btn-small" disabled={offset + bytesPerPage >= totalBytes} onClick={() => setOffset(offset + bytesPerPage)}>
-            下一页
+            {t("hex.nextPage")}
           </button>
         </div>
       </div>

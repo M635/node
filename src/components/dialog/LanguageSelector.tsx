@@ -1,5 +1,6 @@
 import { useState, useMemo } from "react";
 import * as Monaco from "monaco-editor";
+import { useI18n } from "../../stores/i18nStore";
 
 interface LanguageSelectorProps {
   currentLanguage: string;
@@ -7,9 +8,10 @@ interface LanguageSelectorProps {
   onClose: () => void;
 }
 
-const LANGUAGE_GROUPS: { group: string; languages: { id: string; name: string }[] }[] = [
+// 分组名使用 i18n 键，展示时再翻译
+const LANGUAGE_GROUPS: { groupKey: string; languages: { id: string; name: string }[] }[] = [
   {
-    group: "常用",
+    groupKey: "lang.group.common",
     languages: [
       { id: "plaintext", name: "纯文本" },
       { id: "markdown", name: "Markdown" },
@@ -37,7 +39,7 @@ const LANGUAGE_GROUPS: { group: string; languages: { id: string; name: string }[
     ],
   },
   {
-    group: "前端",
+    groupKey: "lang.group.frontend",
     languages: [
       { id: "javascript", name: "JavaScript" },
       { id: "typescript", name: "TypeScript" },
@@ -52,7 +54,7 @@ const LANGUAGE_GROUPS: { group: string; languages: { id: string; name: string }[
     ],
   },
   {
-    group: "后端",
+    groupKey: "lang.group.backend",
     languages: [
       { id: "java", name: "Java" },
       { id: "kotlin", name: "Kotlin" },
@@ -67,7 +69,7 @@ const LANGUAGE_GROUPS: { group: string; languages: { id: string; name: string }[
     ],
   },
   {
-    group: "数据",
+    groupKey: "lang.group.data",
     languages: [
       { id: "json", name: "JSON" },
       { id: "xml", name: "XML" },
@@ -80,7 +82,7 @@ const LANGUAGE_GROUPS: { group: string; languages: { id: string; name: string }[
     ],
   },
   {
-    group: "脚本",
+    groupKey: "lang.group.script",
     languages: [
       { id: "shell", name: "Shell/Bash" },
       { id: "powershell", name: "PowerShell" },
@@ -92,7 +94,7 @@ const LANGUAGE_GROUPS: { group: string; languages: { id: string; name: string }[
     ],
   },
   {
-    group: "其他",
+    groupKey: "lang.group.other",
     languages: [
       { id: "plaintext", name: "纯文本" },
       { id: "markdown", name: "Markdown" },
@@ -109,6 +111,7 @@ const LANGUAGE_GROUPS: { group: string; languages: { id: string; name: string }[
 ];
 
 export function LanguageSelector({ currentLanguage, onSelect, onClose }: LanguageSelectorProps) {
+  const { t } = useI18n();
   const [filter, setFilter] = useState("");
 
   const filtered = useMemo(() => {
@@ -123,11 +126,11 @@ export function LanguageSelector({ currentLanguage, onSelect, onClose }: Languag
     <div className="dialog-overlay" onClick={onClose}>
       <div className="dialog language-selector-dialog" onClick={(e) => e.stopPropagation()}>
         <div className="dialog-header">
-          <h3>选择语言</h3>
+          <h3>{t("dialog.languageSelector")}</h3>
           <input
             type="text"
             className="language-filter"
-            placeholder="搜索语言..."
+            placeholder={t("lang.searchPlaceholder")}
             value={filter}
             onChange={(e) => setFilter(e.target.value)}
             autoFocus
@@ -136,19 +139,19 @@ export function LanguageSelector({ currentLanguage, onSelect, onClose }: Languag
         </div>
         <div className="dialog-body">
           <div className="current-language">
-            当前: <strong>{currentLanguage}</strong>
+            {t("lang.current", { language: currentLanguage })}
           </div>
           {filtered.map((g) => (
-            <div key={g.group} className="language-group">
-              <h4>{g.group}</h4>
+            <div key={g.groupKey} className="language-group">
+              <h4>{t(g.groupKey)}</h4>
               <div className="language-items">
                 {g.languages.map((l) => (
                   <button
-                    key={`${g.group}-${l.id}-${l.name}`}
+                    key={`${g.groupKey}-${l.id}-${l.name}`}
                     className={`language-item ${l.id === currentLanguage ? "active" : ""}`}
                     onClick={() => { onSelect(l.id); onClose(); }}
                   >
-                    {l.name}
+                    {t(`lang.name.${l.id}`, undefined, l.name)}
                   </button>
                 ))}
               </div>

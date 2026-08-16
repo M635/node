@@ -22,14 +22,15 @@ export function StatusBar({
 }: StatusBarProps) {
   const { isRecordingMacro, startMacroRecording, stopMacroRecording } = useEditorStore();
   const { t } = useI18n();
-  const [insertMode, setInsertMode] = useState<"插入" | "覆盖">("插入");
+  // 插入/覆盖模式用布尔值表示，展示文案由语言包决定
+  const [overwrite, setOverwrite] = useState(false);
   const [wordCount, setWordCount] = useState(0);
   const [charCount, setCharCount] = useState(0);
 
   useEffect(() => {
     const handler = (e: KeyboardEvent) => {
       if (e.key === "Insert") {
-        setInsertMode((m) => (m === "插入" ? "覆盖" : "插入"));
+        setOverwrite((m) => !m);
       }
     };
     window.addEventListener("keydown", handler);
@@ -66,7 +67,7 @@ export function StatusBar({
         </div>
         <div className="status-right">
           <EditorToolbar isRecordingMacro={isRecordingMacro} onToggleMacro={handleToggleMacro} onToggleDiff={handleToggleDiff} onExport={onExport} />
-          <span className="status-version" title="MarkPT v2.0.0">v2.0.0</span>
+          <span className="status-version" title={t("statusbar.versionTitle", { version: __APP_VERSION__ })}>v{__APP_VERSION__}</span>
         </div>
       </div>
     );
@@ -81,15 +82,15 @@ export function StatusBar({
           {is_dirty ? t("status.modified") : t("status.saved")}
         </span>
         <span className="status-item" title={t("statusbar.language")}>{language}</span>
-        <span className="status-item" onClick={onGotoLine} title="跳转行号">
+        <span className="status-item" onClick={onGotoLine} title={t("statusbar.lineTitle")}>
           {t("statusbar.line")} {cursor_position.line}, {t("statusbar.column")} {cursor_position.column}
         </span>
         {selectionInfo && (
-          <span className="status-item" title="选中信息">
+          <span className="status-item" title={t("statusbar.selectionTitle")}>
             {t("status.selected")} {selectionInfo.chars} {t("status.chars")}, {selectionInfo.lines} {t("statusbar.line")}
           </span>
         )}
-        <span className="status-item" title={`字数: ${wordCount}, 字符数: ${charCount}`}>
+        <span className="status-item" title={t("statusbar.wordCharTitle", { words: wordCount, chars: charCount })}>
           {wordCount} {t("status.words")} / {charCount} {t("status.chars")}
         </span>
         {meta && (
@@ -100,7 +101,7 @@ export function StatusBar({
         )}
         {readonly && <span className="status-item readonly-badge">{t("status.readonly")}</span>}
         <span className="status-item" title={t("statusbar.insertMode")}>
-          {insertMode === "插入" ? t("status.insert") : t("status.overwrite")}
+          {overwrite ? t("status.overwrite") : t("status.insert")}
         </span>
       </div>
       <div className="status-right">
@@ -108,11 +109,11 @@ export function StatusBar({
           {getEncodingDisplayName(encoding)}
         </span>
         <span className="status-item" title={t("statusbar.eol")}>
-          {meta?.line_ending === "Crlf" ? "CRLF" : meta?.line_ending === "Mixed" ? "混合" : "LF"}
+          {meta?.line_ending === "Crlf" ? "CRLF" : meta?.line_ending === "Mixed" ? t("status.mixed") : "LF"}
         </span>
         <span className="status-item" onClick={onOpenSettings} title={t("statusbar.settings")}>⚙</span>
         <EditorToolbar isRecordingMacro={isRecordingMacro} onToggleMacro={handleToggleMacro} onToggleDiff={handleToggleDiff} onExport={onExport} />
-        <span className="status-version" title="MarkPT v2.0.0">v2.0.0</span>
+        <span className="status-version" title={t("statusbar.versionTitle", { version: __APP_VERSION__ })}>v{__APP_VERSION__}</span>
       </div>
     </div>
   );

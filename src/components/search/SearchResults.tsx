@@ -1,10 +1,10 @@
 import { useSearchStore } from "../../stores/searchStore";
-import { useFileStore } from "../../stores/fileStore";
+import { useI18n } from "../../stores/i18nStore";
 import { truncatePath } from "../../utils/fileUtils";
 
 export function SearchResults() {
   const { searchResults, totalMatches, filesMatched, searchTruncated } = useSearchStore();
-  const { openTab } = useFileStore();
+  const { t } = useI18n();
 
   if (searchResults.length === 0) return null;
 
@@ -19,8 +19,8 @@ export function SearchResults() {
   return (
     <div className="search-results">
       <div className="results-summary">
-        {totalMatches} 个匹配, {filesMatched} 个文件
-        {searchTruncated && <span className="truncated"> (已截断)</span>}
+        {t("search.summary", { matches: totalMatches, files: filesMatched })}
+        {searchTruncated && <span className="truncated"> {t("search.truncated")}</span>}
       </div>
       <div className="results-list">
         {searchResults.map((result, idx) => (

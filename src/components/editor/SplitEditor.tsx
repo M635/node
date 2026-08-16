@@ -3,6 +3,7 @@ import Editor, { type OnMount, type OnChange } from "@monaco-editor/react";
 import * as Monaco from "monaco-editor";
 import { useSettingStore } from "../../stores/settingStore";
 import { useEditorStore } from "../../stores/editorStore";
+import { useI18n } from "../../stores/i18nStore";
 import { defineThemes, getThemeName } from "../../services/monaco/themes";
 import { configureLanguages, getLanguageFromPath } from "../../services/monaco/languages";
 
@@ -27,6 +28,7 @@ export function SplitEditor({
   const editor2Ref = useRef<Monaco.editor.IStandaloneCodeEditor | null>(null);
   const [syncScroll, setSyncScroll] = useState(true);
   const { isDark } = useEditorStore();
+  const { t } = useI18n();
   const { fontSize, fontFamily, wordWrap, showLineNumbers, showMinimap, folding } = useSettingStore();
 
   const handleMount1: OnMount = useCallback((editor, monaco) => {
@@ -99,9 +101,9 @@ export function SplitEditor({
         <div className="split-editor-toolbar">
           <label className="sync-scroll-toggle">
             <input type="checkbox" checked={syncScroll} onChange={(e) => setSyncScroll(e.target.checked)} />
-            同步滚动
+            {t("split.syncScroll")}
           </label>
-          <button className="btn btn-small" onClick={onClose}>关闭分屏</button>
+          <button className="btn btn-small" onClick={onClose}>{t("split.closeSplit")}</button>
         </div>
         <Editor
           height="100%"

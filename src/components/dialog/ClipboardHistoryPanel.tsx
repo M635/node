@@ -1,5 +1,6 @@
 import { useEffect } from "react";
 import { useClipboardStore } from "../../stores/clipboardStore";
+import { useI18n } from "../../stores/i18nStore";
 
 interface ClipboardHistoryPanelProps {
   onPaste: (text: string) => void;
@@ -8,6 +9,7 @@ interface ClipboardHistoryPanelProps {
 
 export function ClipboardHistoryPanel({ onPaste, onClose }: ClipboardHistoryPanelProps) {
   const { history, clearHistory } = useClipboardStore();
+  const { t } = useI18n();
 
   useEffect(() => {
     const handler = (e: KeyboardEvent) => {
@@ -21,12 +23,12 @@ export function ClipboardHistoryPanel({ onPaste, onClose }: ClipboardHistoryPane
     <div className="dialog-overlay" onClick={onClose}>
       <div className="dialog clipboard-history-dialog" onClick={(e) => e.stopPropagation()}>
         <div className="dialog-header">
-          <h2>剪贴板历史</h2>
+          <h2>{t("dialog.clipboardHistory")}</h2>
           <button className="dialog-close" onClick={onClose}>×</button>
         </div>
         <div className="dialog-body">
           {history.length === 0 ? (
-            <div className="clipboard-empty">暂无剪贴板历史</div>
+            <div className="clipboard-empty">{t("dialog.noClipboardHistory")}</div>
           ) : (
             <div className="clipboard-list">
               {history.map((item, i) => (
@@ -48,8 +50,8 @@ export function ClipboardHistoryPanel({ onPaste, onClose }: ClipboardHistoryPane
           )}
         </div>
         <div className="dialog-footer">
-          <button className="dialog-btn" onClick={clearHistory}>清空历史</button>
-          <button className="dialog-btn primary" onClick={onClose}>关闭</button>
+          <button className="dialog-btn" onClick={clearHistory}>{t("dialog.clearHistory")}</button>
+          <button className="dialog-btn primary" onClick={onClose}>{t("common.close")}</button>
         </div>
       </div>
     </div>

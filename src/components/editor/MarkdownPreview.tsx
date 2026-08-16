@@ -1,4 +1,5 @@
 import { useState, useEffect, useMemo, useCallback } from "react";
+import { useI18n } from "../../stores/i18nStore";
 
 interface MarkdownPreviewProps {
   content: string;
@@ -6,6 +7,7 @@ interface MarkdownPreviewProps {
 }
 
 export function MarkdownPreview({ content, onClose }: MarkdownPreviewProps) {
+  const { t } = useI18n();
   const [view, setView] = useState<"split" | "preview">("split");
 
   const html = useMemo(() => renderMarkdown(content), [content]);
@@ -14,10 +16,10 @@ export function MarkdownPreview({ content, onClose }: MarkdownPreviewProps) {
     <div className="markdown-preview-overlay" onClick={onClose}>
       <div className="markdown-preview" onClick={(e) => e.stopPropagation()}>
         <div className="markdown-preview-header">
-          <h3>Markdown 预览</h3>
+          <h3>{t("dialog.markdownPreview")}</h3>
           <div className="view-toggle">
-            <button className={`btn btn-small ${view === "split" ? "btn-primary" : ""}`} onClick={() => setView("split")}>分屏</button>
-            <button className={`btn btn-small ${view === "preview" ? "btn-primary" : ""}`} onClick={() => setView("preview")}>仅预览</button>
+            <button className={`btn btn-small ${view === "split" ? "btn-primary" : ""}`} onClick={() => setView("split")}>{t("md.split")}</button>
+            <button className={`btn btn-small ${view === "preview" ? "btn-primary" : ""}`} onClick={() => setView("preview")}>{t("md.previewOnly")}</button>
           </div>
           <button className="dialog-close" onClick={onClose}>×</button>
         </div>

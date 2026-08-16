@@ -5,6 +5,7 @@ import {
   type Macro,
 } from "../types/editor";
 import type { ThemeMode } from "../types/theme";
+import { useI18n } from "./i18nStore";
 
 interface EditorStore {
   config: EditorConfig;
@@ -49,7 +50,7 @@ export const useEditorStore = create<EditorStore>((set, get) => ({
       isRecordingMacro: true,
       currentMacro: {
         id: `macro-${Date.now()}`,
-        name: `Macro ${get().macros.length + 1}`,
+        name: useI18n.getState().t("macro.unnamed"),
         actions: [],
         enabled: true,
       },

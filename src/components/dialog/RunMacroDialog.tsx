@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useI18n } from "../../stores/i18nStore";
 
 interface RunMacroDialogProps {
   onClose: () => void;
@@ -6,6 +7,7 @@ interface RunMacroDialogProps {
 }
 
 export function RunMacroDialog({ onClose, onRun }: RunMacroDialogProps) {
+  const { t } = useI18n();
   const [times, setTimes] = useState(1);
   const [untilEnd, setUntilEnd] = useState(false);
 
@@ -26,12 +28,12 @@ export function RunMacroDialog({ onClose, onRun }: RunMacroDialogProps) {
     <div className="dialog-overlay" onClick={onClose}>
       <div className="dialog run-macro-dialog" onClick={(e) => e.stopPropagation()}>
         <div className="dialog-header">
-          <h2>多次运行宏</h2>
+          <h2>{t("dialog.runMacro")}</h2>
           <button className="dialog-close" onClick={onClose}>×</button>
         </div>
         <div className="dialog-body">
           <div className="settings-row">
-            <label>运行次数</label>
+            <label>{t("macro.times")}</label>
             <input
               type="number"
               min="1"
@@ -42,7 +44,7 @@ export function RunMacroDialog({ onClose, onRun }: RunMacroDialogProps) {
             />
           </div>
           <div className="settings-row">
-            <label>运行到文件末尾</label>
+            <label>{t("macro.untilEnd")}</label>
             <input
               type="checkbox"
               checked={untilEnd}
@@ -51,8 +53,8 @@ export function RunMacroDialog({ onClose, onRun }: RunMacroDialogProps) {
           </div>
         </div>
         <div className="dialog-footer">
-          <button className="dialog-btn" onClick={onClose}>取消</button>
-          <button className="dialog-btn primary" onClick={handleRun}>运行</button>
+          <button className="dialog-btn" onClick={onClose}>{t("common.cancel")}</button>
+          <button className="dialog-btn primary" onClick={handleRun}>{t("common.run")}</button>
         </div>
       </div>
     </div>

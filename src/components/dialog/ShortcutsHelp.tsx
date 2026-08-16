@@ -1,58 +1,62 @@
+import { useI18n } from "../../stores/i18nStore";
+
 interface ShortcutsHelpProps {
   onClose: () => void;
 }
 
-const SHORTCUTS: { category: string; keys: { key: string; desc: string }[] }[] = [
-  {
-    category: "文件",
-    keys: [
-      { key: "Cmd+N", desc: "新建文件" },
-      { key: "Cmd+O", desc: "打开文件" },
-      { key: "Cmd+S", desc: "保存" },
-      { key: "Cmd+W", desc: "关闭标签" },
-      { key: "Cmd+P", desc: "命令面板" },
-    ],
-  },
-  {
-    category: "编辑",
-    keys: [
-      { key: "Cmd+Z", desc: "撤销" },
-      { key: "Cmd+Shift+Z", desc: "重做" },
-      { key: "Cmd+F", desc: "查找" },
-      { key: "Cmd+Alt+F", desc: "替换" },
-      { key: "Cmd+G", desc: "跳转到行" },
-      { key: "Cmd+Shift+F", desc: "在文件中查找" },
-      { key: "Cmd+B", desc: "切换书签" },
-      { key: "Cmd+Shift+B", desc: "下一个书签" },
-    ],
-  },
-  {
-    category: "视图",
-    keys: [
-      { key: "Cmd+\\", desc: "切换侧边栏" },
-      { key: "Cmd+Alt+D", desc: "双文件对比" },
-      { key: "Cmd+M", desc: "宏管理" },
-      { key: "Cmd++", desc: "放大字体" },
-      { key: "Cmd+-", desc: "缩小字体" },
-    ],
-  },
-  {
-    category: "多光标",
-    keys: [
-      { key: "Cmd+D", desc: "选择下一个匹配" },
-      { key: "Cmd+Shift+L", desc: "选择所有匹配" },
-      { key: "Alt+Click", desc: "添加光标" },
-      { key: "Shift+Alt+Drag", desc: "列块选择" },
-    ],
-  },
-];
-
 export function ShortcutsHelp({ onClose }: ShortcutsHelpProps) {
+  const { t } = useI18n();
+
+  const SHORTCUTS: { category: string; keys: { key: string; desc: string }[] }[] = [
+    {
+      category: t("help.categoryFile"),
+      keys: [
+        { key: "Cmd+N", desc: t("action.new") },
+        { key: "Cmd+O", desc: t("action.open") },
+        { key: "Cmd+S", desc: t("action.save") },
+        { key: "Cmd+W", desc: t("action.close") },
+        { key: "Cmd+P", desc: t("help.cmdPalette") },
+      ],
+    },
+    {
+      category: t("help.categoryEdit"),
+      keys: [
+        { key: "Cmd+Z", desc: t("action.undo") },
+        { key: "Cmd+Shift+Z", desc: t("action.redo") },
+        { key: "Cmd+F", desc: t("action.find") },
+        { key: "Cmd+Alt+F", desc: t("action.replace") },
+        { key: "Cmd+G", desc: t("action.goto") },
+        { key: "Cmd+Shift+F", desc: t("action.findInFiles") },
+        { key: "Cmd+B", desc: t("help.toggleBookmark") },
+        { key: "Cmd+Shift+B", desc: t("help.nextBookmark") },
+      ],
+    },
+    {
+      category: t("help.categoryView"),
+      keys: [
+        { key: "Cmd+\\", desc: t("help.toggleSidebar") },
+        { key: "Cmd+Alt+D", desc: t("help.compare") },
+        { key: "Cmd+M", desc: t("help.macro") },
+        { key: "Cmd++", desc: t("help.zoomInFont") },
+        { key: "Cmd+-", desc: t("help.zoomOutFont") },
+      ],
+    },
+    {
+      category: t("help.categoryMultiCursor"),
+      keys: [
+        { key: "Cmd+D", desc: t("help.selectNextMatch") },
+        { key: "Cmd+Shift+L", desc: t("help.selectAllMatches") },
+        { key: "Alt+Click", desc: t("help.addCursor") },
+        { key: "Shift+Alt+Drag", desc: t("help.columnSelect") },
+      ],
+    },
+  ];
+
   return (
     <div className="dialog-overlay" onClick={onClose}>
       <div className="dialog shortcuts-dialog" onClick={(e) => e.stopPropagation()}>
         <div className="dialog-header">
-          <h2>快捷键</h2>
+          <h2>{t("dialog.shortcutsHelp")}</h2>
           <button className="dialog-close" onClick={onClose}>×</button>
         </div>
         <div className="dialog-body">

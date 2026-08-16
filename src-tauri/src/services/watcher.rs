@@ -7,7 +7,8 @@ use std::time::Duration;
 use tauri::{AppHandle, Emitter};
 
 pub struct FileWatcher {
-    debouncers: Arc<Mutex<HashMap<String, notify_debouncer_mini::Debouncer<notify::RecommendedWatcher>>>>,
+    debouncers:
+        Arc<Mutex<HashMap<String, notify_debouncer_mini::Debouncer<notify::RecommendedWatcher>>>>,
 }
 
 impl FileWatcher {

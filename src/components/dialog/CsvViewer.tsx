@@ -1,4 +1,5 @@
 import { useState, useMemo } from "react";
+import { useI18n } from "../../stores/i18nStore";
 
 interface CsvViewerProps {
   content: string;
@@ -6,6 +7,7 @@ interface CsvViewerProps {
 }
 
 export function CsvViewer({ content, onClose }: CsvViewerProps) {
+  const { t } = useI18n();
   const [delimiter, setDelimiter] = useState<"comma" | "tab" | "semicolon" | "pipe">("comma");
   const [hasHeader, setHasHeader] = useState(true);
 
@@ -39,33 +41,33 @@ export function CsvViewer({ content, onClose }: CsvViewerProps) {
       return { headers, rows };
     }
     const maxCols = Math.max(...lines.map((l) => parseLine(l).length));
-    const headers = Array.from({ length: maxCols }, (_, i) => `列 ${i + 1}`);
+    const headers = Array.from({ length: maxCols }, (_, i) => t("csv.column", { n: i + 1 }));
     const rows = lines.map(parseLine);
     return { headers, rows };
-  }, [content, delimiter, hasHeader]);
+  }, [content, delimiter, hasHeader, t]);
 
   return (
     <div className="dialog-overlay" onClick={onClose}>
       <div className="dialog csv-viewer-dialog" onClick={(e) => e.stopPropagation()}>
         <div className="dialog-header">
-          <h3>CSV/TSV 查看器</h3>
+          <h3>{t("dialog.csvViewer")}</h3>
           <button className="dialog-close" onClick={onClose}>×</button>
         </div>
         <div className="csv-controls">
           <label>
-            分隔符:
+            {t("csv.delimiter")}
             <select value={delimiter} onChange={(e) => setDelimiter(e.target.value as "comma" | "tab" | "semicolon" | "pipe")}>
-              <option value="comma">逗号 (,)</option>
-              <option value="tab">制表符 (\t)</option>
-              <option value="semicolon">分号 (;)</option>
-              <option value="pipe">竖线 (|)</option>
+              <option value="comma">{t("csv.comma")}</option>
+              <option value="tab">{t("csv.tab")}</option>
+              <option value="semicolon">{t("csv.semicolon")}</option>
+              <option value="pipe">{t("csv.pipe")}</option>
             </select>
           </label>
           <label>
             <input type="checkbox" checked={hasHeader} onChange={(e) => setHasHeader(e.target.checked)} />
-            首行为表头
+            {t("csv.headerRow")}
           </label>
-          <span className="csv-info">{rows.length} 行 × {headers.length} 列</span>
+          <span className="csv-info">{t("csv.rowsCols", { rows: rows.length, cols: headers.length })}</span>
         </div>
         <div className="csv-table-container">
           <table className="csv-table">

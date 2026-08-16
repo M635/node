@@ -39,9 +39,11 @@ export function TabContextMenu({ x, y, tabId, onClose }: TabContextMenuProps) {
       case "copyName": if (tab?.name) clipboardWrite(tab.name); break;
       case "duplicate":
         if (tab) {
+          // 修复：副本创建后应激活新标签，而不是停留在原标签
+          const newId = generateId();
           useFileStore.setState((state) => ({
-            tabs: [...state.tabs, { ...tab, id: generateId(), is_dirty: true, is_new: true, path: "", name: `${tab.name} 副本` }],
-            activeTabId: tab.id,
+            tabs: [...state.tabs, { ...tab, id: newId, is_dirty: true, is_new: true, path: "", name: t("tab.duplicateName", { name: tab.name }) }],
+            activeTabId: newId,
           }));
         }
         break;

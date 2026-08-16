@@ -1,5 +1,6 @@
 import { useState, useCallback } from "react";
 import { useFileStore } from "../../stores/fileStore";
+import { useI18n } from "../../stores/i18nStore";
 
 interface BatchFindReplaceProps {
   onClose: () => void;
@@ -14,6 +15,7 @@ interface BatchRule {
 
 export function BatchFindReplace({ onClose }: BatchFindReplaceProps) {
   const { tabs } = useFileStore();
+  const { t } = useI18n();
   const [rules, setRules] = useState<BatchRule[]>([
     { id: "1", find: "", replace: "", enabled: true },
   ]);
@@ -52,7 +54,8 @@ export function BatchFindReplace({ onClose }: BatchFindReplaceProps) {
           regex = isRegex
             ? new RegExp(rule.find, flags)
             : new RegExp(rule.find.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"), flags);
-        } catch {
+        } catch (err) {
+          console.debug("[MarkPT][调试] 批量替换正则无效:", err);
           continue;
         }
         const matches = content.match(regex);
@@ -63,27 +66,27 @@ export function BatchFindReplace({ onClose }: BatchFindReplaceProps) {
 
       if (totalReplacements > 0) {
         useFileStore.getState().updateContent(tab.id, content);
-        summary.push(`${tab.name}: ${totalReplacements} 处替换`);
+        summary.push(t("batch.replacements", { name: tab.name, count: totalReplacements }));
       }
     }
 
-    setResults(summary.length > 0 ? summary : ["未找到匹配"]);
-  }, [rules, caseSensitive, isRegex, scope, tabs]);
+    setResults(summary.length > 0 ? summary : [t("search.noMatch")]);
+  }, [rules, caseSensitive, isRegex, scope, tabs, t]);
 
   return (
     <div className="dialog-overlay" onClick={onClose}>
       <div className="dialog batch-find-replace-dialog" onClick={(e) => e.stopPropagation()}>
         <div className="dialog-header">
-          <h3>批量查找替换</h3>
+          <h3>{t("dialog.batchFindReplace")}</h3>
           <button className="dialog-close" onClick={onClose}>×</button>
         </div>
         <div className="dialog-body">
           <div className="batch-rules">
             <div className="batch-rules-header">
-              <span>启用</span>
-              <span>查找</span>
-              <span>替换为</span>
-              <span>操作</span>
+              <span>{t("batch.enabled")}</span>
+              <span>{t("batch.find")}</span>
+              <span>{t("batch.replaceWith")}</span>
+              <span>{t("batch.actions")}</span>
             </div>
             {rules.map((rule) => (
               <div key={rule.id} className="batch-rule-row">
@@ -96,45 +99,45 @@ export function BatchFindReplace({ onClose }: BatchFindReplaceProps) {
                   type="text"
                   value={rule.find}
                   onChange={(e) => updateRule(rule.id, { find: e.target.value })}
-                  placeholder="查找..."
+                  placeholder={t("search.placeholder")}
                 />
                 <input
                   type="text"
                   value={rule.replace}
                   onChange={(e) => updateRule(rule.id, { replace: e.target.value })}
-                  placeholder="替换为..."
+                  placeholder={t("search.replacePlaceholder")}
                 />
-                <button className="btn btn-small" onClick={() => removeRule(rule.id)}>删除</button>
+                <button className="btn btn-small" onClick={() => removeRule(rule.id)}>{t("common.delete")}</button>
               </div>
             ))}
-            <button className="btn btn-small btn-default" onClick={addRule}>+ 添加规则</button>
+            <button className="btn btn-small btn-default" onClick={addRule}>{t("batch.addRule")}</button>
           </div>
 
           <div className="batch-options">
             <label>
               <input type="checkbox" checked={caseSensitive} onChange={(e) => setCaseSensitive(e.target.checked)} />
-              区分大小写
+              {t("search.caseSensitive")}
             </label>
             <label>
               <input type="checkbox" checked={isRegex} onChange={(e) => setIsRegex(e.target.checked)} />
-              正则表达式
+              {t("search.regex")}
             </label>
             <label>
-              范围:
+              {t("batch.scope")}
               <select value={scope} onChange={(e) => setScope(e.target.value as "current" | "all")}>
-                <option value="current">当前文档</option>
-                <option value="all">所有文档</option>
+                <option value="current">{t("batch.currentDoc")}</option>
+                <option value="all">{t("batch.allDocs")}</option>
               </select>
             </label>
           </div>
 
           <div className="batch-actions">
-            <button className="btn btn-primary" onClick={handleExecute}>执行批量替换</button>
+            <button className="btn btn-primary" onClick={handleExecute}>{t("batch.execute")}</button>
           </div>
 
           {results.length > 0 && (
             <div className="batch-results">
-              <h4>结果</h4>
+              <h4>{t("batch.result")}</h4>
               {results.map((r, idx) => (
                 <div key={idx} className="batch-result-item">{r}</div>
               ))}

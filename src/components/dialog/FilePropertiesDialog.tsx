@@ -1,5 +1,7 @@
 import { useEffect, useState } from "react";
 import { invoke } from "@tauri-apps/api/core";
+import { useI18n } from "../../stores/i18nStore";
+import { describeError } from "../../utils/errors";
 import type { FileTab } from "../../types/file";
 
 interface FilePropertiesDialogProps {
@@ -18,16 +20,18 @@ interface FileInfo {
 }
 
 export function FilePropertiesDialog({ tab, onClose }: FilePropertiesDialogProps) {
+  const { t } = useI18n();
   const [fileInfo, setFileInfo] = useState<FileInfo | null>(null);
 
   useEffect(() => {
     if (!tab.path) return;
     invoke<FileInfo>("get_file_info", { path: tab.path })
       .then(setFileInfo)
-      .catch(() => {});
+      .catch((err) => console.debug("[MarkPT][调试] 读取文件信息失败:", describeError(err)));
   }, [tab.path]);
 
   const formatDate = (timestamp: number) => {
+    if (!timestamp) return "—";
     return new Date(timestamp * 1000).toLocaleString();
   };
 
@@ -46,57 +50,57 @@ export function FilePropertiesDialog({ tab, onClose }: FilePropertiesDialogProps
     <div className="dialog-overlay" onClick={onClose}>
       <div className="dialog file-properties-dialog" onClick={(e) => e.stopPropagation()}>
         <div className="dialog-header">
-          <h3>文件属性</h3>
+          <h3>{t("dialog.fileProps")}</h3>
           <button className="dialog-close" onClick={onClose}>×</button>
         </div>
         <div className="dialog-body">
           <div className="props-section">
-            <h4>基本信息</h4>
+            <h4>{t("props.basic")}</h4>
             <div className="props-grid">
               <div className="prop-item">
-                <span className="prop-label">文件名</span>
+                <span className="prop-label">{t("props.fileName")}</span>
                 <span className="prop-value">{tab.name}</span>
               </div>
               <div className="prop-item">
-                <span className="prop-label">路径</span>
-                <span className="prop-value" title={tab.path}>{tab.path || "(未命名)"}</span>
+                <span className="prop-label">{t("props.path")}</span>
+                <span className="prop-value" title={tab.path}>{tab.path || `(${t("common.unnamed")})`}</span>
               </div>
               <div className="prop-item">
-                <span className="prop-label">编码</span>
+                <span className="prop-label">{t("props.encoding")}</span>
                 <span className="prop-value">{tab.encoding}</span>
               </div>
               <div className="prop-item">
-                <span className="prop-label">语言</span>
+                <span className="prop-label">{t("props.language")}</span>
                 <span className="prop-value">{tab.language}</span>
               </div>
               <div className="prop-item">
-                <span className="prop-label">只读</span>
-                <span className="prop-value">{tab.readonly ? "是" : "否"}</span>
+                <span className="prop-label">{t("props.readonly")}</span>
+                <span className="prop-value">{tab.readonly ? t("common.yes") : t("common.no")}</span>
               </div>
               <div className="prop-item">
-                <span className="prop-label">大文件</span>
-                <span className="prop-value">{tab.is_large_file ? "是" : "否"}</span>
+                <span className="prop-label">{t("props.isLargeFile")}</span>
+                <span className="prop-value">{tab.is_large_file ? t("common.yes") : t("common.no")}</span>
               </div>
             </div>
           </div>
 
           <div className="props-section">
-            <h4>内容统计</h4>
+            <h4>{t("props.contentStats")}</h4>
             <div className="props-grid">
               <div className="prop-item">
-                <span className="prop-label">行数</span>
+                <span className="prop-label">{t("stats.linesCount")}</span>
                 <span className="prop-value">{lineCount.toLocaleString()}</span>
               </div>
               <div className="prop-item">
-                <span className="prop-label">单词数</span>
+                <span className="prop-label">{t("stats.wordsCount")}</span>
                 <span className="prop-value">{wordCount.toLocaleString()}</span>
               </div>
               <div className="prop-item">
-                <span className="prop-label">字符数</span>
+                <span className="prop-label">{t("stats.charsCount")}</span>
                 <span className="prop-value">{charCount.toLocaleString()}</span>
               </div>
               <div className="prop-item">
-                <span className="prop-label">字节大小</span>
+                <span className="prop-label">{t("props.byteSize")}</span>
                 <span className="prop-value">{formatSize(new TextEncoder().encode(tab.content).length)}</span>
               </div>
             </div>
@@ -104,27 +108,27 @@ export function FilePropertiesDialog({ tab, onClose }: FilePropertiesDialogProps
 
           {fileInfo && (
             <div className="props-section">
-              <h4>文件系统</h4>
+              <h4>{t("props.filesystem")}</h4>
               <div className="props-grid">
                 <div className="prop-item">
-                  <span className="prop-label">大小</span>
+                  <span className="prop-label">{t("props.size")}</span>
                   <span className="prop-value">{formatSize(fileInfo.size)}</span>
                 </div>
                 <div className="prop-item">
-                  <span className="prop-label">创建时间</span>
+                  <span className="prop-label">{t("props.created")}</span>
                   <span className="prop-value">{formatDate(fileInfo.created)}</span>
                 </div>
                 <div className="prop-item">
-                  <span className="prop-label">修改时间</span>
+                  <span className="prop-label">{t("props.modified")}</span>
                   <span className="prop-value">{formatDate(fileInfo.modified)}</span>
                 </div>
                 <div className="prop-item">
-                  <span className="prop-label">访问时间</span>
+                  <span className="prop-label">{t("props.accessed")}</span>
                   <span className="prop-value">{formatDate(fileInfo.accessed)}</span>
                 </div>
                 <div className="prop-item">
-                  <span className="prop-label">权限</span>
-                  <span className="prop-value">{fileInfo.readonly ? "只读" : "可读写"}</span>
+                  <span className="prop-label">{t("props.permission")}</span>
+                  <span className="prop-value">{fileInfo.readonly ? t("props.readonly") : t("props.readWrite")}</span>
                 </div>
               </div>
             </div>

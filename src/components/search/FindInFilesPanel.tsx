@@ -1,7 +1,9 @@
 import { useState, useCallback } from "react";
 import { open } from "@tauri-apps/plugin-dialog";
 import { useSearchStore } from "../../stores/searchStore";
+import { useI18n } from "../../stores/i18nStore";
 import { findInFiles } from "../../services/tauri/searchService";
+import { describeError } from "../../utils/errors";
 import { SearchResults } from "./SearchResults";
 
 export function FindInFilesPanel() {
@@ -15,6 +17,7 @@ export function FindInFilesPanel() {
     setResults,
     clearResults,
   } = useSearchStore();
+  const { t } = useI18n();
 
   const [directory, setDirectory] = useState("");
   const [extensions, setExtensions] = useState("");
@@ -44,11 +47,13 @@ export function FindInFilesPanel() {
       );
       setResults(summary);
     } catch (err) {
-      console.error("全局搜索失败:", err);
+      // 用户可见提示走中文弹窗，原始错误进调试日志
+      console.debug("[MarkPT][调试] 全局搜索失败:", err);
+      alert(`${t("search.findInFiles")}：${describeError(err)}`);
     } finally {
       setIsSearching(false);
     }
-  }, [searchQuery, directory, extensions, isRegex, caseSensitive, setResults]);
+  }, [searchQuery, directory, extensions, isRegex, caseSensitive, setResults, t]);
 
   const handleClose = () => {
     useSearchStore.getState().toggleFindInFiles();
@@ -58,7 +63,7 @@ export function FindInFilesPanel() {
   return (
     <div className="find-in-files-panel">
       <div className="panel-header">
-        <span>在文件中查找</span>
+        <span>{t("search.findInFiles")}</span>
         <button className="panel-close" onClick={handleClose}>×</button>
       </div>
       <div className="panel-body">
@@ -66,7 +71,7 @@ export function FindInFilesPanel() {
           <input
             type="text"
             className="panel-input"
-            placeholder="查找内容..."
+            placeholder={t("search.findContentPlaceholder")}
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             autoFocus
@@ -74,14 +79,14 @@ export function FindInFilesPanel() {
           <button
             className={`panel-toggle ${isRegex ? "active" : ""}`}
             onClick={toggleRegex}
-            title="正则"
+            title={t("search.regex")}
           >
             .*
           </button>
           <button
             className={`panel-toggle ${caseSensitive ? "active" : ""}`}
             onClick={toggleCaseSensitive}
-            title="区分大小写"
+            title={t("search.caseSensitive")}
           >
             Aa
           </button>
@@ -90,19 +95,19 @@ export function FindInFilesPanel() {
           <input
             type="text"
             className="panel-input"
-            placeholder="目录..."
+            placeholder={t("search.dirPlaceholder")}
             value={directory}
             onChange={(e) => setDirectory(e.target.value)}
           />
           <button className="panel-btn" onClick={handleSelectDirectory}>
-            浏览...
+            {t("common.browse")}
           </button>
         </div>
         <div className="panel-row">
           <input
             type="text"
             className="panel-input"
-            placeholder="文件扩展名 (逗号分隔, 如: ts,js,txt)"
+            placeholder={t("search.extPlaceholder")}
             value={extensions}
             onChange={(e) => setExtensions(e.target.value)}
           />
@@ -113,7 +118,7 @@ export function FindInFilesPanel() {
             onClick={handleSearch}
             disabled={isSearching || !searchQuery || !directory}
           >
-            {isSearching ? "搜索中..." : "搜索"}
+            {isSearching ? t("search.searching") : t("search.find")}
           </button>
         </div>
         <SearchResults />

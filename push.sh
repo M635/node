@@ -1,12 +1,18 @@
 #!/bin/bash
 # MarkPT 自动推送脚本
-# 用法: GH_TOKEN=ghp_xxx bash push.sh
+# 用法: GH_TOKEN=ghp_xxx [TAG=v2.8.1] bash push.sh
+# 功能: 自动推送 main 分支与版本标签到 GitHub，失败自动重试
 
-if [ -z "$GH_TOKEN" ]; then
+set -u
+
+if [ -z "${GH_TOKEN:-}" ]; then
     echo "请设置环境变量 GH_TOKEN"
     echo "用法: GH_TOKEN=ghp_xxx bash push.sh"
     exit 1
 fi
+
+# 版本标签默认取 package.json 的 version 字段
+TAG="${TAG:-v$(node -p "require('./package.json').version" 2>/dev/null || echo '2.8.1')}"
 
 REPO_URL="https://${GH_TOKEN}@github.com/M635/node.git"
 MAX_MINUTES=10
@@ -16,6 +22,7 @@ ATTEMPT=0
 
 echo "=========================================="
 echo "  MarkPT 自动推送脚本"
+echo "  分支: main  标签: ${TAG}"
 echo "  最大重试时间: ${MAX_MINUTES} 分钟"
 echo "=========================================="
 
@@ -34,13 +41,13 @@ while true; do
 
     if git push "$REPO_URL" main 2>&1; then
         echo "main 推送成功!"
-        if git push "$REPO_URL" v2.0.0 --force 2>&1; then
-            echo "v2.0.0 标签推送成功! 共 ${ATTEMPT} 次, 耗时 ${ELAPSED}s"
+        if git push "$REPO_URL" "$TAG" 2>&1; then
+            echo "${TAG} 标签推送成功! 共 ${ATTEMPT} 次, 耗时 ${ELAPSED}s"
             exit 0
         else
-            echo "标签失败，5秒后重试..."; sleep 5; continue
+            echo "标签推送失败，5秒后重试..."; sleep 5; continue
         fi
     else
-        echo "main 失败，5秒后重试..."; sleep 5
+        echo "main 推送失败，5秒后重试..."; sleep 5
     fi
 done

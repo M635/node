@@ -1,5 +1,7 @@
 import { useState, useCallback, useEffect, type DragEvent } from "react";
 import { open, save } from "@tauri-apps/plugin-dialog";
+import { invoke } from "@tauri-apps/api/core";
+import { listen } from "@tauri-apps/api/event";
 import { getCurrentWindow } from "@tauri-apps/api/window";
 import { MainLayout } from "./components/layout/MainLayout";
 import { SideBar } from "./components/layout/SideBar";
@@ -41,7 +43,8 @@ import { useFileStore, generateId } from "./stores/fileStore";
 import { useEditorStore } from "./stores/editorStore";
 import { useSearchStore } from "./stores/searchStore";
 import { useSettingStore } from "./stores/settingStore";
-import { useI18n } from "./stores/i18nStore";
+import { useI18n, initI18n } from "./stores/i18nStore";
+import { showError } from "./utils/errors";
 import { useTheme } from "./hooks/useTheme";
 import { useKeyboardShortcuts } from "./hooks/useKeyboardShortcuts";
 import { useFileWatcher } from "./hooks/useFileWatcher";
@@ -125,7 +128,7 @@ export default function App() {
         useSettingStore.getState().setInsertSpaces(indent.insertSpaces);
       }
     } catch (err) {
-      alert(`打开文件失败: ${err}`);
+      showError("app.openFailed", err);
     }
   }, [openTab, addRecentFile]);
 
@@ -170,7 +173,7 @@ export default function App() {
       updateTab(tab.id, { path: savePath, name: getFileName(savePath), is_new: false, is_dirty: false });
       markClean(tab.id);
     } catch (err) {
-      alert(`保存失败: ${err}`);
+      showError("app.saveFailed", err);
     }
   }, [getActiveTab, updateTab, markClean, updateContent]);
 
@@ -182,7 +185,7 @@ export default function App() {
     try {
       await saveFileService(selected as string, tab.content, tab.encoding);
     } catch (err) {
-      alert(`保存副本失败: ${err}`);
+      showError("app.saveCopyFailed", err);
     }
   }, [getActiveTab]);
 
@@ -191,7 +194,7 @@ export default function App() {
     if (!selected) return;
     const path = selected as string;
     const encodings = ["UTF-8", "UTF-8-BOM", "GBK", "GB2312", "UTF-16LE", "UTF-16BE", "ASCII"];
-    const encoding = window.prompt(`选择编码:\n${encodings.map((e, i) => `${i + 1}. ${e}`).join("\n")}`, "1");
+    const encoding = window.prompt(`${t("app.chooseEncoding")}\n${encodings.map((e, i) => `${i + 1}. ${e}`).join("\n")}`, "1");
     if (!encoding) return;
     const encIdx = parseInt(encoding) - 1;
     if (encIdx < 0 || encIdx >= encodings.length) return;
@@ -206,9 +209,9 @@ export default function App() {
       });
       addRecentFile(path);
     } catch (err) {
-      alert(`按编码打开失败: ${err}`);
+      showError("app.openWithEncodingFailed", err);
     }
-  }, [openTab, addRecentFile]);
+  }, [openTab, addRecentFile, t]);
 
   const handleToggleBom = useCallback(() => {
     const tab = getActiveTab();
@@ -254,14 +257,14 @@ export default function App() {
     navigator.clipboard.writeText(tab.name).catch(() => {});
   }, [getActiveTab]);
 
-  const handleRunCommand = useCallback((command: string) => {
-    window.dispatchEvent(new CustomEvent("markpt:run-command", { detail: { command } }));
-  }, []);
-
   const handleOpenInDefault = useCallback(async () => {
     const tab = getActiveTab();
     if (!tab?.path) return;
-    window.dispatchEvent(new CustomEvent("markpt:open-in-default", { detail: { path: tab.path } }));
+    try {
+      await invoke("open_in_default", { path: tab.path });
+    } catch (err) {
+      showError("app.openFailed", err);
+    }
   }, [getActiveTab]);
 
   const handleRunMacro = useCallback((times: number) => {
@@ -290,7 +293,7 @@ export default function App() {
       updateTab(tab.id, { path: selected as string, name: getFileName(selected as string), is_new: false, is_dirty: false });
       markClean(tab.id);
     } catch (err) {
-      alert(`另存为失败: ${err}`);
+      showError("app.saveAsFailed", err);
     }
   }, [getActiveTab, updateTab, markClean]);
 
@@ -318,9 +321,22 @@ export default function App() {
     await saveSession(sessionData);
   }, [tabs, activeTab, activeTabId, showSidebar]);
 
-  const handleQuit = useCallback(() => {
-    saveSessionNow().catch(() => {});
-    getCurrentWindow().close();
+  const handleQuit = useCallback(async () => {
+    // 先保存会话快照，再通过后端统一清理并退出，
+    // 避免异步保存被窗口销毁打断导致内容丢失
+    try {
+      await saveSessionNow();
+    } catch (err) {
+      console.debug("[MarkPT][调试] 退出前保存会话失败:", err);
+    }
+    try {
+      await invoke("quit_app");
+    } catch {
+      // 后端退出命令异常时兜底销毁窗口
+      try {
+        await getCurrentWindow().destroy();
+      } catch { /* 忽略 */ }
+    }
   }, [saveSessionNow]);
 
   const handleMarkAll = useCallback(() => {
@@ -338,7 +354,7 @@ export default function App() {
       const newContent = await reloadWithEncoding(tab.path, encoding);
       updateTab(tab.id, { encoding: encoding as EncodingType, content: newContent, is_dirty: false });
     } catch (err) {
-      alert(`用 ${encoding} 编码打开失败: ${err}`);
+      showError("app.encodeOpenFailed", err, { encoding });
     }
   }, [getActiveTab, updateTab]);
 
@@ -379,19 +395,19 @@ export default function App() {
   const handleCloseTab = useCallback(async (id: string) => {
     const tab = tabs.find((t) => t.id === id);
     if (tab?.is_dirty) {
-      const shouldSave = window.confirm(`"${tab.name}" 已修改，是否保存？`);
+      const shouldSave = window.confirm(t("app.closeDirtyConfirm", { name: tab.name }));
       if (shouldSave) {
         let savePath = tab.path;
         if (!savePath || tab.is_new) {
-          const selected = await save({ filters: [{ name: "所有文件", extensions: ["*"] }] });
+          const selected = await save({ filters: [{ name: t("common.allFiles"), extensions: ["*"] }] });
           if (!selected) { closeTab(id); return; }
           savePath = selected as string;
         }
-        try { await saveFileService(savePath, tab.content, tab.encoding); } catch { /* ignore */ }
+        try { await saveFileService(savePath, tab.content, tab.encoding); } catch (err) { showError("app.saveFailed", err); }
       }
     }
     closeTab(id);
-  }, [tabs, closeTab]);
+  }, [tabs, closeTab, t]);
 
   const handleCloseAll = useCallback(async () => {
     const allTabs = [...useFileStore.getState().tabs];
@@ -437,7 +453,7 @@ export default function App() {
   const applyFormat = useCallback((lang: string) => {
     if (!activeTab) return;
     const { result, error } = FormatService.formatByLanguage(lang, activeTab.content);
-    if (error) { alert(error); return; }
+    if (error) { showError("action.format", error); return; }
     updateContent(activeTab.id, result);
   }, [activeTab, updateContent]);
 
@@ -485,7 +501,7 @@ export default function App() {
       const newContent = await reloadWithEncoding(tab.path, encoding);
       updateTab(tab.id, { encoding, content: newContent, is_dirty: false });
     } catch (err) {
-      alert(`编码转换失败: ${err}`);
+      showError("app.encodingConvertFailed", err);
     }
     setShowEncodingDialog(false);
   }, [getActiveTab, updateTab]);
@@ -506,7 +522,7 @@ export default function App() {
       else if (format === "html") await exportAsHtml(selected as string, tab.content, tab.name);
       else await exportAsRtf(selected as string, tab.content);
     } catch (err) {
-      alert(`导出失败: ${err}`);
+      showError("app.exportFailed", err);
     }
   }, [getActiveTab]);
 
@@ -519,7 +535,7 @@ export default function App() {
       setDiffContent({ original: getActiveTab()?.content || "", modified: result.content });
       setShowDiffView(true);
     } catch (err) {
-      alert(`打开对比文件失败: ${err}`);
+      showError("app.compareOpenFailed", err);
     }
   }, [showDiffView, getActiveTab]);
 
@@ -801,12 +817,24 @@ export default function App() {
     return () => clearInterval(saveInterval);
   }, [saveSessionNow]);
 
-  // 窗口关闭时保存会话（使用 beforeunload 替代 onCloseRequested，兼容性更好）
+  // 窗口关闭时保存会话：
+  // 后端拦截 CloseRequested 后发出 window-close-requested 事件，
+  // 前端先完整保存会话，再调用 quit_app 由后端清理资源并退出。
+  // （原实现使用 beforeunload，webview 中异步保存无法保证完成，已被替换）
   useEffect(() => {
-    const handler = () => { saveSessionNow().catch(() => {}); };
-    window.addEventListener("beforeunload", handler);
-    return () => window.removeEventListener("beforeunload", handler);
-  }, [saveSessionNow]);
+    let unlisten: (() => void) | null = null;
+    (async () => {
+      unlisten = await listen("window-close-requested", () => {
+        handleQuit();
+      });
+    })();
+    return () => { if (unlisten) unlisten(); };
+  }, [handleQuit]);
+
+  // 启动时同步语言与原生菜单
+  useEffect(() => {
+    initI18n();
+  }, []);
 
   // 会话恢复（启动时）
   useEffect(() => {
@@ -835,8 +863,10 @@ export default function App() {
             } else {
               const result = await openFileService(tab.path);
               openTab({
-                id: generateId(), path: tab.path, name: tab.name, content: result.content,
-                meta: result.meta, is_dirty: false, is_large_file: result.is_large_file,
+                id: generateId(), path: tab.path, name: tab.name,
+                // 未保存的修改优先恢复会话快照内容，避免用户工作内容丢失
+                content: tab.is_dirty && tab.content ? tab.content : result.content,
+                meta: result.meta, is_dirty: tab.is_dirty, is_large_file: result.is_large_file,
                 readonly: result.meta.readonly, encoding: tab.encoding as EncodingType,
                 language: tab.language,
                 cursor_position: { line: tab.cursor_line, column: tab.cursor_column },
@@ -922,7 +952,7 @@ export default function App() {
               <div className="no-tab-content">
                 <div className="no-tab-logo">MPT</div>
                 <h2>MarkPT</h2>
-                <p>{t("welcome.subtitle")} v2.0.0</p>
+                <p>{t("welcome.subtitle")} v{__APP_VERSION__}</p>
                 <p className="hint">{t("welcome.desc")}</p>
                 <div className="no-tab-actions">
                   <button className="btn btn-primary" onClick={handleNewFile}>{t("app.newFile")}</button>
@@ -1046,7 +1076,7 @@ export default function App() {
         <PluginManager onClose={() => setShowPluginManager(false)} />
       )}
       {showRunCommand && (
-        <RunCommandDialog onClose={() => setShowRunCommand(false)} onRun={handleRunCommand} />
+        <RunCommandDialog onClose={() => setShowRunCommand(false)} />
       )}
       {showRunMacro && (
         <RunMacroDialog onClose={() => setShowRunMacro(false)} onRun={handleRunMacro} />
@@ -1056,7 +1086,7 @@ export default function App() {
           <div className="dialog-content about-dialog" onClick={(e) => e.stopPropagation()}>
             <div className="about-logo">MPT</div>
             <h2>MarkPT</h2>
-            <p className="about-version">{t("about.version")} 2.0.0</p>
+            <p className="about-version">{t("about.version")} {__APP_VERSION__}</p>
             <p className="about-desc">{t("about.desc")}</p>
             <p className="about-tech">{t("about.tech")}</p>
             <p className="about-desc">{t("about.mission")}</p>

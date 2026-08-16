@@ -1,5 +1,6 @@
 import { useState, useCallback } from "react";
 import { InsertUtils } from "../../services/text/insertUtils";
+import { useI18n } from "../../stores/i18nStore";
 
 interface ColorPickerDialogProps {
   onInsert: (color: string) => void;
@@ -7,6 +8,7 @@ interface ColorPickerDialogProps {
 }
 
 export function ColorPickerDialog({ onInsert, onClose }: ColorPickerDialogProps) {
+  const { t } = useI18n();
   const [r, setR] = useState(0);
   const [g, setG] = useState(122);
   const [b, setB] = useState(255);
@@ -45,7 +47,7 @@ export function ColorPickerDialog({ onInsert, onClose }: ColorPickerDialogProps)
     <div className="dialog-overlay" onClick={onClose}>
       <div className="dialog color-picker-dialog" onClick={(e) => e.stopPropagation()}>
         <div className="dialog-header">
-          <h3>颜色选择器</h3>
+          <h3>{t("dialog.colorPicker")}</h3>
           <button className="dialog-close" onClick={onClose}>×</button>
         </div>
         <div className="dialog-body">
@@ -72,7 +74,7 @@ export function ColorPickerDialog({ onInsert, onClose }: ColorPickerDialogProps)
           </div>
 
           <div className="color-presets">
-            <h4>预设颜色</h4>
+            <h4>{t("colorPicker.presets")}</h4>
             <div className="preset-grid">
               {presetColors.map((color) => (
                 <button
@@ -87,7 +89,7 @@ export function ColorPickerDialog({ onInsert, onClose }: ColorPickerDialogProps)
           </div>
 
           <div className="color-format">
-            <label>输出格式:</label>
+            <label>{t("colorPicker.outputFormat")}</label>
             <select value={format} onChange={(e) => setFormat(e.target.value as "hex" | "rgb" | "hsl")}>
               <option value="hex">HEX (#rrggbb)</option>
               <option value="rgb">RGB (r, g, b)</option>
@@ -98,7 +100,7 @@ export function ColorPickerDialog({ onInsert, onClose }: ColorPickerDialogProps)
           <div className="color-output">
             <code>{getColorString()}</code>
             <button className="btn btn-primary" onClick={() => { onInsert(getColorString()); onClose(); }}>
-              插入
+              {t("common.insert")}
             </button>
           </div>
         </div>

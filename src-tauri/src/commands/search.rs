@@ -1,4 +1,5 @@
 use crate::models::file_meta::{SearchResult, SearchSummary};
+use crate::services::errors::friendly;
 use regex::Regex;
 use std::fs;
 use walkdir::WalkDir;
@@ -22,7 +23,7 @@ pub fn find_in_files(
 
     let flags = if case_sensitive { "" } else { "(?i)" };
     let full_pattern = format!("{}{}", flags, regex_pattern);
-    let re = Regex::new(&full_pattern).map_err(|e| format!("正则表达式错误: {}", e))?;
+    let re = Regex::new(&full_pattern).map_err(|e| friendly("正则表达式", &e))?;
 
     let mut results = Vec::new();
     let mut total_matches = 0u64;
@@ -30,8 +31,7 @@ pub fn find_in_files(
     let mut truncated = false;
 
     let ext_filter = file_extensions.map(|exts| {
-        exts
-            .iter()
+        exts.iter()
             .map(|e| {
                 let lower = e.to_lowercase();
                 if lower.starts_with('.') {
@@ -132,9 +132,9 @@ pub fn search_in_file(
 
     let flags = if case_sensitive { "" } else { "(?i)" };
     let full_pattern = format!("{}{}", flags, regex_pattern);
-    let re = Regex::new(&full_pattern).map_err(|e| format!("正则表达式错误: {}", e))?;
+    let re = Regex::new(&full_pattern).map_err(|e| friendly("正则表达式", &e))?;
 
-    let content = fs::read_to_string(&path).map_err(|e| e.to_string())?;
+    let content = fs::read_to_string(&path).map_err(|e| friendly("读取文件", &e))?;
 
     let mut results = Vec::new();
     let mut total_matches = 0u64;

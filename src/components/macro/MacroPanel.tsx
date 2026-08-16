@@ -1,4 +1,5 @@
 import { useEditorStore } from "../../stores/editorStore";
+import { useI18n } from "../../stores/i18nStore";
 import { macroRecorder, replayMacro } from "../../services/macro/recorder";
 
 interface MacroPanelProps {
@@ -14,10 +15,12 @@ export function MacroPanel({ onClose }: MacroPanelProps) {
     deleteMacro,
     saveMacro,
   } = useEditorStore();
+  const { t } = useI18n();
 
   const handleToggleRecord = () => {
     if (isRecordingMacro) {
       const macro = macroRecorder.stop();
+      stopMacroRecording();
       if (macro) {
         saveMacro(macro);
       }
@@ -45,7 +48,7 @@ export function MacroPanel({ onClose }: MacroPanelProps) {
     <div className="dialog-overlay" onClick={onClose}>
       <div className="dialog macro-panel" onClick={(e) => e.stopPropagation()}>
         <div className="dialog-header">
-          <h2>宏管理</h2>
+          <h2>{t("dialog.macroPanel")}</h2>
           <button className="dialog-close" onClick={onClose}>×</button>
         </div>
         <div className="dialog-body">
@@ -54,30 +57,30 @@ export function MacroPanel({ onClose }: MacroPanelProps) {
               className={`macro-btn ${isRecordingMacro ? "recording" : ""}`}
               onClick={handleToggleRecord}
             >
-              {isRecordingMacro ? "⏹ 停止录制" : "● 开始录制"}
+              {isRecordingMacro ? t("toolbar.stopRecord") : t("toolbar.recordMacro")}
             </button>
           </div>
           <div className="macro-list">
             {macros.length === 0 ? (
-              <div className="macro-empty">暂无宏</div>
+              <div className="macro-empty">{t("macro.empty")}</div>
             ) : (
               macros.map((macro) => (
                 <div key={macro.id} className="macro-item">
                   <span className="macro-name">{macro.name}</span>
                   <span className="macro-actions-count">
-                    {macro.actions.length} 步
+                    {t("macro.steps", { n: macro.actions.length })}
                   </span>
                   <button
                     className="macro-play"
                     onClick={() => handlePlay(macro.id)}
-                    title="回放"
+                    title={t("macro.replay")}
                   >
                     ▶
                   </button>
                   <button
                     className="macro-delete"
                     onClick={() => handleDelete(macro.id)}
-                    title="删除"
+                    title={t("common.delete")}
                   >
                     ×
                   </button>

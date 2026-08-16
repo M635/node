@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { useSnippetStore, type Snippet } from "../../stores/snippetStore";
+import { useI18n } from "../../stores/i18nStore";
 
 interface SnippetsPanelProps {
   onClose: () => void;
@@ -7,6 +8,7 @@ interface SnippetsPanelProps {
 
 export function SnippetsPanel({ onClose }: SnippetsPanelProps) {
   const { snippets, addSnippet, removeSnippet } = useSnippetStore();
+  const { t } = useI18n();
   const [filter, setFilter] = useState("");
   const [editing, setEditing] = useState<Snippet | null>(null);
 
@@ -32,7 +34,7 @@ export function SnippetsPanel({ onClose }: SnippetsPanelProps) {
     <div className="dialog-overlay" onClick={onClose}>
       <div className="dialog snippets-dialog" onClick={(e) => e.stopPropagation()}>
         <div className="dialog-header">
-          <h2>代码片段</h2>
+          <h2>{t("dialog.snippets")}</h2>
           <button className="dialog-close" onClick={onClose}>×</button>
         </div>
         <div className="dialog-body">
@@ -40,40 +42,40 @@ export function SnippetsPanel({ onClose }: SnippetsPanelProps) {
             <input
               type="text"
               className="snippets-filter"
-              placeholder="过滤..."
+              placeholder={t("common.filterPlaceholder")}
               value={filter}
               onChange={(e) => setFilter(e.target.value)}
             />
             <button className="dialog-btn" onClick={() => setEditing({ id: "", trigger: "", description: "", body: "", language: "" })}>
-              新增
+              {t("snip.add")}
             </button>
           </div>
           {editing ? (
             <div className="snippet-editor">
               <div className="snippet-edit-row">
-                <label>触发词</label>
+                <label>{t("snip.trigger")}</label>
                 <input value={editing.trigger} onChange={(e) => setEditing({ ...editing, trigger: e.target.value })} />
               </div>
               <div className="snippet-edit-row">
-                <label>描述</label>
+                <label>{t("snip.desc")}</label>
                 <input value={editing.description} onChange={(e) => setEditing({ ...editing, description: e.target.value })} />
               </div>
               <div className="snippet-edit-row">
-                <label>语言</label>
-                <input value={editing.language || ""} onChange={(e) => setEditing({ ...editing, language: e.target.value })} placeholder="留空=所有语言" />
+                <label>{t("snip.lang")}</label>
+                <input value={editing.language || ""} onChange={(e) => setEditing({ ...editing, language: e.target.value })} placeholder={t("snip.langPlaceholder")} />
               </div>
               <div className="snippet-edit-row">
-                <label>内容</label>
+                <label>{t("snip.content")}</label>
                 <textarea
                   value={editing.body}
                   onChange={(e) => setEditing({ ...editing, body: e.target.value })}
                   rows={6}
-                  placeholder="使用 ${1:placeholder} 语法"
+                  placeholder={t("snip.bodyPlaceholder")}
                 />
               </div>
               <div className="snippet-edit-actions">
-                <button className="dialog-btn primary" onClick={handleSave}>保存</button>
-                <button className="dialog-btn" onClick={() => setEditing(null)}>取消</button>
+                <button className="dialog-btn primary" onClick={handleSave}>{t("common.save")}</button>
+                <button className="dialog-btn" onClick={() => setEditing(null)}>{t("common.cancel")}</button>
               </div>
             </div>
           ) : (
@@ -92,7 +94,7 @@ export function SnippetsPanel({ onClose }: SnippetsPanelProps) {
           )}
         </div>
         <div className="dialog-footer">
-          <button className="dialog-btn primary" onClick={onClose}>关闭</button>
+          <button className="dialog-btn primary" onClick={onClose}>{t("common.close")}</button>
         </div>
       </div>
     </div>

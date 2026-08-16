@@ -1,4 +1,5 @@
 import { useEditorStore } from "../../stores/editorStore";
+import { useI18n } from "../../stores/i18nStore";
 
 interface EditorToolbarProps {
   isRecordingMacro: boolean;
@@ -14,6 +15,7 @@ export function EditorToolbar({
   onExport,
 }: EditorToolbarProps) {
   const { config } = useEditorStore();
+  const { t } = useI18n();
 
   return (
     <div className="editor-toolbar">
@@ -21,33 +23,33 @@ export function EditorToolbar({
         <button
           className={`toolbar-btn ${isRecordingMacro ? "active" : ""}`}
           onClick={onToggleMacro}
-          title="宏录制 (Cmd+M)"
+          title={t("toolbar.macroRecord")}
         >
-          {isRecordingMacro ? "⏹ 停止录制" : "● 录制宏"}
+          {isRecordingMacro ? t("toolbar.stopRecord") : t("toolbar.recordMacro")}
         </button>
         <button
           className="toolbar-btn"
           onClick={onToggleDiff}
-          title="双文件对比 (Cmd+Alt+D)"
+          title={t("toolbar.compareTitle")}
         >
-          对比
+          {t("toolbar.compareBtn")}
         </button>
       </div>
       <div className="toolbar-group">
-        <button className="toolbar-btn" onClick={() => onExport("txt")} title="导出 TXT">
-          导出 TXT
+        <button className="toolbar-btn" onClick={() => onExport("txt")} title={t("toolbar.exportTxt")}>
+          {t("toolbar.exportTxt")}
         </button>
-        <button className="toolbar-btn" onClick={() => onExport("html")} title="导出 HTML">
-          导出 HTML
+        <button className="toolbar-btn" onClick={() => onExport("html")} title={t("toolbar.exportHtml")}>
+          {t("toolbar.exportHtml")}
         </button>
-        <button className="toolbar-btn" onClick={() => onExport("rtf")} title="导出 RTF">
-          导出 RTF
+        <button className="toolbar-btn" onClick={() => onExport("rtf")} title={t("toolbar.exportRtf")}>
+          {t("toolbar.exportRtf")}
         </button>
       </div>
       <div className="toolbar-info">
-        <span className="info-item">Tab: {config.tabSize}</span>
+        <span className="info-item">{t("toolbar.tabWidth", { n: config.tabSize })}</span>
         <span className="info-item">
-          {config.insertSpaces ? "空格" : "制表符"}
+          {config.insertSpaces ? t("toolbar.spaces") : t("toolbar.tabs")}
         </span>
       </div>
     </div>

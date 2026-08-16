@@ -1,12 +1,24 @@
 import { useState, useMemo } from "react";
 import { InsertUtils } from "../../services/text/insertUtils";
+import { useI18n } from "../../stores/i18nStore";
 
 interface SpecialCharPanelProps {
   onInsert: (char: string) => void;
   onClose: () => void;
 }
 
+const CATEGORY_KEYS: Record<string, string> = {
+  "控制": "specialChar.cat.control",
+  "箭头": "specialChar.cat.arrow",
+  "数学": "specialChar.cat.math",
+  "符号": "specialChar.cat.symbol",
+  "货币": "specialChar.cat.currency",
+  "数字": "specialChar.cat.number",
+  "图形": "specialChar.cat.figure",
+};
+
 export function SpecialCharPanel({ onInsert, onClose }: SpecialCharPanelProps) {
+  const { t } = useI18n();
   const [filter, setFilter] = useState("");
   const allChars = useMemo(() => InsertUtils.specialCharacters(), []);
 
@@ -14,6 +26,11 @@ export function SpecialCharPanel({ onInsert, onClose }: SpecialCharPanelProps) {
     const cats = new Set(allChars.map((c) => c.category));
     return Array.from(cats);
   }, [allChars]);
+
+  const categoryLabel = (category: string): string => {
+    const key = CATEGORY_KEYS[category];
+    return key ? t(key) : category;
+  };
 
   const filtered = filter
     ? allChars.filter((c) => c.name.includes(filter) || c.char.includes(filter))
@@ -23,11 +40,11 @@ export function SpecialCharPanel({ onInsert, onClose }: SpecialCharPanelProps) {
     <div className="dialog-overlay" onClick={onClose}>
       <div className="dialog special-char-dialog" onClick={(e) => e.stopPropagation()}>
         <div className="dialog-header">
-          <h3>特殊字符</h3>
+          <h3>{t("dialog.specialChar")}</h3>
           <input
             type="text"
             className="special-char-filter"
-            placeholder="搜索..."
+            placeholder={t("common.searchPlaceholder")}
             value={filter}
             onChange={(e) => setFilter(e.target.value)}
             autoFocus
@@ -40,7 +57,7 @@ export function SpecialCharPanel({ onInsert, onClose }: SpecialCharPanelProps) {
             if (chars.length === 0) return null;
             return (
               <div key={cat} className="char-category">
-                <h4>{cat}</h4>
+                <h4>{categoryLabel(cat)}</h4>
                 <div className="char-grid">
                   {chars.map((c, idx) => (
                     <button

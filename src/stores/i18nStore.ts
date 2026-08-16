@@ -3,12 +3,25 @@ import { invoke } from "@tauri-apps/api/core";
 
 export type Language = "zh" | "en";
 
+const LANGUAGE_STORAGE_KEY = "markpt:language";
+
 const translations: Record<string, Record<Language, string>> = {
   "app.title": { zh: "MarkPT", en: "MarkPT" },
   "app.subtitle": { zh: "轻量化文本编辑器", en: "Lightweight Text Editor" },
   "app.newFile": { zh: "新建文件", en: "New File" },
   "app.openFile": { zh: "打开文件", en: "Open File" },
   "app.hint": { zh: "拖拽文件到此处打开 · Cmd+P 命令面板", en: "Drag files here · Cmd+P Command Palette" },
+  "app.openFailed": { zh: "打开文件失败", en: "Failed to open file" },
+  "app.saveFailed": { zh: "保存失败", en: "Failed to save" },
+  "app.saveCopyFailed": { zh: "保存副本失败", en: "Failed to save a copy" },
+  "app.openWithEncodingFailed": { zh: "按编码打开失败", en: "Failed to open with encoding" },
+  "app.saveAsFailed": { zh: "另存为失败", en: "Failed to save as" },
+  "app.encodeOpenFailed": { zh: "用 {encoding} 编码打开失败", en: "Failed to open as {encoding}" },
+  "app.encodingConvertFailed": { zh: "编码转换失败", en: "Failed to convert encoding" },
+  "app.exportFailed": { zh: "导出失败", en: "Failed to export" },
+  "app.compareOpenFailed": { zh: "打开对比文件失败", en: "Failed to open compare file" },
+  "app.closeDirtyConfirm": { zh: "「{name}」已修改，是否保存？", en: "\"{name}\" has unsaved changes. Save it?" },
+  "app.chooseEncoding": { zh: "选择编码（输入序号）:", en: "Choose encoding (enter number):" },
 
   "menu.file": { zh: "文件", en: "File" },
   "menu.edit": { zh: "编辑", en: "Edit" },
@@ -40,6 +53,7 @@ const translations: Record<string, Record<Language, string>> = {
   "action.sortAsc": { zh: "行排序(升序)", en: "Sort Lines (Asc)" },
   "action.sortDesc": { zh: "行排序(降序)", en: "Sort Lines (Desc)" },
   "action.removeDuplicates": { zh: "去重复行", en: "Remove Duplicate Lines" },
+  "action.format": { zh: "格式化失败", en: "Format failed" },
 
   "action.find": { zh: "查找...", en: "Find..." },
   "action.replace": { zh: "替换...", en: "Replace..." },
@@ -62,6 +76,7 @@ const translations: Record<string, Record<Language, string>> = {
   "status.chars": { zh: "字符", en: "chars" },
   "status.lines": { zh: "行", en: "lines" },
   "status.selected": { zh: "已选", en: "Selected" },
+  "status.mixed": { zh: "混合", en: "Mixed" },
 
   "search.placeholder": { zh: "查找...", en: "Find..." },
   "search.replacePlaceholder": { zh: "替换为...", en: "Replace with..." },
@@ -75,6 +90,9 @@ const translations: Record<string, Record<Language, string>> = {
   "search.inSelection": { zh: "选区内查找", en: "In Selection" },
   "search.surround": { zh: "环绕搜索", en: "Surround" },
   "search.history": { zh: "搜索历史", en: "Search History" },
+  "search.surroundOpen": { zh: "前", en: "Open" },
+  "search.surroundClose": { zh: "后", en: "Close" },
+  "search.summary": { zh: "{matches} 个匹配, {files} 个文件", en: "{matches} matches in {files} files" },
 
   "tab.new": { zh: "新建标签", en: "New Tab" },
   "tab.sortByName": { zh: "按名称排序", en: "Sort by Name" },
@@ -89,6 +107,7 @@ const translations: Record<string, Record<Language, string>> = {
   "tab.closeLeft": { zh: "关闭左侧", en: "Close to the Left" },
   "tab.closeAll": { zh: "关闭全部", en: "Close All" },
   "tab.duplicate": { zh: "创建副本", en: "Duplicate" },
+  "tab.duplicateName": { zh: "{name} 副本", en: "{name} Copy" },
   "tab.copyPath": { zh: "复制路径", en: "Copy Path" },
   "tab.copyName": { zh: "复制文件名", en: "Copy Filename" },
 
@@ -99,7 +118,7 @@ const translations: Record<string, Record<Language, string>> = {
   "dialog.settings.theme": { zh: "主题", en: "Theme" },
   "dialog.settings.fontSize": { zh: "字号", en: "Font Size" },
   "dialog.settings.fontFamily": { zh: "字体族", en: "Font Family" },
-  "dialog.settings.tabSize": { zh: "Tab 大小", en: "Tab Size" },
+  "dialog.settings.tabSize": { zh: "制表符宽度", en: "Tab Size" },
   "dialog.settings.insertSpaces": { zh: "空格缩进", en: "Insert Spaces" },
   "dialog.settings.wordWrap": { zh: "自动换行", en: "Word Wrap" },
   "dialog.settings.lineNumbers": { zh: "显示行号", en: "Show Line Numbers" },
@@ -118,6 +137,7 @@ const translations: Record<string, Record<Language, string>> = {
   "dialog.settings.reset": { zh: "恢复默认", en: "Reset to Defaults" },
   "dialog.settings.done": { zh: "完成", en: "Done" },
   "dialog.settings.language": { zh: "界面语言", en: "Interface Language" },
+  "dialog.settings.systemDefaultFont": { zh: "系统默认", en: "System Default" },
 
   "common.cancel": { zh: "取消", en: "Cancel" },
   "common.confirm": { zh: "确认", en: "Confirm" },
@@ -132,6 +152,10 @@ const translations: Record<string, Record<Language, string>> = {
   "common.insert": { zh: "插入", en: "Insert" },
   "common.run": { zh: "运行", en: "Run" },
   "common.reset": { zh: "重置", en: "Reset" },
+  "common.yes": { zh: "是", en: "Yes" },
+  "common.no": { zh: "否", en: "No" },
+  "common.searchPlaceholder": { zh: "搜索...", en: "Search..." },
+  "common.filterPlaceholder": { zh: "过滤...", en: "Filter..." },
 
   "toolbar.new": { zh: "新建 (Cmd+N)", en: "New (Cmd+N)" },
   "toolbar.open": { zh: "打开 (Cmd+O)", en: "Open (Cmd+O)" },
@@ -155,6 +179,17 @@ const translations: Record<string, Record<Language, string>> = {
   "toolbar.compareClear": { zh: "清除对比", en: "Clear Compare" },
   "toolbar.syncScroll": { zh: "同步滚动", en: "Sync Scroll" },
   "toolbar.settings": { zh: "设置", en: "Settings" },
+  "toolbar.macroRecord": { zh: "宏录制 (Cmd+M)", en: "Macro Record (Cmd+M)" },
+  "toolbar.stopRecord": { zh: "⏹ 停止录制", en: "⏹ Stop Recording" },
+  "toolbar.recordMacro": { zh: "● 录制宏", en: "● Record Macro" },
+  "toolbar.compareBtn": { zh: "对比", en: "Compare" },
+  "toolbar.compareTitle": { zh: "双文件对比 (Cmd+Alt+D)", en: "Compare Files (Cmd+Alt+D)" },
+  "toolbar.exportTxt": { zh: "导出 TXT", en: "Export TXT" },
+  "toolbar.exportHtml": { zh: "导出 HTML", en: "Export HTML" },
+  "toolbar.exportRtf": { zh: "导出 RTF", en: "Export RTF" },
+  "toolbar.tabWidth": { zh: "制表符宽度: {n}", en: "Tab Width: {n}" },
+  "toolbar.spaces": { zh: "空格", en: "Spaces" },
+  "toolbar.tabs": { zh: "制表符", en: "Tabs" },
 
   "sidebar.explorer": { zh: "资源管理器", en: "Explorer" },
   "sidebar.openFolder": { zh: "打开文件夹", en: "Open Folder" },
@@ -169,6 +204,10 @@ const translations: Record<string, Record<Language, string>> = {
   "statusbar.encoding": { zh: "编码", en: "Encoding" },
   "statusbar.eol": { zh: "行尾", en: "EOL" },
   "statusbar.insertMode": { zh: "插入/覆盖模式 (Ins键切换)", en: "Insert/Overwrite (Ins)" },
+  "statusbar.lineTitle": { zh: "跳转行号", en: "Go to Line" },
+  "statusbar.selectionTitle": { zh: "选中信息", en: "Selection Info" },
+  "statusbar.wordCharTitle": { zh: "字数: {words}, 字符数: {chars}", en: "Words: {words}, Chars: {chars}" },
+  "statusbar.versionTitle": { zh: "MarkPT v{version}", en: "MarkPT v{version}" },
 
   "cmd.newFile": { zh: "新建文件", en: "New File" },
   "cmd.openFile": { zh: "打开文件", en: "Open File" },
@@ -206,7 +245,11 @@ const translations: Record<string, Record<Language, string>> = {
   "editor.filterRemovePrompt": { zh: "输入过滤模式（移除匹配行）:", en: "Enter filter pattern (remove matching lines):" },
 
   "dialog.gotoLine": { zh: "跳转到行", en: "Go to Line" },
+  "dialog.gotoTotalLines": { zh: "共 {total} 行", en: "{total} lines total" },
+  "dialog.gotoPlaceholder": { zh: "行号", en: "Line number" },
+  "dialog.gotoJump": { zh: "跳转", en: "Go" },
   "dialog.encoding": { zh: "编码", en: "Encoding" },
+  "dialog.encodingCurrent": { zh: "当前编码: {encoding}", en: "Current Encoding: {encoding}" },
   "dialog.charStats": { zh: "字符统计", en: "Character Stats" },
   "dialog.clipboardHistory": { zh: "剪贴板历史", en: "Clipboard History" },
   "dialog.noClipboardHistory": { zh: "暂无剪贴板历史", en: "No clipboard history" },
@@ -251,24 +294,278 @@ const translations: Record<string, Record<Language, string>> = {
   "search.matchCount": { zh: "个匹配", en: "matches" },
   "search.fileCount": { zh: "个文件", en: "files" },
   "search.truncated": { zh: "(已截断)", en: "(truncated)" },
+  "search.findContentPlaceholder": { zh: "查找内容...", en: "Search content..." },
+
+  "stats.fullText": { zh: "全文统计", en: "Full Text Stats" },
+  "stats.charsCount": { zh: "字符数", en: "Characters" },
+  "stats.charsNoSpaces": { zh: "字符数(不含空格)", en: "Characters (no spaces)" },
+  "stats.wordsCount": { zh: "单词数", en: "Words" },
+  "stats.linesCount": { zh: "行数", en: "Lines" },
+  "stats.selection": { zh: "选区统计", en: "Selection Stats" },
+  "stats.selectedChars": { zh: "选中字符", en: "Selected Characters" },
+  "stats.selectedWords": { zh: "选中单词", en: "Selected Words" },
+  "stats.selectedLines": { zh: "选中行", en: "Selected Lines" },
+
+  "props.basic": { zh: "基本信息", en: "Basic Info" },
+  "props.fileName": { zh: "文件名", en: "Filename" },
+  "props.path": { zh: "路径", en: "Path" },
+  "props.encoding": { zh: "编码", en: "Encoding" },
+  "props.language": { zh: "语言", en: "Language" },
+  "props.readonly": { zh: "只读", en: "Read-only" },
+  "props.isLargeFile": { zh: "大文件", en: "Large File" },
+  "props.contentStats": { zh: "内容统计", en: "Content Stats" },
+  "props.byteSize": { zh: "字节大小", en: "Size in Bytes" },
+  "props.filesystem": { zh: "文件系统", en: "File System" },
+  "props.size": { zh: "大小", en: "Size" },
+  "props.created": { zh: "创建时间", en: "Created" },
+  "props.modified": { zh: "修改时间", en: "Modified" },
+  "props.accessed": { zh: "访问时间", en: "Accessed" },
+  "props.permission": { zh: "权限", en: "Permission" },
+  "props.readWrite": { zh: "可读写", en: "Read-write" },
+
+  "docSwitcher.hint": { zh: "↑↓ 选择 · Enter 确认 · Esc 取消", en: "↑↓ Select · Enter Confirm · Esc Cancel" },
+  "docSwitcher.empty": { zh: "没有打开的文档", en: "No open documents" },
+
+  "help.categoryFile": { zh: "文件", en: "File" },
+  "help.categoryEdit": { zh: "编辑", en: "Edit" },
+  "help.categorySearch": { zh: "搜索", en: "Search" },
+  "help.categoryView": { zh: "视图", en: "View" },
+  "help.categoryMultiCursor": { zh: "多光标", en: "Multi-Cursor" },
+  "help.cmdPalette": { zh: "命令面板", en: "Command Palette" },
+  "help.toggleSidebar": { zh: "切换侧边栏", en: "Toggle Sidebar" },
+  "help.compare": { zh: "双文件对比", en: "Compare Files" },
+  "help.macro": { zh: "宏管理", en: "Macro Manager" },
+  "help.zoomInFont": { zh: "放大字体", en: "Zoom In Font" },
+  "help.zoomOutFont": { zh: "缩小字体", en: "Zoom Out Font" },
+  "help.toggleBookmark": { zh: "切换书签", en: "Toggle Bookmark" },
+  "help.nextBookmark": { zh: "下一个书签", en: "Next Bookmark" },
+  "help.prevBookmark": { zh: "上一书签", en: "Previous Bookmark" },
+  "help.selectNextMatch": { zh: "选择下一个匹配", en: "Select Next Match" },
+  "help.selectAllMatches": { zh: "选择所有匹配", en: "Select All Matches" },
+  "help.addCursor": { zh: "添加光标", en: "Add Cursor" },
+  "help.columnSelect": { zh: "列块选择", en: "Column Selection" },
+  "help.operation": { zh: "操作", en: "Action" },
+  "help.shortcut": { zh: "快捷键", en: "Shortcut" },
+  "help.description": { zh: "说明", en: "Description" },
+
+  "specialChar.cat.control": { zh: "控制", en: "Control" },
+  "specialChar.cat.arrow": { zh: "箭头", en: "Arrows" },
+  "specialChar.cat.math": { zh: "数学", en: "Math" },
+  "specialChar.cat.symbol": { zh: "符号", en: "Symbols" },
+  "specialChar.cat.currency": { zh: "货币", en: "Currency" },
+  "specialChar.cat.number": { zh: "数字", en: "Numbers" },
+  "specialChar.cat.figure": { zh: "图形", en: "Shapes" },
+
+  "colorPicker.presets": { zh: "预设颜色", en: "Preset Colors" },
+  "colorPicker.outputFormat": { zh: "输出格式:", en: "Output Format:" },
+
+  "dt.short": { zh: "短日期时间", en: "Short Date-Time" },
+  "dt.long": { zh: "长日期时间", en: "Long Date-Time" },
+  "dt.iso": { zh: "ISO 格式", en: "ISO Format" },
+  "dt.timeOnly": { zh: "仅时间", en: "Time Only" },
+  "dt.dateOnly": { zh: "仅日期", en: "Date Only" },
+  "dt.custom": { zh: "自定义格式", en: "Custom Format" },
+  "dt.hint": { zh: "可用变量: YYYY(年) MM(月) DD(日) HH(时) mm(分) ss(秒) SSS(毫秒)", en: "Variables: YYYY(year) MM(month) DD(day) HH(hour) mm(min) ss(sec) SSS(ms)" },
+  "dt.preview": { zh: "预览: {value}", en: "Preview: {value}" },
+
+  "tt.encodeDecode": { zh: "编码/解码", en: "Encode/Decode" },
+  "tt.hash": { zh: "哈希计算", en: "Hash" },
+  "tt.result": { zh: "转换结果", en: "Result" },
+  "tt.applyToEditor": { zh: "应用到编辑器", en: "Apply to Editor" },
+  "tt.copyToClipboard": { zh: "复制到剪贴板", en: "Copy to Clipboard" },
+  "tt.base64Encode": { zh: "Base64 编码", en: "Base64 Encode" },
+  "tt.base64Decode": { zh: "Base64 解码", en: "Base64 Decode" },
+  "tt.urlEncode": { zh: "URL 编码", en: "URL Encode" },
+  "tt.urlDecode": { zh: "URL 解码", en: "URL Decode" },
+  "tt.rot13": { zh: "ROT13", en: "ROT13" },
+  "tt.hexEncode": { zh: "转十六进制", en: "To Hex" },
+  "tt.hexDecode": { zh: "十六进制转文本", en: "Hex to Text" },
+  "tt.reverseText": { zh: "反转文本", en: "Reverse Text" },
+  "tt.reverseLines": { zh: "反转行序", en: "Reverse Lines" },
+  "tt.removeWhitespace": { zh: "移除所有空白", en: "Remove All Whitespace" },
+  "tt.collapseWhitespace": { zh: "合并连续空白", en: "Collapse Whitespace" },
+  "tt.addLineNumbers": { zh: "添加行号", en: "Add Line Numbers" },
+  "tt.removeLineNumbers": { zh: "移除行号", en: "Remove Line Numbers" },
+
+  "batch.enabled": { zh: "启用", en: "Enabled" },
+  "batch.find": { zh: "查找", en: "Find" },
+  "batch.replaceWith": { zh: "替换为", en: "Replace With" },
+  "batch.actions": { zh: "操作", en: "Actions" },
+  "batch.addRule": { zh: "+ 添加规则", en: "+ Add Rule" },
+  "batch.scope": { zh: "范围:", en: "Scope:" },
+  "batch.currentDoc": { zh: "当前文档", en: "Current Document" },
+  "batch.allDocs": { zh: "所有文档", en: "All Documents" },
+  "batch.execute": { zh: "执行批量替换", en: "Execute Batch Replace" },
+  "batch.result": { zh: "结果", en: "Result" },
+  "batch.replacements": { zh: "{name}: {count} 处替换", en: "{name}: {count} replacements" },
+
+  "regex.placeholder": { zh: "正则表达式...", en: "Regex pattern..." },
+  "regex.flags": { zh: "标志", en: "flags" },
+  "regex.testText": { zh: "测试文本", en: "Test Text" },
+  "regex.testTextPlaceholder": { zh: "输入测试文本...", en: "Enter test text..." },
+  "regex.matchResult": { zh: "匹配结果 ({count} 处)", en: "Matches ({count})" },
+  "regex.details": { zh: "匹配详情", en: "Match Details" },
+  "regex.groups": { zh: "分组", en: "Groups" },
+  "regex.invalid": { zh: "正则表达式无效", en: "Invalid regular expression" },
+  "regex.patternEmail": { zh: "邮箱", en: "Email" },
+  "regex.patternUrl": { zh: "网址", en: "URL" },
+  "regex.patternIp": { zh: "网络地址", en: "IP Address" },
+  "regex.patternPhone": { zh: "手机号", en: "Phone Number" },
+  "regex.patternIdCard": { zh: "身份证", en: "ID Card" },
+  "regex.patternDate": { zh: "日期", en: "Date" },
+  "regex.patternHtmlTag": { zh: "HTML标签", en: "HTML Tag" },
+  "regex.patternChinese": { zh: "中文字符", en: "Chinese Characters" },
+
+  "csv.delimiter": { zh: "分隔符:", en: "Delimiter:" },
+  "csv.comma": { zh: "逗号 (,)", en: "Comma (,)" },
+  "csv.tab": { zh: "制表符 (\\t)", en: "Tab (\\t)" },
+  "csv.semicolon": { zh: "分号 (;)", en: "Semicolon (;)" },
+  "csv.pipe": { zh: "竖线 (|)", en: "Pipe (|)" },
+  "csv.headerRow": { zh: "首行为表头", en: "First Row is Header" },
+  "csv.rowsCols": { zh: "{rows} 行 × {cols} 列", en: "{rows} rows × {cols} cols" },
+  "csv.column": { zh: "列 {n}", en: "Column {n}" },
+
+  "fnList.placeholder": { zh: "过滤...", en: "Filter..." },
+  "fnList.empty": { zh: "未找到符号", en: "No symbols found" },
+  "fnList.line": { zh: "第 {n} 行", en: "Line {n}" },
+
+  "snip.add": { zh: "新增", en: "Add New" },
+  "snip.trigger": { zh: "触发词", en: "Trigger" },
+  "snip.desc": { zh: "描述", en: "Description" },
+  "snip.lang": { zh: "语言", en: "Language" },
+  "snip.langPlaceholder": { zh: "留空=所有语言", en: "Empty = all languages" },
+  "snip.content": { zh: "内容", en: "Content" },
+  "snip.bodyPlaceholder": { zh: "使用 ${1:placeholder} 语法", en: "Use ${1:placeholder} syntax" },
+
+  "plugin.author": { zh: "作者: {author}", en: "Author: {author}" },
+  "plugin.enabled": { zh: "已启用", en: "Enabled" },
+  "plugin.disabled": { zh: "已禁用", en: "Disabled" },
+  "plugin.code-formatter.name": { zh: "代码格式化", en: "Code Formatter" },
+  "plugin.code-formatter.desc": { zh: "JSON/XML/HTML/CSS/SQL 代码格式化", en: "JSON/XML/HTML/CSS/SQL formatting" },
+  "plugin.text-transform.name": { zh: "文本转换", en: "Text Transform" },
+  "plugin.text-transform.desc": { zh: "Base64/URL/ROT13/哈希等文本转换", en: "Base64/URL/ROT13/hash transforms" },
+  "plugin.char-convert.name": { zh: "字符转换", en: "Character Conversion" },
+  "plugin.char-convert.desc": { zh: "全角/半角/Unicode归一化/命名风格转换", en: "Full/half width, Unicode normalization, naming styles" },
+  "plugin.snippets.name": { zh: "代码片段", en: "Snippets" },
+  "plugin.snippets.desc": { zh: "代码片段管理和 Tab 展开", en: "Snippet management and Tab expansion" },
+  "plugin.clipboard-history.name": { zh: "剪贴板历史", en: "Clipboard History" },
+  "plugin.clipboard-history.desc": { zh: "记录最近复制的多段内容", en: "Records recently copied content" },
+  "plugin.markdown-preview.name": { zh: "Markdown 预览", en: "Markdown Preview" },
+  "plugin.markdown-preview.desc": { zh: "Markdown 实时预览", en: "Live Markdown preview" },
+  "plugin.csv-viewer.name": { zh: "CSV 查看器", en: "CSV Viewer" },
+  "plugin.csv-viewer.desc": { zh: "CSV/TSV 表格查看", en: "CSV/TSV table viewer" },
+  "plugin.regex-tester.name": { zh: "正则测试器", en: "Regex Tester" },
+  "plugin.regex-tester.desc": { zh: "正则表达式测试工具", en: "Regular expression testing tool" },
+  "plugin.hex-viewer.name": { zh: "十六进制查看器", en: "Hex Viewer" },
+  "plugin.hex-viewer.desc": { zh: "文件十六进制查看", en: "File hex viewer" },
+  "plugin.diff-viewer.name": { zh: "文件对比", en: "File Compare" },
+  "plugin.diff-viewer.desc": { zh: "双文件 Diff 对比", en: "Side-by-side diff compare" },
+  "plugin.function-list.name": { zh: "函数列表", en: "Function List" },
+  "plugin.function-list.desc": { zh: "代码函数/方法列表导航", en: "Code function/method navigation" },
+  "plugin.session-manager.name": { zh: "会话管理", en: "Session Manager" },
+  "plugin.session-manager.desc": { zh: "自动保存和恢复编辑会话", en: "Auto save and restore editing sessions" },
+
+  "macro.times": { zh: "运行次数", en: "Run Times" },
+  "macro.untilEnd": { zh: "运行到文件末尾", en: "Run Until End of File" },
+  "macro.empty": { zh: "暂无宏", en: "No macros yet" },
+  "macro.steps": { zh: "{n} 步", en: "{n} steps" },
+  "macro.replay": { zh: "回放", en: "Replay" },
+  "macro.unnamed": { zh: "未命名宏", en: "Unnamed Macro" },
+
+  "hex.search": { zh: "搜索...", en: "Search..." },
+  "hex.find": { zh: "查找", en: "Find" },
+  "hex.info": { zh: "总字节数: {total} | 偏移: 0x{offset} | 显示: {shown} 字节", en: "Total: {total} bytes | Offset: 0x{offset} | Showing: {shown} bytes" },
+  "hex.address": { zh: "地址", en: "Address" },
+  "hex.prevPage": { zh: "上一页", en: "Prev Page" },
+  "hex.nextPage": { zh: "下一页", en: "Next Page" },
+  "hex.notFound": { zh: "未找到", en: "Not found" },
+
+  "md.split": { zh: "分屏", en: "Split" },
+  "md.previewOnly": { zh: "仅预览", en: "Preview Only" },
+
+  "split.syncScroll": { zh: "同步滚动", en: "Sync Scroll" },
+  "split.closeSplit": { zh: "关闭分屏", en: "Close Split" },
+
+  "rc.placeholder": { zh: "输入命令...", en: "Enter command..." },
+  "rc.history": { zh: "历史命令", en: "Command History" },
+  "rc.running": { zh: "正在运行...", en: "Running..." },
+  "rc.output": { zh: "命令输出", en: "Command Output" },
+  "rc.errorOutput": { zh: "标准错误输出", en: "Standard Error" },
+  "rc.exitCode": { zh: "退出码: {code}", en: "Exit Code: {code}" },
+  "rc.timedOut": { zh: "命令执行超时，已自动终止", en: "Command timed out and was terminated" },
+  "rc.noOutput": { zh: "(无输出)", en: "(no output)" },
+  "rc.copyOutput": { zh: "复制输出", en: "Copy Output" },
+  "rc.insertOutput": { zh: "插入到编辑器", en: "Insert into Editor" },
+  "rc.runFailed": { zh: "运行命令失败", en: "Failed to run command" },
+  "rc.emptyCommand": { zh: "请输入要运行的命令", en: "Please enter a command" },
+
+  "mdFind.title": { zh: "多文档查找替换", en: "Multi-Document Find/Replace" },
+  "mdFind.findAll": { zh: "查找全部", en: "Find All" },
+  "mdFind.replaceAllConfirm": { zh: "确认在所有打开的文件中替换？", en: "Replace in all open documents?" },
+  "mdFind.foundSummary": { zh: "{files} 个文件中找到 {matches} 处匹配", en: "Found {matches} matches in {files} files" },
+  "mdFind.matchesCount": { zh: "{n} 处匹配", en: "{n} matches" },
+  "mdFind.line": { zh: "行 {n}", en: "Line {n}" },
+
+  "lang.searchPlaceholder": { zh: "搜索语言...", en: "Search languages..." },
+  "lang.current": { zh: "当前: {language}", en: "Current: {language}" },
+  "lang.name.plaintext": { zh: "纯文本", en: "Plain Text" },
+  "lang.group.common": { zh: "常用", en: "Common" },
+  "lang.group.frontend": { zh: "前端", en: "Frontend" },
+  "lang.group.backend": { zh: "后端", en: "Backend" },
+  "lang.group.data": { zh: "数据", en: "Data" },
+  "lang.group.script": { zh: "脚本", en: "Scripts" },
+  "lang.group.other": { zh: "其他", en: "Others" },
+
+  "errors.unknown": { zh: "操作失败，请重试", en: "Operation failed, please retry" },
 };
 
 interface I18nStore {
   language: Language;
   setLanguage: (lang: Language) => void;
-  t: (key: string) => string;
+  t: (key: string, params?: Record<string, string | number>, fallback?: string) => string;
+}
+
+function readSavedLanguage(): Language {
+  try {
+    const saved = localStorage.getItem(LANGUAGE_STORAGE_KEY);
+    if (saved === "zh" || saved === "en") return saved;
+  } catch {
+    // localStorage 不可用时回退到默认中文
+  }
+  return "zh";
+}
+
+function interpolate(text: string, params?: Record<string, string | number>): string {
+  if (!params) return text;
+  return text.replace(/\{(\w+)\}/g, (match, key: string) =>
+    key in params ? String(params[key]) : match
+  );
 }
 
 export const useI18n = create<I18nStore>((set, get) => ({
-  language: "zh",
+  language: readSavedLanguage(),
   setLanguage: (lang) => {
     set({ language: lang });
+    try {
+      localStorage.setItem(LANGUAGE_STORAGE_KEY, lang);
+    } catch {
+      // 忽略存储失败
+    }
+    // 同步页面语言标记，并重建原生菜单，保证界面与菜单文案一致
+    document.documentElement.lang = lang === "en" ? "en" : "zh-CN";
     invoke("rebuild_menu", { lang }).catch(() => {});
   },
-  t: (key) => {
+  t: (key, params, fallback) => {
     const { language } = get();
     const entry = translations[key];
-    if (!entry) return key;
-    return entry[language] || entry.zh || key;
+    if (!entry) return interpolate(fallback ?? key, params);
+    return interpolate(entry[language] || entry.zh || fallback || key, params);
   },
 }));
+
+/** 应用启动时同步一次语言标记与原生菜单（避免重启后菜单语言与界面不一致）。 */
+export function initI18n(): void {
+  const { language } = useI18n.getState();
+  document.documentElement.lang = language === "en" ? "en" : "zh-CN";
+  invoke("rebuild_menu", { lang: language }).catch(() => {});
+}

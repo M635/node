@@ -1,5 +1,6 @@
 import type { MacroAction, Macro } from "../../types/editor";
 import type * as Monaco from "monaco-editor";
+import { useI18n } from "../../stores/i18nStore";
 
 export class MacroRecorder {
   private actions: MacroAction[] = [];
@@ -9,7 +10,7 @@ export class MacroRecorder {
   start(name?: string): void {
     this.isRecording = true;
     this.actions = [];
-    this.name = name || `Macro ${Date.now()}`;
+    this.name = name || useI18n.getState().t("macro.unnamed");
   }
 
   stop(): Macro | null {

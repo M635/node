@@ -85,7 +85,7 @@ export function SettingsDialog({ onClose }: SettingsDialogProps) {
                 <option value="'Monaco', monospace">Monaco</option>
                 <option value="'Consolas', monospace">Consolas</option>
                 <option value="'Courier New', monospace">Courier New</option>
-                <option value="monospace">{language === "en" ? "System Default" : "系统默认"}</option>
+                <option value="monospace">{t("dialog.settings.systemDefaultFont")}</option>
               </select>
             </div>
           </div>
