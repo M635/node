@@ -1,4 +1,4 @@
-import { useEffect, useRef, useCallback } from "react";
+import { useEffect, useRef, useCallback, useState } from "react";
 import Editor, { type OnMount, type OnChange } from "@monaco-editor/react";
 import * as Monaco from "monaco-editor";
 import { useEditorStore } from "../../stores/editorStore";
@@ -13,7 +13,7 @@ import { EditOperations } from "../../services/monaco/editOperations";
 import { macroRecorder, replayMacro } from "../../services/macro/recorder";
 import { clipboardWrite, clipboardRead } from "../../utils/clipboard";
 import { useI18n } from "../../stores/i18nStore";
-import { localizeBuiltinContextMenu } from "../../services/monaco/i18n";
+import { ContextMenu, type ContextMenuItem } from "../common/ContextMenu";
 
 type TFunc = (key: string) => string;
 
@@ -183,7 +183,6 @@ export function MonacoEditor({
     });
 
     registerEditorActions(editor, monaco, useI18n.getState().t, actionDisposablesRef.current);
-    localizeBuiltinContextMenu(useI18n.getState().t);
 
     const container = editor.getContainerDomNode();
     const resizeObserver = new ResizeObserver(() => {
@@ -197,14 +196,13 @@ export function MonacoEditor({
     };
   }, [onCursorChange, tabId]);
 
-  // 语言切换时重新注册自定义 Action 并本地化内置菜单，避免中英文混杂
+  // 语言切换时重新注册自定义 Action，刷新右键菜单与命令标签语言
   useEffect(() => {
     const handler = () => {
       const editor = editorRef.current;
       const monaco = monacoRef.current;
       if (!editor || !monaco) return;
       registerEditorActions(editor, monaco, useI18n.getState().t, actionDisposablesRef.current);
-      localizeBuiltinContextMenu(useI18n.getState().t);
     };
     window.addEventListener("markpt:lang-changed", handler);
     return () => window.removeEventListener("markpt:lang-changed", handler);
@@ -783,6 +781,74 @@ export function MonacoEditor({
     onContentChange?.(value || "");
   }, [onContentChange]);
 
+  const [ctxMenu, setCtxMenu] = useState<{ x: number; y: number } | null>(null);
+
+  const closeContextMenu = useCallback(() => setCtxMenu(null), []);
+
+  const contextMenuItems: ContextMenuItem[] = useCallback(() => {
+    const editor = editorRef.current;
+    const monaco = monacoRef.current;
+    if (!editor || !monaco) return [];
+    const mod = /Mac|iPod|iPhone|iPad/.test(navigator.platform || navigator.userAgent) ? "Cmd" : "Ctrl";
+    const doCopy = async () => {
+      const sel = editor.getSelection();
+      if (!sel) return;
+      const text = editor.getModel()?.getValueInRange(sel) || "";
+      if (text) await clipboardWrite(text);
+    };
+    const doCut = async () => {
+      const sel = editor.getSelection();
+      if (!sel) return;
+      const model = editor.getModel();
+      if (!model) return;
+      const text = model.getValueInRange(sel);
+      if (text) {
+        await clipboardWrite(text);
+        editor.executeEdits("cut", [{ range: sel, text: "" }]);
+      }
+    };
+    const doPaste = async () => {
+      const text = await clipboardRead();
+      if (!text) return;
+      const sel = editor.getSelection();
+      if (!sel) return;
+      editor.executeEdits("paste", [{ range: sel, text, forceMoveMarkers: true }]);
+    };
+    const insertDateTime = () => {
+      const now = new Date();
+      const text = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}-${String(now.getDate()).padStart(2, "0")} ${String(now.getHours()).padStart(2, "0")}:${String(now.getMinutes()).padStart(2, "0")}:${String(now.getSeconds()).padStart(2, "0")}`;
+      const pos = editor.getPosition();
+      if (pos) editor.executeEdits("insert-datetime", [{ range: new monaco.Range(pos.lineNumber, pos.column, pos.lineNumber, pos.column), text }]);
+    };
+    const selectAll = () => {
+      const model = editor.getModel();
+      if (model) editor.setSelection(new monaco.Range(1, 1, model.getLineCount(), model.getLineMaxColumn(model.getLineCount()) + 1));
+    };
+    const items: ContextMenuItem[] = [
+      { label: t("monaco.cut"), onClick: doCut },
+      { label: t("monaco.copy"), onClick: doCopy },
+      { label: t("monaco.paste"), onClick: doPaste },
+      { label: "", onClick: () => {}, divider: true },
+      { label: t("search.find"), onClick: () => useSearchStore.getState().toggleSearchPanel() },
+      { label: t("search.replace"), onClick: () => useSearchStore.getState().toggleReplacePanel() },
+      { label: t("toolbar.gotoLine").replace(/ \([^)]*\)$/, ""), onClick: () => window.dispatchEvent(new CustomEvent("markpt:goto-line")) },
+      { label: "", onClick: () => {}, divider: true },
+      { label: t("action.toggleComment"), onClick: () => EditOperations.toggleLineComment(editor, monaco) },
+      { label: t("action.formatDocument"), onClick: () => { editor.getAction("editor.action.formatDocument")?.run(); } },
+      { label: t("action.deleteLine"), onClick: () => EditOperations.deleteCurrentLine(editor, monaco) },
+      { label: t("action.duplicateLine"), onClick: () => EditOperations.duplicateCurrentLine(editor) },
+      { label: "", onClick: () => {}, divider: true },
+      { label: t("dialog.insertDateTime"), onClick: insertDateTime },
+      { label: `${t("action.selectAll")} (${mod}+A)`, onClick: selectAll },
+    ];
+    return items;
+  }, [t])();
+
+  const handleContextMenu = useCallback((e: React.MouseEvent) => {
+    e.preventDefault();
+    setCtxMenu({ x: e.clientX, y: e.clientY });
+  }, []);
+
   const options: Monaco.editor.IStandaloneEditorConstructionOptions = {
     readOnly: readonly,
     fontSize, fontFamily,
@@ -811,7 +877,7 @@ export function MonacoEditor({
     renderLineHighlight: "all",
     glyphMargin: true,
     fixedOverflowWidgets: true,
-    contextmenu: true,
+    contextmenu: false,
     quickSuggestions: { other: true, comments: false, strings: false },
     suggestOnTriggerCharacters: true,
     acceptSuggestionOnEnter: "on",
@@ -832,7 +898,7 @@ export function MonacoEditor({
   };
 
   return (
-    <div className="monaco-editor-wrapper" data-tab-id={tabId}>
+    <div className="monaco-editor-wrapper" data-tab-id={tabId} onContextMenu={handleContextMenu}>
       <Editor
         height="100%"
         width="100%"
@@ -848,6 +914,9 @@ export function MonacoEditor({
           </div>
         }
       />
+      {ctxMenu && (
+        <ContextMenu x={ctxMenu.x} y={ctxMenu.y} items={contextMenuItems} onClose={closeContextMenu} />
+      )}
     </div>
   );
 }
