@@ -28,6 +28,9 @@ interface SettingStore {
   smartHighlightMaxMatches: number;
   matchHighlightEnabled: boolean;
   matchHighlightPattern: string;
+  autoSaveEnabled: boolean;
+  autoSaveInterval: number;
+  autoBackupEnabled: boolean;
 
   setFontSize: (size: number) => void;
   setFontFamily: (family: string) => void;
@@ -56,6 +59,9 @@ interface SettingStore {
   setSmartHighlightMaxMatches: (max: number) => void;
   setMatchHighlightEnabled: (enabled: boolean) => void;
   setMatchHighlightPattern: (pattern: string) => void;
+  setAutoSaveEnabled: (enabled: boolean) => void;
+  setAutoSaveInterval: (interval: number) => void;
+  setAutoBackupEnabled: (enabled: boolean) => void;
   resetToDefaults: () => void;
 }
 
@@ -87,6 +93,9 @@ interface PersistedSettings {
   smartHighlightMaxMatches?: number;
   matchHighlightEnabled?: boolean;
   matchHighlightPattern?: string;
+  autoSaveEnabled?: boolean;
+  autoSaveInterval?: number;
+  autoBackupEnabled?: boolean;
 }
 
 /** 读取已保存的设置；失败或不可用时返回空对象（使用默认值）。 */
@@ -130,6 +139,9 @@ function persistSettings(state: SettingStore): void {
       smartHighlightMaxMatches: state.smartHighlightMaxMatches,
       matchHighlightEnabled: state.matchHighlightEnabled,
       matchHighlightPattern: state.matchHighlightPattern,
+      autoSaveEnabled: state.autoSaveEnabled,
+      autoSaveInterval: state.autoSaveInterval,
+      autoBackupEnabled: state.autoBackupEnabled,
     };
     localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
   } catch {
@@ -165,6 +177,9 @@ export const useSettingStore = create<SettingStore>((set) => ({
   smartHighlightMaxMatches: saved.smartHighlightMaxMatches ?? 500,
   matchHighlightEnabled: saved.matchHighlightEnabled ?? false,
   matchHighlightPattern: saved.matchHighlightPattern ?? "",
+  autoSaveEnabled: saved.autoSaveEnabled ?? false,
+  autoSaveInterval: saved.autoSaveInterval ?? 30,
+  autoBackupEnabled: saved.autoBackupEnabled ?? false,
 
   setFontSize: (size) => set({ fontSize: size }),
   setFontFamily: (family) => set({ fontFamily: family }),
@@ -206,6 +221,9 @@ export const useSettingStore = create<SettingStore>((set) => ({
   setSmartHighlightMaxMatches: (max) => set({ smartHighlightMaxMatches: max }),
   setMatchHighlightEnabled: (enabled) => set({ matchHighlightEnabled: enabled }),
   setMatchHighlightPattern: (pattern) => set({ matchHighlightPattern: pattern }),
+  setAutoSaveEnabled: (enabled) => set({ autoSaveEnabled: enabled }),
+  setAutoSaveInterval: (interval) => set({ autoSaveInterval: interval }),
+  setAutoBackupEnabled: (enabled) => set({ autoBackupEnabled: enabled }),
   resetToDefaults: () =>
     set({
       fontSize: defaultEditorConfig.fontSize,

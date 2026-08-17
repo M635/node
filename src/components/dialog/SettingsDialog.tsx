@@ -29,6 +29,9 @@ export function SettingsDialog({ onClose }: SettingsDialogProps) {
     smartHighlightMaxMatches,
     matchHighlightEnabled,
     matchHighlightPattern,
+    autoSaveEnabled,
+    autoSaveInterval,
+    autoBackupEnabled,
     setFontSize,
     setFontFamily,
     setTabSize,
@@ -49,6 +52,9 @@ export function SettingsDialog({ onClose }: SettingsDialogProps) {
     setSmartHighlightMaxMatches,
     setMatchHighlightEnabled,
     setMatchHighlightPattern,
+    setAutoSaveEnabled,
+    setAutoSaveInterval,
+    setAutoBackupEnabled,
     resetToDefaults,
   } = useSettingStore();
   const { language, setLanguage, t } = useI18n();
@@ -233,6 +239,38 @@ export function SettingsDialog({ onClose }: SettingsDialogProps) {
                 onChange={(e) => setMatchHighlightPattern(e.target.value)}
                 placeholder="e.g. TODO|FIXME|HACK"
                 style={{ width: 200 }}
+              />
+            </div>
+          </div>
+
+          <div className="settings-section">
+            <h3>{t("dialog.settings.autoSave")}</h3>
+            <div className="settings-row">
+              <label>{t("dialog.settings.autoSaveEnabled")}</label>
+              <input
+                type="checkbox"
+                checked={autoSaveEnabled}
+                onChange={(e) => setAutoSaveEnabled(e.target.checked)}
+              />
+            </div>
+            <div className="settings-row">
+              <label>{t("dialog.settings.autoSaveInterval")}</label>
+              <input
+                type="number"
+                min={5}
+                max={300}
+                value={autoSaveInterval}
+                onChange={(e) => setAutoSaveInterval(parseInt(e.target.value) || 30)}
+                style={{ width: 80 }}
+              />
+              <span>{t("dialog.settings.seconds")}</span>
+            </div>
+            <div className="settings-row">
+              <label>{t("dialog.settings.autoBackup")}</label>
+              <input
+                type="checkbox"
+                checked={autoBackupEnabled}
+                onChange={(e) => setAutoBackupEnabled(e.target.checked)}
               />
             </div>
           </div>

@@ -554,6 +554,42 @@ export default function App() {
 
   useFileWatcher(activeTab?.path || null, handleFileChanged);
 
+  // 自动保存
+  useEffect(() => {
+    const { autoSaveEnabled, autoSaveInterval } = useSettingStore.getState();
+    if (!autoSaveEnabled) return;
+    const interval = setInterval(async () => {
+      const store = useFileStore.getState();
+      for (const tab of store.tabs) {
+        if (tab.is_dirty && tab.path && !tab.is_new && !tab.readonly) {
+          try {
+            await saveFileService(tab.path, tab.content, tab.encoding);
+            store.markClean(tab.id);
+          } catch { /* ignore */ }
+        }
+      }
+    }, autoSaveInterval * 1000);
+    return () => clearInterval(interval);
+  }, []);
+
+  // 自动备份
+  useEffect(() => {
+    const { autoBackupEnabled } = useSettingStore.getState();
+    if (!autoBackupEnabled) return;
+    const interval = setInterval(async () => {
+      const store = useFileStore.getState();
+      for (const tab of store.tabs) {
+        if (tab.is_dirty && tab.path && !tab.is_new) {
+          try {
+            const backupPath = tab.path + ".bak";
+            await invoke("write_text_file", { path: backupPath, content: tab.content });
+          } catch { /* ignore */ }
+        }
+      }
+    }, 60000);
+    return () => clearInterval(interval);
+  }, []);
+
   const handleReload = useCallback(async () => {
     if (!reloadDialog) return;
     const tab = useFileStore.getState().getTabByPath(reloadDialog);
