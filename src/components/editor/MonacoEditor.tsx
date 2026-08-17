@@ -10,6 +10,7 @@ import { configureLanguages, getLanguageFromPath } from "../../services/monaco/l
 import { configureFolding } from "../../services/monaco/folding";
 import { registerKeybindings } from "../../services/monaco/keybindings";
 import { EditOperations } from "../../services/monaco/editOperations";
+import { buildEditorContextMenu } from "../../services/monaco/contextMenuItems";
 import { macroRecorder, replayMacro } from "../../services/macro/recorder";
 import { clipboardWrite, clipboardRead } from "../../utils/clipboard";
 import { useI18n } from "../../stores/i18nStore";
@@ -793,67 +794,7 @@ export function MonacoEditor({
     const monaco = monacoRef.current;
     if (!editor || !monaco) return;
     e.preventDefault();
-    const mod = /Mac|iPod|iPhone|iPad/.test(navigator.platform || navigator.userAgent) ? "Cmd" : "Ctrl";
-    const focus = () => editor.focus();
-    const doCopy = async () => {
-      const sel = editor.getSelection();
-      if (!sel) return;
-      const text = editor.getModel()?.getValueInRange(sel) || "";
-      if (text) await clipboardWrite(text);
-      focus();
-    };
-    const doCut = async () => {
-      const sel = editor.getSelection();
-      if (!sel) return;
-      const model = editor.getModel();
-      if (!model) return;
-      const text = model.getValueInRange(sel);
-      if (text) {
-        await clipboardWrite(text);
-        editor.executeEdits("cut", [{ range: sel, text: "" }]);
-      }
-      focus();
-    };
-    const doPaste = async () => {
-      const text = await clipboardRead();
-      if (!text) return;
-      const sel = editor.getSelection();
-      if (!sel) return;
-      editor.executeEdits("paste", [{ range: sel, text, forceMoveMarkers: true }]);
-      focus();
-    };
-    const insertDateTime = () => {
-      const now = new Date();
-      const text = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}-${String(now.getDate()).padStart(2, "0")} ${String(now.getHours()).padStart(2, "0")}:${String(now.getMinutes()).padStart(2, "0")}:${String(now.getSeconds()).padStart(2, "0")}`;
-      const pos = editor.getPosition();
-      if (pos) editor.executeEdits("insert-datetime", [{ range: new monaco.Range(pos.lineNumber, pos.column, pos.lineNumber, pos.column), text }]);
-      focus();
-    };
-    const selectAll = () => {
-      const model = editor.getModel();
-      if (model) editor.setSelection(new monaco.Range(1, 1, model.getLineCount(), model.getLineMaxColumn(model.getLineCount()) + 1));
-      focus();
-    };
-    const run = (fn: () => void) => () => { fn(); focus(); };
-    const sel = editor.getSelection();
-    const hasSelection = !!sel && !sel.isEmpty();
-    const items: ContextMenuItem[] = [
-      { label: t("monaco.cut"), shortcut: `${mod}+X`, onClick: doCut, disabled: readonly || !hasSelection },
-      { label: t("monaco.copy"), shortcut: `${mod}+C`, onClick: doCopy, disabled: !hasSelection },
-      { label: t("monaco.paste"), shortcut: `${mod}+V`, onClick: doPaste, disabled: readonly },
-      { label: "", onClick: () => {}, divider: true },
-      { label: t("search.find"), shortcut: `${mod}+F`, onClick: run(() => useSearchStore.getState().toggleSearchPanel()) },
-      { label: t("search.replace"), shortcut: `${mod}+H`, onClick: run(() => useSearchStore.getState().toggleReplacePanel()) },
-      { label: t("toolbar.gotoLine").replace(/ \([^)]*\)$/, ""), shortcut: `${mod}+G`, onClick: run(() => window.dispatchEvent(new CustomEvent("markpt:goto-line"))) },
-      { label: "", onClick: () => {}, divider: true },
-      { label: t("action.toggleComment"), shortcut: `${mod}+/`, onClick: run(() => EditOperations.toggleLineComment(editor, monaco)), disabled: readonly },
-      { label: t("action.formatDocument"), onClick: run(() => { editor.getAction("editor.action.formatDocument")?.run(); }), disabled: readonly },
-      { label: t("action.deleteLine"), onClick: run(() => EditOperations.deleteCurrentLine(editor, monaco)), disabled: readonly },
-      { label: t("action.duplicateLine"), onClick: run(() => EditOperations.duplicateCurrentLine(editor)), disabled: readonly },
-      { label: "", onClick: () => {}, divider: true },
-      { label: t("dialog.insertDateTime"), onClick: insertDateTime, disabled: readonly },
-      { label: t("action.selectAll"), shortcut: `${mod}+A`, onClick: selectAll },
-    ];
+    const items = buildEditorContextMenu({ editor, monaco, t, readonly });
     setCtxMenu({ x: e.clientX, y: e.clientY, items });
   }, [t, readonly]);
 

@@ -6,6 +6,8 @@ import { useEditorStore } from "../../stores/editorStore";
 import { useI18n } from "../../stores/i18nStore";
 import { defineThemes, getThemeName } from "../../services/monaco/themes";
 import { configureLanguages, getLanguageFromPath } from "../../services/monaco/languages";
+import { buildEditorContextMenu } from "../../services/monaco/contextMenuItems";
+import { ContextMenu, type ContextMenuItem } from "../common/ContextMenu";
 
 interface SplitEditorProps {
   content: string;
@@ -26,13 +28,16 @@ export function SplitEditor({
 }: SplitEditorProps) {
   const editor1Ref = useRef<Monaco.editor.IStandaloneCodeEditor | null>(null);
   const editor2Ref = useRef<Monaco.editor.IStandaloneCodeEditor | null>(null);
+  const monacoRef = useRef<typeof Monaco | null>(null);
   const [syncScroll, setSyncScroll] = useState(true);
+  const [ctxMenu, setCtxMenu] = useState<{ x: number; y: number; items: ContextMenuItem[] } | null>(null);
   const { isDark } = useEditorStore();
   const { t } = useI18n();
   const { fontSize, fontFamily, wordWrap, showLineNumbers, showMinimap, folding } = useSettingStore();
 
   const handleMount1: OnMount = useCallback((editor, monaco) => {
     editor1Ref.current = editor;
+    monacoRef.current = monaco;
     defineThemes(monaco);
     configureLanguages(monaco);
 
@@ -45,6 +50,7 @@ export function SplitEditor({
 
   const handleMount2: OnMount = useCallback((editor, monaco) => {
     editor2Ref.current = editor;
+    if (!monacoRef.current) monacoRef.current = monaco;
     defineThemes(monaco);
     configureLanguages(monaco);
 
@@ -63,6 +69,16 @@ export function SplitEditor({
   }, [onContentChange]);
 
   const resolvedLanguage = language || getLanguageFromPath(path);
+
+  const handleContextMenu = (e: React.MouseEvent, editor: Monaco.editor.IStandaloneCodeEditor | null, readonly: boolean) => {
+    const target = e.target as HTMLElement;
+    if (target.closest(".find-widget") || target.closest(".suggest-widget") || target.closest(".hover-widget")) return;
+    const monaco = monacoRef.current;
+    if (!editor || !monaco) return;
+    e.preventDefault();
+    const items = buildEditorContextMenu({ editor, monaco, t, readonly });
+    setCtxMenu({ x: e.clientX, y: e.clientY, items });
+  };
 
   const options: Monaco.editor.IStandaloneEditorConstructionOptions = {
     fontSize, fontFamily,
@@ -84,7 +100,7 @@ export function SplitEditor({
 
   return (
     <div className="split-editor-container" style={containerStyle}>
-      <div className="split-editor-pane" style={{ flex: 1, position: "relative" }}>
+      <div className="split-editor-pane" style={{ flex: 1, position: "relative" }} onContextMenu={(e) => handleContextMenu(e, editor1Ref.current, false)}>
         <Editor
           height="100%"
           width="100%"
@@ -97,7 +113,7 @@ export function SplitEditor({
         />
       </div>
       <div className="split-divider" style={orientation === "horizontal" ? { width: "4px", cursor: "col-resize", background: isDark ? "#333" : "#ccc" } : { height: "4px", cursor: "row-resize", background: isDark ? "#333" : "#ccc" }} />
-      <div className="split-editor-pane" style={{ flex: 1, position: "relative" }}>
+      <div className="split-editor-pane" style={{ flex: 1, position: "relative" }} onContextMenu={(e) => handleContextMenu(e, editor2Ref.current, true)}>
         <div className="split-editor-toolbar">
           <label className="sync-scroll-toggle">
             <input type="checkbox" checked={syncScroll} onChange={(e) => setSyncScroll(e.target.checked)} />
@@ -115,6 +131,7 @@ export function SplitEditor({
           onMount={handleMount2}
         />
       </div>
+      {ctxMenu && <ContextMenu x={ctxMenu.x} y={ctxMenu.y} items={ctxMenu.items} onClose={() => setCtxMenu(null)} />}
     </div>
   );
 }
