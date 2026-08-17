@@ -45,6 +45,16 @@ jobs:
 
             对标 Notepad++ 的轻量化跨平台代码文本编辑器，基于 Tauri 2.x + Rust + React + Monaco Editor。
 
+            ## v2.8.2 更新内容
+            - 修复：Monaco 编辑器右键菜单中英文混杂
+              - 根因：@monaco-editor/react 通过 loader 从 CDN 加载 monaco（AMD 实例），与 ESM 打包实例不同，内置 Cut/Copy/Paste 英文项无法本地化
+              - 禁用 Monaco 内置右键菜单，改用自定义 React 右键菜单（复用 ContextMenu 组件）
+              - 菜单项全部走 i18n（剪切/复制/粘贴/查找/替换/转到行/切换注释/格式化/删除行/复制行/插入日期/全选），语言切换即时刷新
+            - 修复：命令面板（CommandPalette）窗口无法自适应编辑区，仅屏幕最大化时能完整显示
+              - 去掉固定高度，改用 max-height + flex min-height:0，内容少时收缩、多时滚动，小窗口下不再被截断
+            - 优化：命令面板快捷键平台适配（macOS 显示 Cmd，Windows/Linux 显示 Ctrl）
+            - 优化：语言切换时重新注册编辑器 Action，刷新所有命令标签语言
+
             ## v2.8.1 更新内容
             - 修复：程序关闭后进程无法正常退出、残留后台进程的问题
               - 统一「前端保存会话 → 后端清理资源 → 退出」的优雅退出流程

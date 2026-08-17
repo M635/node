@@ -2,6 +2,14 @@
 
 对标 Notepad++ 的跨平台轻量化文本编辑器，基于 Tauri + Rust + TypeScript + Monaco Editor 构建。
 
+## v2.8.2 更新内容
+
+### 编辑器右键菜单与命令面板（缺陷修复）
+- 修复 Monaco 编辑器右键菜单中英文混杂：禁用内置菜单，改用自定义 React 右键菜单，全部走 i18n，语言切换即时刷新
+- 修复命令面板（CommandPalette）窗口无法自适应编辑区：去掉固定高度，改用 max-height + flex 自适应，小窗口下不再被截断
+- 命令面板快捷键平台适配（macOS 显示 Cmd，Windows/Linux 显示 Ctrl）
+- 语言切换时重新注册编辑器 Action，刷新所有命令标签语言
+
 ## v2.8.1 更新内容
 
 ### 进程与退出（缺陷修复）
