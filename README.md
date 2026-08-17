@@ -2,6 +2,11 @@
 
 对标 Notepad++ 的跨平台轻量化文本编辑器，基于 Tauri + Rust + TypeScript + Monaco Editor 构建。
 
+## v2.8.7 更新内容
+
+### 防御性修复
+- 消除 MonacoEditor 中所有 monacoRef.current! 非空断言，改为安全检查，避免 mount 异常时崩溃
+
 ## v2.8.6 更新内容
 
 ### Tauri 监听器泄漏修复

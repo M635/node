@@ -300,12 +300,12 @@ export function MonacoEditor({
   useEffect(() => {
     const handler = (e: Event) => {
       const text = (e as CustomEvent).detail?.text;
-      if (!editorRef.current || !text) return;
+      if (!editorRef.current || !monacoRef.current || !text) return;
       const editor = editorRef.current;
       const position = editor.getPosition();
       if (!position) return;
       editor.executeEdits("insert-text", [{
-        range: new monacoRef.current!.Range(position.lineNumber, position.column, position.lineNumber, position.column),
+        range: new monacoRef.current.Range(position.lineNumber, position.column, position.lineNumber, position.column),
         text,
       }]);
       editor.focus();
@@ -370,8 +370,8 @@ export function MonacoEditor({
 
   // 缩放
   useEffect(() => {
-    const zoomIn = () => { const ed = editorRef.current; if (ed) { const opts = ed.getOptions(); const size = (opts.get(monacoRef.current!.editor.EditorOption.fontSize) as unknown as number) || 14; ed.updateOptions({ fontSize: Math.min(size + 1, 32) }); } };
-    const zoomOut = () => { const ed = editorRef.current; if (ed) { const opts = ed.getOptions(); const size = (opts.get(monacoRef.current!.editor.EditorOption.fontSize) as unknown as number) || 14; ed.updateOptions({ fontSize: Math.max(size - 1, 8) }); } };
+    const zoomIn = () => { const ed = editorRef.current; const m = monacoRef.current; if (ed && m) { const opts = ed.getOptions(); const size = (opts.get(m.editor.EditorOption.fontSize) as unknown as number) || 14; ed.updateOptions({ fontSize: Math.min(size + 1, 32) }); } };
+    const zoomOut = () => { const ed = editorRef.current; const m = monacoRef.current; if (ed && m) { const opts = ed.getOptions(); const size = (opts.get(m.editor.EditorOption.fontSize) as unknown as number) || 14; ed.updateOptions({ fontSize: Math.max(size - 1, 8) }); } };
     const zoomReset = () => { editorRef.current?.updateOptions({ fontSize }); };
     window.addEventListener("markpt:zoom-in", zoomIn);
     window.addEventListener("markpt:zoom-out", zoomOut);
