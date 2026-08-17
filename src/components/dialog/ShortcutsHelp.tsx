@@ -6,46 +6,47 @@ interface ShortcutsHelpProps {
 
 export function ShortcutsHelp({ onClose }: ShortcutsHelpProps) {
   const { t } = useI18n();
+  const mod = /Mac|iPod|iPhone|iPad/.test(navigator.platform || navigator.userAgent) ? "Cmd" : "Ctrl";
 
   const SHORTCUTS: { category: string; keys: { key: string; desc: string }[] }[] = [
     {
       category: t("help.categoryFile"),
       keys: [
-        { key: "Cmd+N", desc: t("action.new") },
-        { key: "Cmd+O", desc: t("action.open") },
-        { key: "Cmd+S", desc: t("action.save") },
-        { key: "Cmd+W", desc: t("action.close") },
-        { key: "Cmd+P", desc: t("help.cmdPalette") },
+        { key: `${mod}+N`, desc: t("action.new") },
+        { key: `${mod}+O`, desc: t("action.open") },
+        { key: `${mod}+S`, desc: t("action.save") },
+        { key: `${mod}+W`, desc: t("action.close") },
+        { key: `${mod}+P`, desc: t("help.cmdPalette") },
       ],
     },
     {
       category: t("help.categoryEdit"),
       keys: [
-        { key: "Cmd+Z", desc: t("action.undo") },
-        { key: "Cmd+Shift+Z", desc: t("action.redo") },
-        { key: "Cmd+F", desc: t("action.find") },
-        { key: "Cmd+Alt+F", desc: t("action.replace") },
-        { key: "Cmd+G", desc: t("action.goto") },
-        { key: "Cmd+Shift+F", desc: t("action.findInFiles") },
-        { key: "Cmd+B", desc: t("help.toggleBookmark") },
-        { key: "Cmd+Shift+B", desc: t("help.nextBookmark") },
+        { key: `${mod}+Z`, desc: t("action.undo") },
+        { key: `${mod}+Shift+Z`, desc: t("action.redo") },
+        { key: `${mod}+F`, desc: t("action.find") },
+        { key: `${mod}+Alt+F`, desc: t("action.replace") },
+        { key: `${mod}+G`, desc: t("action.goto") },
+        { key: `${mod}+Shift+F`, desc: t("action.findInFiles") },
+        { key: `${mod}+B`, desc: t("help.toggleBookmark") },
+        { key: `${mod}+Shift+B`, desc: t("help.nextBookmark") },
       ],
     },
     {
       category: t("help.categoryView"),
       keys: [
-        { key: "Cmd+\\", desc: t("help.toggleSidebar") },
-        { key: "Cmd+Alt+D", desc: t("help.compare") },
-        { key: "Cmd+M", desc: t("help.macro") },
-        { key: "Cmd++", desc: t("help.zoomInFont") },
-        { key: "Cmd+-", desc: t("help.zoomOutFont") },
+        { key: `${mod}+\\`, desc: t("help.toggleSidebar") },
+        { key: `${mod}+Alt+D`, desc: t("help.compare") },
+        { key: `${mod}+M`, desc: t("help.macro") },
+        { key: `${mod}++`, desc: t("help.zoomInFont") },
+        { key: `${mod}+-`, desc: t("help.zoomOutFont") },
       ],
     },
     {
       category: t("help.categoryMultiCursor"),
       keys: [
-        { key: "Cmd+D", desc: t("help.selectNextMatch") },
-        { key: "Cmd+Shift+L", desc: t("help.selectAllMatches") },
+        { key: `${mod}+D`, desc: t("help.selectNextMatch") },
+        { key: `${mod}+Shift+L`, desc: t("help.selectAllMatches") },
         { key: "Alt+Click", desc: t("help.addCursor") },
         { key: "Shift+Alt+Drag", desc: t("help.columnSelect") },
       ],

@@ -2,6 +2,12 @@
 
 对标 Notepad++ 的跨平台轻量化文本编辑器，基于 Tauri + Rust + TypeScript + Monaco Editor 构建。
 
+## v2.8.9 更新内容
+
+### Windows 平台快捷键修复
+- 修复 ShortcutsHelp 快捷键帮助面板硬编码 "Cmd"：Windows/Linux 用户现在正确看到 "Ctrl"
+- 修复 i18nStore 工具栏 tooltip 硬编码 "Cmd"：翻译中 "Cmd" 改为 {mod} 占位符，t 函数自动注入平台修饰键
+
 ## v2.8.8 更新内容
 
 ### 监听器竞态与依赖修复

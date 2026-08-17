@@ -10,7 +10,7 @@ const translations: Record<string, Record<Language, string>> = {
   "app.subtitle": { zh: "轻量化文本编辑器", en: "Lightweight Text Editor" },
   "app.newFile": { zh: "新建文件", en: "New File" },
   "app.openFile": { zh: "打开文件", en: "Open File" },
-  "app.hint": { zh: "拖拽文件到此处打开 · Cmd+P 命令面板", en: "Drag files here · Cmd+P Command Palette" },
+  "app.hint": { zh: "拖拽文件到此处打开 · {mod}+P 命令面板", en: "Drag files here · {mod}+P Command Palette" },
   "app.openFailed": { zh: "打开文件失败", en: "Failed to open file" },
   "app.saveFailed": { zh: "保存失败", en: "Failed to save" },
   "app.saveCopyFailed": { zh: "保存副本失败", en: "Failed to save a copy" },
@@ -171,33 +171,33 @@ const translations: Record<string, Record<Language, string>> = {
   "common.searchPlaceholder": { zh: "搜索...", en: "Search..." },
   "common.filterPlaceholder": { zh: "过滤...", en: "Filter..." },
 
-  "toolbar.new": { zh: "新建 (Cmd+N)", en: "New (Cmd+N)" },
-  "toolbar.open": { zh: "打开 (Cmd+O)", en: "Open (Cmd+O)" },
-  "toolbar.save": { zh: "保存 (Cmd+S)", en: "Save (Cmd+S)" },
+  "toolbar.new": { zh: "新建 ({mod}+N)", en: "New ({mod}+N)" },
+  "toolbar.open": { zh: "打开 ({mod}+O)", en: "Open ({mod}+O)" },
+  "toolbar.save": { zh: "保存 ({mod}+S)", en: "Save ({mod}+S)" },
   "toolbar.saveAll": { zh: "全部保存", en: "Save All" },
   "toolbar.print": { zh: "打印", en: "Print" },
-  "toolbar.undo": { zh: "撤销 (Cmd+Z)", en: "Undo (Cmd+Z)" },
-  "toolbar.redo": { zh: "重做 (Cmd+Shift+Z)", en: "Redo (Cmd+Shift+Z)" },
-  "toolbar.cut": { zh: "剪切 (Cmd+X)", en: "Cut (Cmd+X)" },
-  "toolbar.copy": { zh: "复制 (Cmd+C)", en: "Copy (Cmd+C)" },
-  "toolbar.paste": { zh: "粘贴 (Cmd+V)", en: "Paste (Cmd+V)" },
-  "toolbar.find": { zh: "查找 (Cmd+F)", en: "Find (Cmd+F)" },
-  "toolbar.replace": { zh: "替换 (Cmd+H)", en: "Replace (Cmd+H)" },
-  "toolbar.gotoLine": { zh: "转到行 (Cmd+G)", en: "Go to Line (Cmd+G)" },
-  "toolbar.zoomIn": { zh: "放大 (Cmd+=)", en: "Zoom In (Cmd+=)" },
-  "toolbar.zoomOut": { zh: "缩小 (Cmd+-)", en: "Zoom Out (Cmd+-)" },
-  "toolbar.zoomReset": { zh: "重置缩放 (Cmd+0)", en: "Reset Zoom (Cmd+0)" },
+  "toolbar.undo": { zh: "撤销 ({mod}+Z)", en: "Undo ({mod}+Z)" },
+  "toolbar.redo": { zh: "重做 ({mod}+Shift+Z)", en: "Redo ({mod}+Shift+Z)" },
+  "toolbar.cut": { zh: "剪切 ({mod}+X)", en: "Cut ({mod}+X)" },
+  "toolbar.copy": { zh: "复制 ({mod}+C)", en: "Copy ({mod}+C)" },
+  "toolbar.paste": { zh: "粘贴 ({mod}+V)", en: "Paste ({mod}+V)" },
+  "toolbar.find": { zh: "查找 ({mod}+F)", en: "Find ({mod}+F)" },
+  "toolbar.replace": { zh: "替换 ({mod}+H)", en: "Replace ({mod}+H)" },
+  "toolbar.gotoLine": { zh: "转到行 ({mod}+G)", en: "Go to Line ({mod}+G)" },
+  "toolbar.zoomIn": { zh: "放大 ({mod}+=)", en: "Zoom In ({mod}+=)" },
+  "toolbar.zoomOut": { zh: "缩小 ({mod}+-)", en: "Zoom Out ({mod}+-)" },
+  "toolbar.zoomReset": { zh: "重置缩放 ({mod}+0)", en: "Reset Zoom ({mod}+0)" },
   "toolbar.wordWrap": { zh: "自动换行", en: "Word Wrap" },
   "toolbar.lineNumbers": { zh: "显示行号", en: "Show Line Numbers" },
   "toolbar.compare": { zh: "开始对比", en: "Start Compare" },
   "toolbar.compareClear": { zh: "清除对比", en: "Clear Compare" },
   "toolbar.syncScroll": { zh: "同步滚动", en: "Sync Scroll" },
   "toolbar.settings": { zh: "设置", en: "Settings" },
-  "toolbar.macroRecord": { zh: "宏录制 (Cmd+M)", en: "Macro Record (Cmd+M)" },
+  "toolbar.macroRecord": { zh: "宏录制 ({mod}+M)", en: "Macro Record ({mod}+M)" },
   "toolbar.stopRecord": { zh: "⏹ 停止录制", en: "⏹ Stop Recording" },
   "toolbar.recordMacro": { zh: "● 录制宏", en: "● Record Macro" },
   "toolbar.compareBtn": { zh: "对比", en: "Compare" },
-  "toolbar.compareTitle": { zh: "双文件对比 (Cmd+Alt+D)", en: "Compare Files (Cmd+Alt+D)" },
+  "toolbar.compareTitle": { zh: "双文件对比 ({mod}+Alt+D)", en: "Compare Files ({mod}+Alt+D)" },
   "toolbar.exportTxt": { zh: "导出 TXT", en: "Export TXT" },
   "toolbar.exportHtml": { zh: "导出 HTML", en: "Export HTML" },
   "toolbar.exportRtf": { zh: "导出 RTF", en: "Export RTF" },
@@ -244,7 +244,7 @@ const translations: Record<string, Record<Language, string>> = {
 
   "welcome.subtitle": { zh: "轻量化代码文本编辑器", en: "Lightweight Code Text Editor" },
   "welcome.desc": { zh: "对标 Notepad++ · 基于 Tauri + Monaco Editor", en: "Like Notepad++ · Powered by Tauri + Monaco Editor" },
-  "welcome.hint": { zh: "拖拽文件到此处打开 · Cmd+P 命令面板 · Cmd+/ 快捷键帮助", en: "Drag files here · Cmd+P Command Palette · Cmd+/ Shortcuts" },
+  "welcome.hint": { zh: "拖拽文件到此处打开 · {mod}+P 命令面板 · {mod}+/ 快捷键帮助", en: "Drag files here · {mod}+P Command Palette · {mod}+/ Shortcuts" },
 
   "about.version": { zh: "版本", en: "Version" },
   "about.desc": { zh: "轻量化代码文本编辑器", en: "Lightweight Code Text Editor" },
@@ -577,9 +577,11 @@ export const useI18n = create<I18nStore>((set, get) => ({
   },
   t: (key, params, fallback) => {
     const { language } = get();
+    const mod = /Mac|iPod|iPhone|iPad/.test(navigator.platform || navigator.userAgent) ? "Cmd" : "Ctrl";
+    const allParams = { mod, ...params };
     const entry = translations[key];
-    if (!entry) return interpolate(fallback ?? key, params);
-    return interpolate(entry[language] || entry.zh || fallback || key, params);
+    if (!entry) return interpolate(fallback ?? key, allParams);
+    return interpolate(entry[language] || entry.zh || fallback || key, allParams);
   },
 }));
 
