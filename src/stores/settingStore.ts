@@ -22,6 +22,7 @@ interface SettingStore {
   autoDetectIndent: boolean;
   showIndentGuides: boolean;
   showRuler: boolean;
+  customShortcuts: Record<string, string>;
 
   setFontSize: (size: number) => void;
   setFontFamily: (family: string) => void;
@@ -42,6 +43,9 @@ interface SettingStore {
   setAutoDetectIndent: (enable: boolean) => void;
   setShowIndentGuides: (enable: boolean) => void;
   setShowRuler: (show: boolean) => void;
+  setCustomShortcut: (action: string, shortcut: string) => void;
+  resetCustomShortcut: (action: string) => void;
+  resetAllCustomShortcuts: () => void;
   resetToDefaults: () => void;
 }
 
@@ -67,6 +71,7 @@ interface PersistedSettings {
   autoDetectIndent?: boolean;
   showIndentGuides?: boolean;
   showRuler?: boolean;
+  customShortcuts?: Record<string, string>;
 }
 
 /** 读取已保存的设置；失败或不可用时返回空对象（使用默认值）。 */
@@ -104,6 +109,7 @@ function persistSettings(state: SettingStore): void {
       autoDetectIndent: state.autoDetectIndent,
       showIndentGuides: state.showIndentGuides,
       showRuler: state.showRuler,
+      customShortcuts: state.customShortcuts,
     };
     localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
   } catch {
@@ -133,6 +139,7 @@ export const useSettingStore = create<SettingStore>((set) => ({
   autoDetectIndent: saved.autoDetectIndent ?? true,
   showIndentGuides: saved.showIndentGuides ?? true,
   showRuler: saved.showRuler ?? false,
+  customShortcuts: saved.customShortcuts ?? {},
 
   setFontSize: (size) => set({ fontSize: size }),
   setFontFamily: (family) => set({ fontFamily: family }),
@@ -160,6 +167,15 @@ export const useSettingStore = create<SettingStore>((set) => ({
   setAutoDetectIndent: (enable) => set({ autoDetectIndent: enable }),
   setShowIndentGuides: (enable) => set({ showIndentGuides: enable }),
   setShowRuler: (show) => set({ showRuler: show }),
+  setCustomShortcut: (action, shortcut) =>
+    set((state) => ({ customShortcuts: { ...state.customShortcuts, [action]: shortcut } })),
+  resetCustomShortcut: (action) =>
+    set((state) => {
+      const next = { ...state.customShortcuts };
+      delete next[action];
+      return { customShortcuts: next };
+    }),
+  resetAllCustomShortcuts: () => set({ customShortcuts: {} }),
   resetToDefaults: () =>
     set({
       fontSize: defaultEditorConfig.fontSize,
