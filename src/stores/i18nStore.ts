@@ -223,6 +223,8 @@ const translations: Record<string, Record<Language, string>> = {
   "sidebar.explorer": { zh: "资源管理器", en: "Explorer" },
   "sidebar.openFolder": { zh: "打开文件夹", en: "Open Folder" },
   "sidebar.noFolder": { zh: "未打开文件夹", en: "No Folder Open" },
+  "sidebar.recentFolders": { zh: "最近文件夹", en: "Recent Folders" },
+  "sidebar.noRecentFolders": { zh: "暂无最近文件夹", en: "No Recent Folders" },
   "sidebar.recentFiles": { zh: "最近打开", en: "Recent Files" },
 
   "statusbar.openFile": { zh: "打开文件", en: "Open File" },

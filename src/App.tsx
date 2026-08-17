@@ -68,7 +68,7 @@ export default function App() {
   } = useFileStore();
   const { isDark, setIsDark, toggleBookmark } = useEditorStore();
   const { toggleSearchPanel, toggleReplacePanel, toggleFindInFiles } = useSearchStore();
-  const { themeMode } = useSettingStore();
+  const { themeMode, autoSaveEnabled, autoSaveInterval, autoBackupEnabled } = useSettingStore();
   const { t } = useI18n();
 
   const [showEncodingDialog, setShowEncodingDialog] = useState(false);
@@ -106,6 +106,7 @@ export default function App() {
   const [showRunCommand, setShowRunCommand] = useState(false);
   const [showRunMacro, setShowRunMacro] = useState(false);
   const [showSessionManager, setShowSessionManager] = useState(false);
+  const [showRecentFolders, setShowRecentFolders] = useState(false);
   const [postItMode, setPostItMode] = useState(false);
   const [alwaysOnTop, setAlwaysOnTop] = useState(false);
   const prevSizeRef = useRef<{ w: number; h: number } | null>(null);
@@ -556,7 +557,6 @@ export default function App() {
 
   // 自动保存
   useEffect(() => {
-    const { autoSaveEnabled, autoSaveInterval } = useSettingStore.getState();
     if (!autoSaveEnabled) return;
     const interval = setInterval(async () => {
       const store = useFileStore.getState();
@@ -570,11 +570,10 @@ export default function App() {
       }
     }, autoSaveInterval * 1000);
     return () => clearInterval(interval);
-  }, []);
+  }, [autoSaveEnabled, autoSaveInterval]);
 
   // 自动备份
   useEffect(() => {
-    const { autoBackupEnabled } = useSettingStore.getState();
     if (!autoBackupEnabled) return;
     const interval = setInterval(async () => {
       const store = useFileStore.getState();
@@ -588,7 +587,7 @@ export default function App() {
       }
     }, 60000);
     return () => clearInterval(interval);
-  }, []);
+  }, [autoBackupEnabled]);
 
   const handleReload = useCallback(async () => {
     if (!reloadDialog) return;
@@ -819,6 +818,7 @@ export default function App() {
     onToggleBom: handleToggleBom,
     onSaveAll: handleSaveAll,
     onSessionManager: () => setShowSessionManager(true),
+    onRecentFolders: () => setShowRecentFolders(true),
     onPrint: () => {
       const tab = getActiveTab();
       if (!tab) return;
@@ -1218,6 +1218,36 @@ pre { white-space: pre-wrap; tab-size: ${useSettingStore.getState().tabSize}; }
           }}
           onClose={() => setShowSessionManager(false)}
         />
+      )}
+      {showRecentFolders && (
+        <div className="dialog-overlay" onClick={() => setShowRecentFolders(false)}>
+          <div className="dialog" onClick={(e) => e.stopPropagation()} style={{ maxWidth: 500 }}>
+            <div className="dialog-header">
+              <h3>{t("sidebar.recentFolders")}</h3>
+              <button className="dialog-close" onClick={() => setShowRecentFolders(false)}>×</button>
+            </div>
+            <div className="dialog-body">
+              {useSettingStore.getState().recentFolders.length === 0 ? (
+                <div className="sidebar-empty">{t("sidebar.noRecentFolders")}</div>
+              ) : (
+                useSettingStore.getState().recentFolders.map((folder) => (
+                  <div
+                    key={folder}
+                    className="tab-list-item"
+                    onClick={() => {
+                      window.dispatchEvent(new CustomEvent("markpt:open-folder", { detail: { path: folder } }));
+                      setShowRecentFolders(false);
+                    }}
+                  >
+                    <span className="tree-icon">📁</span>
+                    <span className="tab-list-name">{getFileName(folder)}</span>
+                    <span className="tab-list-path">{folder}</span>
+                  </div>
+                ))
+              )}
+            </div>
+          </div>
+        </div>
       )}
       {showAbout && (
         <div className="dialog-overlay" onClick={() => setShowAbout(false)}>

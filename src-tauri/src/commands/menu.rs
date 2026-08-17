@@ -34,6 +34,7 @@ pub fn build_menu(app_handle: &AppHandle, lang: &str) -> tauri::Result<()> {
             &m("save_copy", tr(lang, "保存副本...", "Save Copy..."))?,
             &m("save_all", tr(lang, "全部保存", "Save All"))?,
             &m("session_manager", tr(lang, "会话管理...", "Session Manager..."))?,
+            &m("recent_folders", tr(lang, "最近文件夹...", "Recent Folders..."))?,
             &m("print", tr(lang, "打印...", "Print..."))?,
             &m("close", tr(lang, "关闭标签", "Close Tab"))?,
             &m("close_all", tr(lang, "关闭所有标签", "Close All Tabs"))?,

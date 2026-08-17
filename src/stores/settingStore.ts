@@ -16,6 +16,7 @@ interface SettingStore {
   bracketPairColorization: boolean;
   folding: boolean;
   recentFiles: string[];
+  recentFolders: string[];
   showStatusBar: boolean;
   trimTrailingWhitespaceOnSave: boolean;
   ensureFinalNewline: boolean;
@@ -45,6 +46,7 @@ interface SettingStore {
   setBracketPairColorization: (enable: boolean) => void;
   setFolding: (enable: boolean) => void;
   addRecentFile: (path: string) => void;
+  addRecentFolder: (path: string) => void;
   setShowStatusBar: (show: boolean) => void;
   setTrimTrailingWhitespaceOnSave: (enable: boolean) => void;
   setEnsureFinalNewline: (enable: boolean) => void;
@@ -81,6 +83,7 @@ interface PersistedSettings {
   bracketPairColorization?: boolean;
   folding?: boolean;
   recentFiles?: string[];
+  recentFolders?: string[];
   showStatusBar?: boolean;
   trimTrailingWhitespaceOnSave?: boolean;
   ensureFinalNewline?: boolean;
@@ -127,6 +130,7 @@ function persistSettings(state: SettingStore): void {
       bracketPairColorization: state.bracketPairColorization,
       folding: state.folding,
       recentFiles: state.recentFiles,
+      recentFolders: state.recentFolders,
       showStatusBar: state.showStatusBar,
       trimTrailingWhitespaceOnSave: state.trimTrailingWhitespaceOnSave,
       ensureFinalNewline: state.ensureFinalNewline,
@@ -165,6 +169,7 @@ export const useSettingStore = create<SettingStore>((set) => ({
   bracketPairColorization: saved.bracketPairColorization ?? defaultEditorConfig.bracketPairColorization,
   folding: saved.folding ?? defaultEditorConfig.folding,
   recentFiles: saved.recentFiles ?? [],
+  recentFolders: saved.recentFolders ?? [],
   showStatusBar: saved.showStatusBar ?? true,
   trimTrailingWhitespaceOnSave: saved.trimTrailingWhitespaceOnSave ?? false,
   ensureFinalNewline: saved.ensureFinalNewline ?? true,
@@ -200,6 +205,13 @@ export const useSettingStore = create<SettingStore>((set) => ({
         path,
         ...state.recentFiles.filter((p) => p !== path),
       ].slice(0, 20),
+    })),
+  addRecentFolder: (path) =>
+    set((state) => ({
+      recentFolders: [
+        path,
+        ...state.recentFolders.filter((p) => p !== path),
+      ].slice(0, 10),
     })),
   setShowStatusBar: (show) => set({ showStatusBar: show }),
   setTrimTrailingWhitespaceOnSave: (enable) => set({ trimTrailingWhitespaceOnSave: enable }),

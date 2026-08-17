@@ -3,6 +3,7 @@ import { open } from "@tauri-apps/plugin-dialog";
 import { invoke } from "@tauri-apps/api/core";
 import { useFileStore } from "../../stores/fileStore";
 import { useI18n } from "../../stores/i18nStore";
+import { useSettingStore } from "../../stores/settingStore";
 import { getFileName, getFileExtension } from "../../utils/fileUtils";
 import { getLanguageFromPath } from "../../services/monaco/languages";
 
@@ -49,6 +50,7 @@ export function SideBar({ onOpenFile }: SideBarProps) {
     const selected = await open({ directory: true });
     if (selected) {
       setRootPath(selected as string);
+      useSettingStore.getState().addRecentFolder(selected as string);
       setLoading(true);
       const nodes = await loadDirectory(selected as string);
       setTree(nodes);
@@ -62,6 +64,7 @@ export function SideBar({ onOpenFile }: SideBarProps) {
       const detail = (e as CustomEvent).detail;
       if (detail?.path && active) {
         setRootPath(detail.path as string);
+        useSettingStore.getState().addRecentFolder(detail.path as string);
         setLoading(true);
         loadDirectory(detail.path as string).then((nodes) => {
           if (active) {
