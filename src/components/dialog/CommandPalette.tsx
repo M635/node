@@ -35,7 +35,7 @@ export function CommandPalette({
   const [query, setQuery] = useState("");
   const [selectedIndex, setSelectedIndex] = useState(0);
   const inputRef = useRef<HTMLInputElement>(null);
-  const { tabs, setActiveTab, closeTab } = useFileStore();
+  const { tabs, setActiveTab } = useFileStore();
   const { t } = useI18n();
   const mod = /Mac|iPod|iPhone|iPad/.test(navigator.platform || navigator.userAgent) ? "Cmd" : "Ctrl";
 

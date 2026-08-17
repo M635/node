@@ -835,9 +835,11 @@ export function MonacoEditor({
       focus();
     };
     const run = (fn: () => void) => () => { fn(); focus(); };
+    const sel = editor.getSelection();
+    const hasSelection = !!sel && !sel.isEmpty();
     const items: ContextMenuItem[] = [
-      { label: t("monaco.cut"), shortcut: `${mod}+X`, onClick: doCut, disabled: readonly },
-      { label: t("monaco.copy"), shortcut: `${mod}+C`, onClick: doCopy },
+      { label: t("monaco.cut"), shortcut: `${mod}+X`, onClick: doCut, disabled: readonly || !hasSelection },
+      { label: t("monaco.copy"), shortcut: `${mod}+C`, onClick: doCopy, disabled: !hasSelection },
       { label: t("monaco.paste"), shortcut: `${mod}+V`, onClick: doPaste, disabled: readonly },
       { label: "", onClick: () => {}, divider: true },
       { label: t("search.find"), shortcut: `${mod}+F`, onClick: run(() => useSearchStore.getState().toggleSearchPanel()) },
