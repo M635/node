@@ -73,6 +73,7 @@ interface ShortcutHandlers {
   onToggleBom?: () => void;
   onSaveAll?: () => void;
   onSessionManager?: () => void;
+  onPrint?: () => void;
   onCopyDirectory?: () => void;
   onCopyFileName?: () => void;
   onClipboardHistory?: () => void;
@@ -227,6 +228,7 @@ export function useKeyboardShortcuts(handlers: ShortcutHandlers): void {
           case "toggle_bom": h.onToggleBom?.(); break;
           case "save_all": h.onSaveAll?.(); break;
           case "session_manager": h.onSessionManager?.(); break;
+          case "print": h.onPrint?.(); break;
           case "copy_directory": h.onCopyDirectory?.(); break;
           case "copy_filename": h.onCopyFileName?.(); break;
           case "clipboard_history": h.onClipboardHistory?.(); break;

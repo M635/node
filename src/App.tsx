@@ -783,6 +783,28 @@ export default function App() {
     onToggleBom: handleToggleBom,
     onSaveAll: handleSaveAll,
     onSessionManager: () => setShowSessionManager(true),
+    onPrint: () => {
+      const tab = getActiveTab();
+      if (!tab) return;
+      const html = `<!DOCTYPE html>
+<html><head><meta charset="UTF-8"><title>${tab.name}</title>
+<style>
+body { font-family: 'Courier New', monospace; font-size: 12px; line-height: 1.5; margin: 20px; }
+h1 { font-size: 16px; margin-bottom: 10px; }
+pre { white-space: pre-wrap; tab-size: ${useSettingStore.getState().tabSize}; }
+.meta { color: #666; font-size: 10px; margin-bottom: 20px; }
+</style></head><body>
+<h1>${tab.name}</h1>
+<div class="meta">${tab.path || t("common.unnamed")} | ${tab.encoding} | ${tab.content.split("\n").length} ${t("statusbar.line")}</div>
+<pre>${tab.content.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;")}</pre>
+</body></html>`;
+      const printWindow = window.open("", "_blank");
+      if (printWindow) {
+        printWindow.document.write(html);
+        printWindow.document.close();
+        printWindow.print();
+      }
+    },
     onCopyDirectory: handleCopyDirectory,
     onCopyFileName: handleCopyFileName,
     onClipboardHistory: () => setShowClipboardHistory(true),
