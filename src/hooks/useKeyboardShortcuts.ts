@@ -154,6 +154,11 @@ export function useKeyboardShortcuts(handlers: ShortcutHandlers): void {
           case "edit_merge_lines": h.onEditAction?.("merge-lines"); break;
           case "edit_merge_lines_comma": h.onEditAction?.("merge-lines-comma"); break;
           case "edit_split_line": h.onEditAction?.("split-line"); break;
+          case "edit_insert_blank_above": h.onEditAction?.("insert-blank-above"); break;
+          case "edit_insert_blank_below": h.onEditAction?.("insert-blank-below"); break;
+          case "edit_keep_blank_only": h.onEditAction?.("keep-blank-only"); break;
+          case "edit_remove_adj_dup": h.onEditAction?.("remove-adj-dup"); break;
+          case "edit_split_by_comma": h.onEditAction?.("split-by-comma"); break;
           case "edit_remove_dup": h.onEditAction?.("remove-duplicates"); break;
           case "edit_undo": h.onEditAction?.("undo"); break;
           case "edit_redo": h.onEditAction?.("redo"); break;

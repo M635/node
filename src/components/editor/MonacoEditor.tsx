@@ -275,6 +275,11 @@ export function MonacoEditor({
         case "merge-lines": EditOperations.mergeLines(editor, " "); break;
         case "merge-lines-comma": EditOperations.mergeLines(editor, ", "); break;
         case "split-line": EditOperations.splitLine(editor, " "); break;
+        case "insert-blank-above": EditOperations.insertBlankLineAbove(editor); break;
+        case "insert-blank-below": EditOperations.insertBlankLineBelow(editor); break;
+        case "keep-blank-only": EditOperations.keepOnlyBlankLines(editor); break;
+        case "remove-adj-dup": EditOperations.removeAdjacentDuplicates(editor); break;
+        case "split-by-comma": EditOperations.splitLinesByComma(editor); break;
         case "indent": EditOperations.indent(editor); break;
         case "outdent": EditOperations.outdent(editor); break;
       }

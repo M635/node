@@ -341,6 +341,68 @@ export class EditOperations {
     }]);
   }
 
+  static insertBlankLineAbove(editor: Editor): void {
+    const selection = editor.getSelection();
+    if (!selection) return;
+    const line = selection.startLineNumber;
+    editor.executeEdits("insert-blank-above", [{
+      range: { startLineNumber: line, startColumn: 1, endLineNumber: line, endColumn: 1 } as any,
+      text: "\n",
+    }]);
+  }
+
+  static insertBlankLineBelow(editor: Editor): void {
+    const selection = editor.getSelection();
+    const model = editor.getModel();
+    if (!selection || !model) return;
+    const line = selection.endLineNumber;
+    const col = model.getLineContent(line).length + 1;
+    editor.executeEdits("insert-blank-below", [{
+      range: { startLineNumber: line, startColumn: col, endLineNumber: line, endColumn: col } as any,
+      text: "\n",
+    }]);
+  }
+
+  static keepOnlyBlankLines(editor: Editor): void {
+    const model = editor.getModel();
+    if (!model) return;
+    const text = model.getValue();
+    const lines = text.split("\n");
+    const filtered = lines.filter((line) => line.trim() === "");
+    model.setValue(filtered.join("\n"));
+  }
+
+  static removeAdjacentDuplicates(editor: Editor): void {
+    const model = editor.getModel();
+    if (!model) return;
+    const text = model.getValue();
+    const lines = text.split("\n");
+    const filtered: string[] = [];
+    for (let i = 0; i < lines.length; i++) {
+      if (i === 0 || lines[i] !== lines[i - 1]) {
+        filtered.push(lines[i]);
+      }
+    }
+    model.setValue(filtered.join("\n"));
+  }
+
+  static splitLinesByComma(editor: Editor): void {
+    const model = editor.getModel();
+    if (!model) return;
+    const text = model.getValue();
+    const lines = text.split("\n");
+    const result: string[] = [];
+    for (const line of lines) {
+      const parts = line.split(",").map((s) => s.trim()).filter((s) => s.length > 0);
+      if (parts.length > 1) {
+        result.push(...parts);
+      } else {
+        result.push(line);
+      }
+    }
+    model.setValue(result.join("\n"));
+  }
+
   static markAllMatches(editor: Editor, monaco: typeof Monaco, pattern: string, useRegex: boolean = false, caseSensitive: boolean = false): void {
     const model = editor.getModel();
     if (!model || !pattern) return;

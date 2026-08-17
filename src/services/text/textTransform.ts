@@ -125,6 +125,59 @@ export class TextTransform {
   static countChars(text: string, includeSpaces: boolean = true): number {
     return includeSpaces ? text.length : text.replace(/\s/g, "").length;
   }
+
+  static htmlEntityEncode(text: string): string {
+    return text
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;")
+      .replace(/'/g, "&#39;");
+  }
+
+  static htmlEntityDecode(text: string): string {
+    const textarea = document.createElement("textarea");
+    textarea.innerHTML = text;
+    return textarea.value;
+  }
+
+  static javaEscape(text: string): string {
+    return text
+      .replace(/\\/g, "\\\\")
+      .replace(/"/g, '\\"')
+      .replace(/\n/g, "\\n")
+      .replace(/\r/g, "\\r")
+      .replace(/\t/g, "\\t")
+      .replace(/\0/g, "\\0");
+  }
+
+  static javaUnescape(text: string): string {
+    return text
+      .replace(/\\(.)/g, (_match, ch: string) => {
+        switch (ch) {
+          case "n": return "\n";
+          case "r": return "\r";
+          case "t": return "\t";
+          case "0": return "\0";
+          case "\\": return "\\";
+          case '"': return '"';
+          case "'": return "'";
+          default: return ch;
+        }
+      });
+  }
+
+  static jsonEscape(text: string): string {
+    return JSON.stringify(text).slice(1, -1);
+  }
+
+  static jsonUnescape(text: string): string {
+    try {
+      return JSON.parse(`"${text}"`);
+    } catch {
+      return "无效的 JSON 转义字符串";
+    }
+  }
 }
 
 async function sha256Hash(text: string): Promise<string> {

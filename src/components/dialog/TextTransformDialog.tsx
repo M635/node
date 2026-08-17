@@ -14,7 +14,10 @@ type TransformType =
   | "rot13" | "hex-encode" | "hex-decode"
   | "reverse-text" | "reverse-lines"
   | "remove-whitespace" | "collapse-whitespace"
-  | "add-line-numbers" | "remove-line-numbers";
+  | "add-line-numbers" | "remove-line-numbers"
+  | "html-entity-encode" | "html-entity-decode"
+  | "java-escape" | "java-unescape"
+  | "json-escape" | "json-unescape";
 
 const TRANSFORM_LABEL_KEYS: Record<TransformType, string> = {
   "base64-encode": "tt.base64Encode",
@@ -30,6 +33,12 @@ const TRANSFORM_LABEL_KEYS: Record<TransformType, string> = {
   "collapse-whitespace": "tt.collapseWhitespace",
   "add-line-numbers": "tt.addLineNumbers",
   "remove-line-numbers": "tt.removeLineNumbers",
+  "html-entity-encode": "tt.htmlEntityEncode",
+  "html-entity-decode": "tt.htmlEntityDecode",
+  "java-escape": "tt.javaEscape",
+  "java-unescape": "tt.javaUnescape",
+  "json-escape": "tt.jsonEscape",
+  "json-unescape": "tt.jsonUnescape",
 };
 
 export function TextTransformDialog({ content, onApply, onClose }: TextTransformDialogProps) {
@@ -55,6 +64,12 @@ export function TextTransformDialog({ content, onApply, onClose }: TextTransform
       case "collapse-whitespace": output = TextTransform.collapseWhitespace(content); break;
       case "add-line-numbers": output = TextTransform.addLineNumberPrefix(content); break;
       case "remove-line-numbers": output = TextTransform.removeLineNumberPrefix(content); break;
+      case "html-entity-encode": output = TextTransform.htmlEntityEncode(content); break;
+      case "html-entity-decode": output = TextTransform.htmlEntityDecode(content); break;
+      case "java-escape": output = TextTransform.javaEscape(content); break;
+      case "java-unescape": output = TextTransform.javaUnescape(content); break;
+      case "json-escape": output = TextTransform.jsonEscape(content); break;
+      case "json-unescape": output = TextTransform.jsonUnescape(content); break;
     }
     setResult(output);
   }, [content]);

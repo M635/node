@@ -401,6 +401,12 @@ const translations: Record<string, Record<Language, string>> = {
   "tt.collapseWhitespace": { zh: "合并连续空白", en: "Collapse Whitespace" },
   "tt.addLineNumbers": { zh: "添加行号", en: "Add Line Numbers" },
   "tt.removeLineNumbers": { zh: "移除行号", en: "Remove Line Numbers" },
+  "tt.htmlEntityEncode": { zh: "HTML实体编码", en: "HTML Entity Encode" },
+  "tt.htmlEntityDecode": { zh: "HTML实体解码", en: "HTML Entity Decode" },
+  "tt.javaEscape": { zh: "Java/C转义", en: "Java/C Escape" },
+  "tt.javaUnescape": { zh: "Java/C反转义", en: "Java/C Unescape" },
+  "tt.jsonEscape": { zh: "JSON转义", en: "JSON Escape" },
+  "tt.jsonUnescape": { zh: "JSON反转义", en: "JSON Unescape" },
 
   "batch.enabled": { zh: "启用", en: "Enabled" },
   "batch.find": { zh: "查找", en: "Find" },

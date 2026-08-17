@@ -160,6 +160,26 @@ pub fn build_menu(app_handle: &AppHandle, lang: &str) -> tauri::Result<()> {
                         tr(lang, "合并行(逗号)", "Merge Lines (Comma)"),
                     )?,
                     &m("edit_split_line", tr(lang, "拆分行", "Split Line"))?,
+                    &m(
+                        "edit_insert_blank_above",
+                        tr(lang, "上方插入空行", "Insert Blank Line Above"),
+                    )?,
+                    &m(
+                        "edit_insert_blank_below",
+                        tr(lang, "下方插入空行", "Insert Blank Line Below"),
+                    )?,
+                    &m(
+                        "edit_keep_blank_only",
+                        tr(lang, "仅保留空行", "Keep Blank Lines Only"),
+                    )?,
+                    &m(
+                        "edit_remove_adj_dup",
+                        tr(lang, "删除连续重复行", "Remove Adjacent Duplicates"),
+                    )?,
+                    &m(
+                        "edit_split_by_comma",
+                        tr(lang, "按逗号拆分行", "Split Lines by Comma"),
+                    )?,
                 ],
             )?,
             &Submenu::with_items(
