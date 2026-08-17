@@ -1,6 +1,7 @@
 import { useEffect, useRef, useCallback, useState } from "react";
 import Editor, { type OnMount, type OnChange } from "@monaco-editor/react";
 import * as Monaco from "monaco-editor";
+import { invoke } from "@tauri-apps/api/core";
 import { useEditorStore } from "../../stores/editorStore";
 import { useSettingStore } from "../../stores/settingStore";
 import { useSearchStore } from "../../stores/searchStore";
@@ -215,7 +216,44 @@ export function MonacoEditor({
       const editor = editorRef.current;
       const monaco = monacoRef.current;
       if (!editor || !monaco) return;
-      registerEditorActions(editor, monaco, useI18n.getState().t, actionDisposablesRef.current);
+    registerEditorActions(editor, monaco, useI18n.getState().t, actionDisposablesRef.current);
+
+    const pathCompletionDisposable = monaco.languages.registerCompletionItemProvider("*", {
+      triggerCharacters: ["/", "\\"],
+      async provideCompletionItems(model, position) {
+        const lineContent = model.getLineContent(position.lineNumber);
+        const textBeforeCursor = lineContent.substring(0, position.column - 1);
+        const pathMatch = textBeforeCursor.match(/(?:^|["'\s(])(\.?\.?\/[^\s"'<>|?*]*)$/);
+        if (!pathMatch) return { suggestions: [] };
+        const partialPath = pathMatch[1];
+        const lastSlash = Math.max(partialPath.lastIndexOf("/"), partialPath.lastIndexOf("\\"));
+        const dirPart = lastSlash >= 0 ? partialPath.substring(0, lastSlash) : ".";
+        const filePart = lastSlash >= 0 ? partialPath.substring(lastSlash + 1) : "";
+        try {
+          const entries = await invoke<[string, boolean][]>("list_directory", { path: dirPart });
+          const suggestions: Monaco.languages.CompletionItem[] = [];
+          for (const [name, isDir] of entries) {
+            if (!name.startsWith(filePart)) continue;
+            suggestions.push({
+              label: name,
+              kind: isDir ? monaco.languages.CompletionItemKind.Folder : monaco.languages.CompletionItemKind.File,
+              insertText: name + (isDir ? "/" : ""),
+              range: new monaco.Range(
+                position.lineNumber,
+                position.column - filePart.length,
+                position.lineNumber,
+                position.column,
+              ),
+            });
+            if (suggestions.length >= 50) break;
+          }
+          return { suggestions };
+        } catch {
+          return { suggestions: [] };
+        }
+      },
+    });
+    actionDisposablesRef.current.push(pathCompletionDisposable);
     };
     window.addEventListener("markpt:lang-changed", handler);
     return () => window.removeEventListener("markpt:lang-changed", handler);
