@@ -1,4 +1,4 @@
-import { useState, useCallback, useEffect, type DragEvent } from "react";
+import { useState, useCallback, useEffect, useRef, type DragEvent } from "react";
 import { open, save } from "@tauri-apps/plugin-dialog";
 import { invoke } from "@tauri-apps/api/core";
 import { listen } from "@tauri-apps/api/event";
@@ -821,15 +821,17 @@ export default function App() {
   // 后端拦截 CloseRequested 后发出 window-close-requested 事件，
   // 前端先完整保存会话，再调用 quit_app 由后端清理资源并退出。
   // （原实现使用 beforeunload，webview 中异步保存无法保证完成，已被替换）
+  const handleQuitRef = useRef(handleQuit);
+  handleQuitRef.current = handleQuit;
   useEffect(() => {
     let unlisten: (() => void) | null = null;
     (async () => {
       unlisten = await listen("window-close-requested", () => {
-        handleQuit();
+        handleQuitRef.current();
       });
     })();
     return () => { if (unlisten) unlisten(); };
-  }, [handleQuit]);
+  }, []);
 
   // 启动时同步语言与原生菜单
   useEffect(() => {

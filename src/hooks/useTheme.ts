@@ -12,18 +12,22 @@ export function useTheme(mode: ThemeMode): { isDark: boolean } {
     }
 
     let cleanup: (() => void) | null = null;
+    let active = true;
 
     (async () => {
       try {
         const win = getCurrentWindow();
         const theme = await win.theme();
+        if (!active) return;
         setIsDark(theme === "dark");
 
         const unlisten = await win.onThemeChanged((newTheme: { payload: string }) => {
           setIsDark(newTheme.payload === "dark");
         });
+        if (!active) { unlisten(); return; }
         cleanup = unlisten;
       } catch {
+        if (!active) return;
         const mediaQuery = window.matchMedia("(prefers-color-scheme: dark)");
         setIsDark(mediaQuery.matches);
 
@@ -36,6 +40,7 @@ export function useTheme(mode: ThemeMode): { isDark: boolean } {
     })();
 
     return () => {
+      active = false;
       if (cleanup) cleanup();
     };
   }, [mode]);

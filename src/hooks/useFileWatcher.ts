@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import { listen, type UnlistenFn } from "@tauri-apps/api/event";
 import { watchFile, unwatchFile } from "../services/tauri/fileService";
 
@@ -6,6 +6,9 @@ export function useFileWatcher(
   path: string | null,
   onFileChanged: (changedPath: string) => void
 ): void {
+  const onFileChangedRef = useRef(onFileChanged);
+  onFileChangedRef.current = onFileChanged;
+
   useEffect(() => {
     if (!path) return;
 
@@ -15,13 +18,12 @@ export function useFileWatcher(
     (async () => {
       unlisten = await listen<{ path: string }>("file-changed", (event) => {
         if (event.payload.path === path) {
-          onFileChanged(path);
+          onFileChangedRef.current(path);
         }
       });
 
-      if (active) {
-        await watchFile(path);
-      }
+      if (!active) { unlisten(); unlisten = null; return; }
+      await watchFile(path);
     })();
 
     return () => {
@@ -29,5 +31,5 @@ export function useFileWatcher(
       if (unlisten) unlisten();
       unwatchFile(path).catch(() => {});
     };
-  }, [path, onFileChanged]);
+  }, [path]);
 }

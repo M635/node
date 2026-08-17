@@ -89,14 +89,12 @@ export function SideBar({ onOpenFile }: SideBarProps) {
     if (!target) return;
 
     const newExpanded = !target.expanded;
-    let newTree = updateNodeInTree(tree, indexPath, (n) => ({ ...n, expanded: newExpanded }));
+    setTree(prevTree => updateNodeInTree(prevTree, indexPath, (n) => ({ ...n, expanded: newExpanded })));
 
     if (newExpanded && (!target.children || target.children.length === 0)) {
       const children = await loadDirectory(target.path);
-      newTree = updateNodeInTree(newTree, indexPath, (n) => ({ ...n, children, expanded: true }));
+      setTree(prevTree => updateNodeInTree(prevTree, indexPath, (n) => n.expanded ? { ...n, children } : n));
     }
-
-    setTree(newTree);
   }, [tree, loadDirectory, onOpenFile]);
 
   const renderTree = (nodes: FileNode[], indexPath: number[] = []): React.ReactNode => {

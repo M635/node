@@ -2,6 +2,14 @@
 
 对标 Notepad++ 的跨平台轻量化文本编辑器，基于 Tauri + Rust + TypeScript + Monaco Editor 构建。
 
+## v2.8.6 更新内容
+
+### Tauri 监听器泄漏修复
+- 修复 window-close-requested 监听器泄漏：handleQuit 依赖频繁变化导致监听器累积，改用 ref 稳定引用
+- 修复 useTheme 主题变更监听器泄漏：异步注册未完成时 cleanup 无效，增加 active flag 竞态保护
+- 修复 useFileWatcher 文件监听器泄漏：onFileChanged 依赖不稳定 + 异步注册竞态，改用 ref + active flag
+- 修复 SideBar 目录树展开竞态：快速连续展开两个目录时状态丢失，改用函数式 setTree 更新
+
 ## v2.8.5 更新内容
 
 ### 严重缺陷修复
