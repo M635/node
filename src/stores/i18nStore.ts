@@ -531,6 +531,8 @@ const translations: Record<string, Record<Language, string>> = {
   "hex.prevPage": { zh: "上一页", en: "Prev Page" },
   "hex.nextPage": { zh: "下一页", en: "Next Page" },
   "hex.notFound": { zh: "未找到", en: "Not found" },
+  "hex.gotoOffset": { zh: "跳转偏移(HEX)", en: "Goto Offset (HEX)" },
+  "hex.goto": { zh: "跳转", en: "Goto" },
 
   "md.split": { zh: "分屏", en: "Split" },
   "md.previewOnly": { zh: "仅预览", en: "Preview Only" },

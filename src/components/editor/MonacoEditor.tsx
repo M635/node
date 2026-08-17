@@ -259,6 +259,29 @@ export function MonacoEditor({
         case "sort-asc": EditOperations.sortLinesAscending(editor); break;
         case "sort-desc": EditOperations.sortLinesDescending(editor); break;
         case "toggle-comment": EditOperations.toggleLineComment(editor, monaco); break;
+        case "fold-region": {
+          const pos = editor.getPosition();
+          if (pos) {
+            const model = editor.getModel();
+            if (model) {
+              const lang = model.getLanguageId();
+              const markers: Record<string, [string, string]> = {
+                typescript: ["//#region", "//#endregion"], javascript: ["//#region", "//#endregion"],
+                python: ["# region", "# endregion"], rust: ["// region", "// endregion"],
+                c: ["// region", "// endregion"], cpp: ["// region", "// endregion"],
+                go: ["//region", "//endregion"], java: ["// region", "// endregion"],
+              };
+              const [start, end] = markers[lang] || ["//#region", "//#endregion"];
+              editor.executeEdits("fold-region", [
+                { range: new monaco.Range(pos.lineNumber, 1, pos.lineNumber, 1), text: start + "\n" },
+                { range: new monaco.Range(pos.lineNumber + 1, 1, pos.lineNumber + 1, 1), text: end + "\n" },
+              ]);
+            }
+          }
+          break;
+        }
+        case "unfold-all": editor.trigger("markpt", "editor.unfoldAll", null); break;
+        case "fold-all": editor.trigger("markpt", "editor.foldAll", null); break;
         case "remove-duplicates": EditOperations.removeDuplicateLines(editor); break;
         case "sort-length-asc": EditOperations.sortLinesByLength(editor, false); break;
         case "sort-length-desc": EditOperations.sortLinesByLength(editor, true); break;

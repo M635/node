@@ -3,6 +3,7 @@ import { useI18n } from "../../stores/i18nStore";
 import {
   listNamedSessions,
   deleteNamedSession,
+  loadNamedSession,
   type SessionData,
 } from "../../services/session/sessionService";
 
@@ -41,7 +42,6 @@ export function SessionManager({ onLoadSession, onSaveCurrent, onClose }: Sessio
   }, [newName, onSaveCurrent, refresh]);
 
   const handleLoad = useCallback(async (name: string) => {
-    const { loadNamedSession } = await import("../../services/session/sessionService");
     const data = await loadNamedSession(name);
     if (data) {
       onLoadSession(data);

@@ -13,6 +13,7 @@ export function HexViewer({ content, onClose }: HexViewerProps) {
   const { t } = useI18n();
   const [offset, setOffset] = useState(0);
   const [search, setSearch] = useState("");
+  const [gotoOffset, setGotoOffset] = useState("");
   const containerRef = useRef<HTMLDivElement>(null);
 
   const bytes = useCallback(() => {
@@ -52,6 +53,13 @@ export function HexViewer({ content, onClose }: HexViewerProps) {
     alert(t("hex.notFound"));
   };
 
+  const handleGoto = () => {
+    const target = parseInt(gotoOffset, 16);
+    if (isNaN(target) || target < 0 || target >= totalBytes) return;
+    setOffset(Math.floor(target / bytesPerPage) * bytesPerPage);
+    setGotoOffset("");
+  };
+
   useEffect(() => {
     const handler = (e: KeyboardEvent) => {
       if (e.key === "Escape") onClose();
@@ -74,6 +82,17 @@ export function HexViewer({ content, onClose }: HexViewerProps) {
               onKeyDown={(e) => e.key === "Enter" && handleSearch()}
             />
             <button className="btn btn-small" onClick={handleSearch}>{t("hex.find")}</button>
+          </div>
+          <div className="hex-goto">
+            <input
+              type="text"
+              placeholder={t("hex.gotoOffset")}
+              value={gotoOffset}
+              onChange={(e) => setGotoOffset(e.target.value)}
+              onKeyDown={(e) => e.key === "Enter" && handleGoto()}
+              style={{ width: 80 }}
+            />
+            <button className="btn btn-small" onClick={handleGoto}>{t("hex.goto")}</button>
           </div>
           <button className="dialog-close" onClick={onClose}>×</button>
         </div>

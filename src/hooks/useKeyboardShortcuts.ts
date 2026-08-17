@@ -143,6 +143,9 @@ export function useKeyboardShortcuts(handlers: ShortcutHandlers): void {
           case "edit_delete_blank": h.onEditAction?.("delete-blank"); break;
           case "edit_trim_trailing": h.onEditAction?.("trim-trailing"); break;
           case "edit_toggle_comment": h.onEditAction?.("toggle-comment"); break;
+          case "edit_fold_region": h.onEditAction?.("fold-region"); break;
+          case "edit_unfold_all": h.onEditAction?.("unfold-all"); break;
+          case "edit_fold_all": h.onEditAction?.("fold-all"); break;
           case "edit_upper": h.onEditAction?.("upper"); break;
           case "edit_lower": h.onEditAction?.("lower"); break;
           case "edit_sort_asc": h.onEditAction?.("sort-asc"); break;

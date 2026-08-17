@@ -80,6 +80,18 @@ pub fn build_menu(app_handle: &AppHandle, lang: &str) -> tauri::Result<()> {
                 tr(lang, "切换注释", "Toggle Comment"),
             )?,
             &m(
+                "edit_fold_region",
+                tr(lang, "插入折叠区域", "Insert Fold Region"),
+            )?,
+            &m(
+                "edit_unfold_all",
+                tr(lang, "展开全部", "Unfold All"),
+            )?,
+            &m(
+                "edit_fold_all",
+                tr(lang, "折叠全部", "Fold All"),
+            )?,
+            &m(
                 "edit_delete_line",
                 tr(lang, "删除当前行", "Delete Current Line"),
             )?,
