@@ -751,7 +751,8 @@ export function MonacoEditor({
     if (!editor || !monaco) return;
 
     if (!searchQuery) {
-      monaco.editor.setModelMarkers(editor.getModel()!, "search", []);
+      const model = editor.getModel();
+      if (model) monaco.editor.setModelMarkers(model, "search", []);
       return;
     }
 

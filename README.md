@@ -2,6 +2,12 @@
 
 对标 Notepad++ 的跨平台轻量化文本编辑器，基于 Tauri + Rust + TypeScript + Monaco Editor 构建。
 
+## v2.8.5 更新内容
+
+### 严重缺陷修复
+- 修复菜单操作被重复触发 N 次：useKeyboardShortcuts 的 handlers 对象每次渲染都是新引用，导致 Tauri menu-event 监听器泄漏累积，改用 ref 稳定引用
+- 修复搜索清空时可能抛异常：editor.getModel()! 非空断言改为安全检查
+
 ## v2.8.4 更新内容
 
 ### 内存泄漏修复
