@@ -1,4 +1,4 @@
-import { useEffect, useRef, type ReactNode } from "react";
+import { useEffect, useRef, useState, type ReactNode } from "react";
 
 interface ContextMenuProps {
   x: number;
@@ -18,6 +18,7 @@ export interface ContextMenuItem {
 
 export function ContextMenu({ x, y, items, onClose }: ContextMenuProps) {
   const menuRef = useRef<HTMLDivElement>(null);
+  const [pos, setPos] = useState({ left: x, top: y });
 
   useEffect(() => {
     const handleClickOutside = (e: MouseEvent) => {
@@ -36,14 +37,20 @@ export function ContextMenu({ x, y, items, onClose }: ContextMenuProps) {
     };
   }, [onClose]);
 
-  const adjustedX = Math.min(x, window.innerWidth - 200);
-  const adjustedY = Math.min(y, window.innerHeight - items.length * 32 - 10);
+  useEffect(() => {
+    if (menuRef.current) {
+      const rect = menuRef.current.getBoundingClientRect();
+      const left = Math.min(x, window.innerWidth - rect.width - 8);
+      const top = Math.min(y, window.innerHeight - rect.height - 8);
+      setPos({ left: Math.max(8, left), top: Math.max(8, top) });
+    }
+  }, [x, y]);
 
   return (
     <div
       ref={menuRef}
       className="context-menu"
-      style={{ left: adjustedX, top: adjustedY }}
+      style={{ left: pos.left, top: pos.top }}
     >
       {items.map((item, idx) =>
         item.divider ? (
