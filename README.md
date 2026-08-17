@@ -2,6 +2,12 @@
 
 对标 Notepad++ 的跨平台轻量化文本编辑器，基于 Tauri + Rust + TypeScript + Monaco Editor 构建。
 
+## v2.9.0 更新内容
+
+### 功能完善：置顶模式与便签模式
+- 实现置顶模式（Always on Top）：调用 Tauri window API setAlwaysOnTop，窗口始终保持在最前
+- 完善便签模式（Post-it Mode）：移除窗口边框、缩小窗口尺寸，退出时恢复原始大小和边框
+
 ## v2.8.9 更新内容
 
 ### Windows 平台快捷键修复

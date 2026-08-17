@@ -3,6 +3,7 @@ import { open, save } from "@tauri-apps/plugin-dialog";
 import { invoke } from "@tauri-apps/api/core";
 import { listen } from "@tauri-apps/api/event";
 import { getCurrentWindow } from "@tauri-apps/api/window";
+import { LogicalSize } from "@tauri-apps/api/window";
 import { MainLayout } from "./components/layout/MainLayout";
 import { SideBar } from "./components/layout/SideBar";
 import { MonacoEditor } from "./components/editor/MonacoEditor";
@@ -104,6 +105,8 @@ export default function App() {
   const [showRunCommand, setShowRunCommand] = useState(false);
   const [showRunMacro, setShowRunMacro] = useState(false);
   const [postItMode, setPostItMode] = useState(false);
+  const [alwaysOnTop, setAlwaysOnTop] = useState(false);
+  const prevSizeRef = useRef<{ w: number; h: number } | null>(null);
   const [showAbout, setShowAbout] = useState(false);
 
   const themeResult = useTheme(themeMode);
@@ -754,7 +757,11 @@ export default function App() {
       if (!document.fullscreenElement) document.documentElement.requestFullscreen();
       else document.exitFullscreen();
     },
-    onAlwaysOnTop: () => { /* Tauri window always on top - requires @tauri-apps/api/window */ },
+    onAlwaysOnTop: async () => {
+      const v = !alwaysOnTop;
+      setAlwaysOnTop(v);
+      try { await getCurrentWindow().setAlwaysOnTop(v); } catch { /* 非桌面环境忽略 */ }
+    },
     onFormatJson: () => applyFormat("json"),
     onFormatXml: () => applyFormat("xml"),
     onFormatHtml: () => applyFormat("html"),
@@ -773,7 +780,24 @@ export default function App() {
     onRunCommand: () => setShowRunCommand(true),
     onOpenInDefault: handleOpenInDefault,
     onRunMacroMultiple: () => setShowRunMacro(true),
-    onPostItMode: () => setPostItMode((v) => !v),
+    onPostItMode: async () => {
+      const v = !postItMode;
+      setPostItMode(v);
+      try {
+        const win = getCurrentWindow();
+        if (v) {
+          const size = await win.innerSize();
+          prevSizeRef.current = { w: size.width, h: size.height };
+          await win.setDecorations(false);
+          await win.setSize(new LogicalSize(400, 300));
+        } else {
+          await win.setDecorations(true);
+          if (prevSizeRef.current) {
+            await win.setSize(new LogicalSize(prevSizeRef.current.w, prevSizeRef.current.h));
+          }
+        }
+      } catch { /* 非桌面环境忽略 */ }
+    },
     onSentenceCase: () => window.dispatchEvent(new CustomEvent("markpt:edit-action", { detail: { action: "sentence-case" } })),
     onRandomCase: () => window.dispatchEvent(new CustomEvent("markpt:edit-action", { detail: { action: "random-case" } })),
     onSaveAs: handleSaveAs,
