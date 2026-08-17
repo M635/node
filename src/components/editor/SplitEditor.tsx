@@ -29,6 +29,7 @@ export function SplitEditor({
   const editor1Ref = useRef<Monaco.editor.IStandaloneCodeEditor | null>(null);
   const editor2Ref = useRef<Monaco.editor.IStandaloneCodeEditor | null>(null);
   const monacoRef = useRef<typeof Monaco | null>(null);
+  const syncScrollRef = useRef(true);
   const [syncScroll, setSyncScroll] = useState(true);
   const [ctxMenu, setCtxMenu] = useState<{ x: number; y: number; items: ContextMenuItem[] } | null>(null);
   const { isDark } = useEditorStore();
@@ -42,11 +43,11 @@ export function SplitEditor({
     configureLanguages(monaco);
 
     editor.onDidScrollChange(() => {
-      if (!syncScroll || !editor2Ref.current) return;
+      if (!syncScrollRef.current || !editor2Ref.current) return;
       const scrollTop = editor.getScrollTop();
       editor2Ref.current.setScrollTop(scrollTop);
     });
-  }, [syncScroll]);
+  }, []);
 
   const handleMount2: OnMount = useCallback((editor, monaco) => {
     editor2Ref.current = editor;
@@ -55,11 +56,11 @@ export function SplitEditor({
     configureLanguages(monaco);
 
     editor.onDidScrollChange(() => {
-      if (!syncScroll || !editor1Ref.current) return;
+      if (!syncScrollRef.current || !editor1Ref.current) return;
       const scrollTop = editor.getScrollTop();
       editor1Ref.current.setScrollTop(scrollTop);
     });
-  }, [syncScroll]);
+  }, []);
 
   const handleChange1: OnChange = useCallback((value) => {
     onContentChange?.(value || "");
@@ -116,7 +117,7 @@ export function SplitEditor({
       <div className="split-editor-pane" style={{ flex: 1, position: "relative" }} onContextMenu={(e) => handleContextMenu(e, editor2Ref.current, true)}>
         <div className="split-editor-toolbar">
           <label className="sync-scroll-toggle">
-            <input type="checkbox" checked={syncScroll} onChange={(e) => setSyncScroll(e.target.checked)} />
+            <input type="checkbox" checked={syncScroll} onChange={(e) => { const v = e.target.checked; syncScrollRef.current = v; setSyncScroll(v); }} />
             {t("split.syncScroll")}
           </label>
           <button className="btn btn-small" onClick={onClose}>{t("split.closeSplit")}</button>

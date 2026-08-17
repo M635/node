@@ -189,10 +189,12 @@ export function MonacoEditor({
       requestAnimationFrame(() => editor.layout());
     });
     resizeObserver.observe(container);
-    window.addEventListener("resize", () => editor.layout());
+    const onWindowResize = () => editor.layout();
+    window.addEventListener("resize", onWindowResize);
 
     return () => {
       resizeObserver.disconnect();
+      window.removeEventListener("resize", onWindowResize);
     };
   }, [onCursorChange, tabId]);
 

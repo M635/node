@@ -2,6 +2,13 @@
 
 对标 Notepad++ 的跨平台轻量化文本编辑器，基于 Tauri + Rust + TypeScript + Monaco Editor 构建。
 
+## v2.8.3 更新内容
+
+### 编辑器稳定性修复
+- 修复右键菜单接近窗口边缘时位置闪烁：改用 useLayoutEffect 在绘制前同步调整位置
+- 修复 MonacoEditor resize 事件监听器未清理导致内存泄漏：组件卸载后不再调用已销毁的 editor.layout()
+- 修复 SplitEditor 同步滚动开关不生效：闭包捕获初始值问题，改用 ref 实时读取 syncScroll 状态
+
 ## v2.8.2 更新内容
 
 ### 编辑器右键菜单与命令面板（缺陷修复）
