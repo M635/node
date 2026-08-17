@@ -109,6 +109,7 @@ pub fn run() {
             commands::file_io::open_file,
             commands::file_io::save_file,
             commands::file_io::save_file_as,
+            commands::file_io::write_text_file,
             commands::file_io::create_file,
             commands::file_io::get_file_meta,
             commands::file_io::list_directory,

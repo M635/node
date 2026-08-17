@@ -82,6 +82,12 @@ pub fn save_file_as(path: String, content: String, encoding: String) -> Result<(
 }
 
 #[tauri::command]
+pub fn write_text_file(path: String, content: String) -> Result<(), String> {
+    fs::write(&path, content).map_err(|e| friendly("写入文件", &e))?;
+    Ok(())
+}
+
+#[tauri::command]
 pub fn create_file(path: String) -> Result<(), String> {
     let path_ref = Path::new(&path);
     if let Some(parent) = path_ref.parent() {

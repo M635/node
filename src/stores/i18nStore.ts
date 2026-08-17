@@ -464,6 +464,10 @@ const translations: Record<string, Record<Language, string>> = {
   "csv.headerRow": { zh: "首行为表头", en: "First Row is Header" },
   "csv.rowsCols": { zh: "{rows} 行 × {cols} 列", en: "{rows} rows × {cols} cols" },
   "csv.column": { zh: "列 {n}", en: "Column {n}" },
+  "csv.exportCsv": { zh: "导出 CSV", en: "Export CSV" },
+  "csv.exportTsv": { zh: "导出 TSV", en: "Export TSV" },
+  "csv.exportJson": { zh: "导出 JSON", en: "Export JSON" },
+  "csv.exportHtml": { zh: "导出 HTML", en: "Export HTML" },
 
   "fnList.placeholder": { zh: "过滤...", en: "Filter..." },
   "fnList.empty": { zh: "未找到符号", en: "No symbols found" },
