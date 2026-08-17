@@ -533,15 +533,6 @@ const translations: Record<string, Record<Language, string>> = {
   "monaco.cut": { zh: "剪切", en: "Cut" },
   "monaco.copy": { zh: "复制", en: "Copy" },
   "monaco.paste": { zh: "粘贴", en: "Paste" },
-  "monaco.copyAs": { zh: "复制为", en: "Copy As" },
-  "monaco.share": { zh: "共享", en: "Share" },
-  "monaco.undo": { zh: "撤销", en: "Undo" },
-  "monaco.redo": { zh: "重做", en: "Redo" },
-  "monaco.findAll": { zh: "查找所有", en: "Find All" },
-  "monaco.findNext": { zh: "查找下一个", en: "Find Next" },
-  "monaco.findPrevious": { zh: "查找上一个", en: "Find Previous" },
-  "monaco.replace": { zh: "替换", en: "Replace" },
-  "monaco.replaceAll": { zh: "全部替换", en: "Replace All" },
 
   "errors.unknown": { zh: "操作失败，请重试", en: "Operation failed, please retry" },
 };

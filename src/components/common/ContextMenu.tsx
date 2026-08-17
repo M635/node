@@ -10,6 +10,7 @@ interface ContextMenuProps {
 export interface ContextMenuItem {
   label: string;
   icon?: string;
+  shortcut?: string;
   onClick: () => void;
   disabled?: boolean;
   divider?: boolean;
@@ -59,6 +60,7 @@ export function ContextMenu({ x, y, items, onClose }: ContextMenuProps) {
           >
             {item.icon && <span className="menu-icon">{item.icon}</span>}
             <span className="menu-label">{item.label}</span>
+            {item.shortcut && <span className="menu-shortcut">{item.shortcut}</span>}
           </button>
         )
       )}

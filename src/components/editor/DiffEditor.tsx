@@ -39,6 +39,7 @@ export function DiffEditorView({
           originalEditable: false,
           renderIndicators: true,
           maxComputationTime: 5000,
+          contextmenu: false,
         }}
       />
     </div>

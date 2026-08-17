@@ -75,7 +75,7 @@ export function SplitEditor({
     scrollBeyondLastLine: false,
     automaticLayout: true,
     glyphMargin: true,
-    contextmenu: true,
+    contextmenu: false,
   };
 
   const containerStyle: CSSProperties = orientation === "horizontal"

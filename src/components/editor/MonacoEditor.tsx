@@ -18,11 +18,10 @@ import { ContextMenu, type ContextMenuItem } from "../common/ContextMenu";
 type TFunc = (key: string) => string;
 
 /**
- * 注册自定义编辑器 Action（含右键菜单项）。
- * 通过 dispose + 重新注册的方式，在语言切换时刷新所有 Action 的 label，
- * 规避 Monaco 的 IAction.label 为只读、无法动态更新导致的中英文混杂。
- * 注意：copy/cut/paste 不再设置 contextMenuGroupId，避免与 Monaco 内置
- * Cut/Copy/Paste 菜单项重复显示。
+ * 注册自定义编辑器 Action（仅快捷键，不注册到 Monaco 右键菜单）。
+ * 通过 dispose + 重新注册的方式，在语言切换时刷新所有 Action 的 label。
+ * 右键菜单已改由自定义 React 组件渲染（见 handleContextMenu），因此这里
+ * 不再设置 contextMenuGroupId，避免与 Monaco 内置菜单项重复显示。
  */
 function registerEditorActions(
   editor: Monaco.editor.IStandaloneCodeEditor,
@@ -88,20 +87,20 @@ function registerEditorActions(
   add({ id: "markpt-clipboard-cut", label: t("toolbar.cut"), keybindings: [monaco.KeyMod.CtrlCmd | monaco.KeyCode.KeyX], run: (ed) => { doCut(ed as Monaco.editor.IStandaloneCodeEditor); } });
   add({ id: "markpt-clipboard-paste", label: t("toolbar.paste"), keybindings: [monaco.KeyMod.CtrlCmd | monaco.KeyCode.KeyV], run: (ed) => { doPaste(ed as Monaco.editor.IStandaloneCodeEditor); } });
 
-  add({ id: "markpt-context-find", label: t("search.find"), keybindings: [monaco.KeyMod.CtrlCmd | monaco.KeyCode.KeyF], contextMenuGroupId: "8_search", run: () => { useSearchStore.getState().toggleSearchPanel(); } });
-  add({ id: "markpt-context-replace", label: t("search.replace"), keybindings: [monaco.KeyMod.CtrlCmd | monaco.KeyCode.KeyH], contextMenuGroupId: "8_search", run: () => { useSearchStore.getState().toggleReplacePanel(); } });
-  add({ id: "markpt-context-goto-line", label: t("toolbar.gotoLine"), keybindings: [monaco.KeyMod.CtrlCmd | monaco.KeyCode.KeyG], contextMenuGroupId: "8_search", run: () => { window.dispatchEvent(new CustomEvent("markpt:goto-line")); } });
-  add({ id: "markpt-context-toggle-comment", label: t("action.toggleComment"), keybindings: [monaco.KeyMod.CtrlCmd | monaco.KeyCode.Slash], contextMenuGroupId: "7_edit", run: (ed) => EditOperations.toggleLineComment(ed, monaco) });
-  add({ id: "markpt-context-format", label: t("action.formatDocument"), contextMenuGroupId: "7_edit", run: (ed) => { ed.getAction("editor.action.formatDocument")?.run(); } });
-  add({ id: "markpt-context-duplicate", label: t("action.duplicateLine"), contextMenuGroupId: "7_edit", run: (ed) => EditOperations.duplicateCurrentLine(ed) });
-  add({ id: "markpt-context-delete-line", label: t("action.deleteLine"), contextMenuGroupId: "7_edit", run: (ed) => EditOperations.deleteCurrentLine(ed, monaco) });
-  add({ id: "markpt-context-insert-datetime", label: t("dialog.insertDateTime"), contextMenuGroupId: "6_insert", run: (ed) => {
+  add({ id: "markpt-context-find", label: t("search.find"), keybindings: [monaco.KeyMod.CtrlCmd | monaco.KeyCode.KeyF], run: () => { useSearchStore.getState().toggleSearchPanel(); } });
+  add({ id: "markpt-context-replace", label: t("search.replace"), keybindings: [monaco.KeyMod.CtrlCmd | monaco.KeyCode.KeyH], run: () => { useSearchStore.getState().toggleReplacePanel(); } });
+  add({ id: "markpt-context-goto-line", label: t("toolbar.gotoLine"), keybindings: [monaco.KeyMod.CtrlCmd | monaco.KeyCode.KeyG], run: () => { window.dispatchEvent(new CustomEvent("markpt:goto-line")); } });
+  add({ id: "markpt-context-toggle-comment", label: t("action.toggleComment"), keybindings: [monaco.KeyMod.CtrlCmd | monaco.KeyCode.Slash], run: (ed) => EditOperations.toggleLineComment(ed, monaco) });
+  add({ id: "markpt-context-format", label: t("action.formatDocument"), run: (ed) => { ed.getAction("editor.action.formatDocument")?.run(); } });
+  add({ id: "markpt-context-duplicate", label: t("action.duplicateLine"), run: (ed) => EditOperations.duplicateCurrentLine(ed) });
+  add({ id: "markpt-context-delete-line", label: t("action.deleteLine"), run: (ed) => EditOperations.deleteCurrentLine(ed, monaco) });
+  add({ id: "markpt-context-insert-datetime", label: t("dialog.insertDateTime"), run: (ed) => {
     const now = new Date();
     const text = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}-${String(now.getDate()).padStart(2, "0")} ${String(now.getHours()).padStart(2, "0")}:${String(now.getMinutes()).padStart(2, "0")}:${String(now.getSeconds()).padStart(2, "0")}`;
     const pos = ed.getPosition();
     if (pos) ed.executeEdits("insert-datetime", [{ range: new monaco.Range(pos.lineNumber, pos.column, pos.lineNumber, pos.column), text }]);
   } });
-  add({ id: "markpt-context-select-all", label: t("action.selectAll"), keybindings: [monaco.KeyMod.CtrlCmd | monaco.KeyCode.KeyA], contextMenuGroupId: "9_cutcopypaste", run: (ed) => {
+  add({ id: "markpt-context-select-all", label: t("action.selectAll"), keybindings: [monaco.KeyMod.CtrlCmd | monaco.KeyCode.KeyA], run: (ed) => {
     const model = ed.getModel();
     if (model) ed.setSelection(new monaco.Range(1, 1, model.getLineCount(), model.getLineMaxColumn(model.getLineCount()) + 1));
   } });
@@ -837,21 +836,21 @@ export function MonacoEditor({
     };
     const run = (fn: () => void) => () => { fn(); focus(); };
     const items: ContextMenuItem[] = [
-      { label: t("monaco.cut"), onClick: doCut, disabled: readonly },
-      { label: t("monaco.copy"), onClick: doCopy },
-      { label: t("monaco.paste"), onClick: doPaste, disabled: readonly },
+      { label: t("monaco.cut"), shortcut: `${mod}+X`, onClick: doCut, disabled: readonly },
+      { label: t("monaco.copy"), shortcut: `${mod}+C`, onClick: doCopy },
+      { label: t("monaco.paste"), shortcut: `${mod}+V`, onClick: doPaste, disabled: readonly },
       { label: "", onClick: () => {}, divider: true },
-      { label: t("search.find"), onClick: run(() => useSearchStore.getState().toggleSearchPanel()) },
-      { label: t("search.replace"), onClick: run(() => useSearchStore.getState().toggleReplacePanel()) },
-      { label: t("toolbar.gotoLine").replace(/ \([^)]*\)$/, ""), onClick: run(() => window.dispatchEvent(new CustomEvent("markpt:goto-line"))) },
+      { label: t("search.find"), shortcut: `${mod}+F`, onClick: run(() => useSearchStore.getState().toggleSearchPanel()) },
+      { label: t("search.replace"), shortcut: `${mod}+H`, onClick: run(() => useSearchStore.getState().toggleReplacePanel()) },
+      { label: t("toolbar.gotoLine").replace(/ \([^)]*\)$/, ""), shortcut: `${mod}+G`, onClick: run(() => window.dispatchEvent(new CustomEvent("markpt:goto-line"))) },
       { label: "", onClick: () => {}, divider: true },
-      { label: t("action.toggleComment"), onClick: run(() => EditOperations.toggleLineComment(editor, monaco)), disabled: readonly },
+      { label: t("action.toggleComment"), shortcut: `${mod}+/`, onClick: run(() => EditOperations.toggleLineComment(editor, monaco)), disabled: readonly },
       { label: t("action.formatDocument"), onClick: run(() => { editor.getAction("editor.action.formatDocument")?.run(); }), disabled: readonly },
       { label: t("action.deleteLine"), onClick: run(() => EditOperations.deleteCurrentLine(editor, monaco)), disabled: readonly },
       { label: t("action.duplicateLine"), onClick: run(() => EditOperations.duplicateCurrentLine(editor)), disabled: readonly },
       { label: "", onClick: () => {}, divider: true },
       { label: t("dialog.insertDateTime"), onClick: insertDateTime, disabled: readonly },
-      { label: `${t("action.selectAll")} (${mod}+A)`, onClick: selectAll },
+      { label: t("action.selectAll"), shortcut: `${mod}+A`, onClick: selectAll },
     ];
     setCtxMenu({ x: e.clientX, y: e.clientY, items });
   }, [t, readonly]);

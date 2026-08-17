@@ -1028,6 +1028,16 @@
   text-align: center;
 }
 
+.menu-label {
+  flex: 1;
+}
+
+.menu-shortcut {
+  margin-left: 24px;
+  opacity: 0.6;
+  font-size: 11px;
+}
+
 .btn {
   display: inline-flex;
   align-items: center;
