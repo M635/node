@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, useCallback } from "react";
+import { useState, useEffect, useRef, useMemo } from "react";
 import { useFileStore } from "../../stores/fileStore";
 import { useSearchStore } from "../../stores/searchStore";
 import { useI18n } from "../../stores/i18nStore";
@@ -39,7 +39,7 @@ export function CommandPalette({
   const { t } = useI18n();
   const mod = /Mac|iPod|iPhone|iPad/.test(navigator.platform || navigator.userAgent) ? "Cmd" : "Ctrl";
 
-  const commands: Command[] = useCallback(() => {
+  const commands: Command[] = useMemo(() => {
     const cmds: Command[] = [
       { id: "new", label: t("cmd.newFile"), category: t("cmd.category.file"), shortcut: `${mod}+N`, action: onNewFile },
       { id: "open", label: t("cmd.openFile"), category: t("cmd.category.file"), shortcut: `${mod}+O`, action: onOpenFile },
@@ -64,7 +64,7 @@ export function CommandPalette({
     });
 
     return cmds;
-  }, [tabs, onNewFile, onOpenFile, onSave, onFind, onReplace, onFindInFiles, onGotoLine, onEncoding, onSettings, onToggleDiff, onToggleMacro, setActiveTab, t, mod])();
+  }, [tabs, onNewFile, onOpenFile, onSave, onFind, onReplace, onFindInFiles, onGotoLine, onEncoding, onSettings, onToggleDiff, onToggleMacro, setActiveTab, t, mod]);
 
   const filtered = query
     ? commands.filter((c) =>

@@ -132,6 +132,7 @@ export function MonacoEditor({
   const monacoRef = useRef<typeof Monaco | null>(null);
   const decorationIdsRef = useRef<string[]>([]);
   const actionDisposablesRef = useRef<Monaco.IDisposable[]>([]);
+  const mountCleanupRef = useRef<(() => void) | null>(null);
   const { isDark, getBookmarks } = useEditorStore();
   const {
     fontSize, fontFamily, tabSize, insertSpaces, wordWrap,
@@ -192,11 +193,19 @@ export function MonacoEditor({
     const onWindowResize = () => editor.layout();
     window.addEventListener("resize", onWindowResize);
 
-    return () => {
+    mountCleanupRef.current = () => {
       resizeObserver.disconnect();
       window.removeEventListener("resize", onWindowResize);
     };
   }, [onCursorChange, tabId]);
+
+  // 组件卸载时清理 handleMount 中创建的资源（@monaco-editor/react 不会调用 onMount 返回值）
+  useEffect(() => {
+    return () => {
+      mountCleanupRef.current?.();
+      mountCleanupRef.current = null;
+    };
+  }, []);
 
   // 语言切换时重新注册自定义 Action，刷新右键菜单与命令标签语言
   useEffect(() => {

@@ -2,6 +2,12 @@
 
 对标 Notepad++ 的跨平台轻量化文本编辑器，基于 Tauri + Rust + TypeScript + Monaco Editor 构建。
 
+## v2.8.4 更新内容
+
+### 内存泄漏修复
+- 修复 MonacoEditor resize 监听器与 ResizeObserver 从未清理：@monaco-editor/react 的 onMount 返回值被丢弃，改用 ref + useEffect 管理清理
+- CommandPalette 的 useCallback 误用改为 useMemo，避免每次渲染重复计算命令列表
+
 ## v2.8.3 更新内容
 
 ### 编辑器稳定性修复
