@@ -137,7 +137,7 @@ export function MonacoEditor({
   const {
     fontSize, fontFamily, tabSize, insertSpaces, wordWrap,
     showLineNumbers, showWhitespace, showMinimap, folding,
-    bracketPairColorization, autoIndent, showIndentGuides,
+    bracketPairColorization, autoIndent, showIndentGuides, showRuler,
   } = useSettingStore();
   const { searchQuery, replaceQuery, isRegex, caseSensitive } = useSearchStore();
   const { t } = useI18n();
@@ -822,6 +822,7 @@ export function MonacoEditor({
     folding,
     bracketPairColorization: { enabled: bracketPairColorization },
     guides: { bracketPairs: bracketPairColorization, indentation: showIndentGuides },
+    rulers: showRuler ? [80] : [],
     autoIndent: autoIndent ? "advanced" : "none",
     cursorBlinking: "blink",
     cursorSmoothCaretAnimation: "on",

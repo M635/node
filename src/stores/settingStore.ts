@@ -21,6 +21,7 @@ interface SettingStore {
   ensureFinalNewline: boolean;
   autoDetectIndent: boolean;
   showIndentGuides: boolean;
+  showRuler: boolean;
 
   setFontSize: (size: number) => void;
   setFontFamily: (family: string) => void;
@@ -40,6 +41,7 @@ interface SettingStore {
   setEnsureFinalNewline: (enable: boolean) => void;
   setAutoDetectIndent: (enable: boolean) => void;
   setShowIndentGuides: (enable: boolean) => void;
+  setShowRuler: (show: boolean) => void;
   resetToDefaults: () => void;
 }
 
@@ -64,6 +66,7 @@ interface PersistedSettings {
   ensureFinalNewline?: boolean;
   autoDetectIndent?: boolean;
   showIndentGuides?: boolean;
+  showRuler?: boolean;
 }
 
 /** 读取已保存的设置；失败或不可用时返回空对象（使用默认值）。 */
@@ -100,6 +103,7 @@ function persistSettings(state: SettingStore): void {
       ensureFinalNewline: state.ensureFinalNewline,
       autoDetectIndent: state.autoDetectIndent,
       showIndentGuides: state.showIndentGuides,
+      showRuler: state.showRuler,
     };
     localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
   } catch {
@@ -128,6 +132,7 @@ export const useSettingStore = create<SettingStore>((set) => ({
   ensureFinalNewline: saved.ensureFinalNewline ?? true,
   autoDetectIndent: saved.autoDetectIndent ?? true,
   showIndentGuides: saved.showIndentGuides ?? true,
+  showRuler: saved.showRuler ?? false,
 
   setFontSize: (size) => set({ fontSize: size }),
   setFontFamily: (family) => set({ fontFamily: family }),
@@ -154,6 +159,7 @@ export const useSettingStore = create<SettingStore>((set) => ({
   setEnsureFinalNewline: (enable) => set({ ensureFinalNewline: enable }),
   setAutoDetectIndent: (enable) => set({ autoDetectIndent: enable }),
   setShowIndentGuides: (enable) => set({ showIndentGuides: enable }),
+  setShowRuler: (show) => set({ showRuler: show }),
   resetToDefaults: () =>
     set({
       fontSize: defaultEditorConfig.fontSize,

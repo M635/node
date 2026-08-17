@@ -222,6 +222,7 @@ const translations: Record<string, Record<Language, string>> = {
   "statusbar.selectionTitle": { zh: "选中信息", en: "Selection Info" },
   "statusbar.wordCharTitle": { zh: "字数: {words}, 字符数: {chars}", en: "Words: {words}, Chars: {chars}" },
   "statusbar.versionTitle": { zh: "MarkPT v{version}", en: "MarkPT v{version}" },
+  "statusbar.zoom": { zh: "缩放", en: "Zoom" },
 
   "cmd.newFile": { zh: "新建文件", en: "New File" },
   "cmd.openFile": { zh: "打开文件", en: "Open File" },

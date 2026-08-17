@@ -568,7 +568,11 @@ export default function App() {
       for (let i = 0; i < files.length; i++) {
         const file = files[i] as File & { path?: string };
         if (file.path) {
-          openFileByPath(file.path);
+          if (file.type === "" && file.size === 0) {
+            window.dispatchEvent(new CustomEvent("markpt:open-folder", { detail: { path: file.path } }));
+          } else {
+            openFileByPath(file.path);
+          }
         }
       }
     }
@@ -709,6 +713,7 @@ export default function App() {
     onSplitClose: () => setSplitMode(null),
     onFunctionList: () => setShowFunctionList((v) => !v),
     onToggleWordWrap: () => useSettingStore.getState().setWordWrap(!useSettingStore.getState().wordWrap),
+    onToggleRuler: () => useSettingStore.getState().setShowRuler(!useSettingStore.getState().showRuler),
     onCharStats: () => setShowCharStats(true),
     onHexViewer: () => setShowHexViewer(true),
     onMultiDocSearch: () => setShowMultiDocSearch(true),

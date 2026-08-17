@@ -29,6 +29,7 @@ interface ShortcutHandlers {
   onSplitClose?: () => void;
   onFunctionList?: () => void;
   onToggleWordWrap?: () => void;
+  onToggleRuler?: () => void;
   onCharStats?: () => void;
   onHexViewer?: () => void;
   onMultiDocSearch?: () => void;
@@ -164,6 +165,7 @@ export function useKeyboardShortcuts(handlers: ShortcutHandlers): void {
           case "split_close": h.onSplitClose?.(); break;
           case "function_list": h.onFunctionList?.(); break;
           case "toggle_word_wrap": h.onToggleWordWrap?.(); break;
+          case "toggle_ruler": h.onToggleRuler?.(); break;
           case "char_stats": h.onCharStats?.(); break;
           case "hex_viewer": h.onHexViewer?.(); break;
           case "multi_search": h.onMultiDocSearch?.(); break;

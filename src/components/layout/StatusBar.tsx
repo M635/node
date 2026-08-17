@@ -3,6 +3,7 @@ import type { FileTab } from "../../types/file";
 import { formatFileSize } from "../../utils/fileUtils";
 import { getEncodingDisplayName } from "../../utils/encodingUtils";
 import { useEditorStore } from "../../stores/editorStore";
+import { useSettingStore } from "../../stores/settingStore";
 import { useI18n } from "../../stores/i18nStore";
 import { EditorToolbar } from "../editor/EditorToolbar";
 
@@ -21,6 +22,7 @@ export function StatusBar({
   activeTab, onSave, onOpenFile, onGotoLine, onExport, onOpenEncoding, onOpenSettings, selectionInfo,
 }: StatusBarProps) {
   const { isRecordingMacro, startMacroRecording, stopMacroRecording } = useEditorStore();
+  const { fontSize } = useSettingStore();
   const { t } = useI18n();
   // 插入/覆盖模式用布尔值表示，展示文案由语言包决定
   const [overwrite, setOverwrite] = useState(false);
@@ -111,6 +113,11 @@ export function StatusBar({
         <span className="status-item" title={t("statusbar.eol")}>
           {meta?.line_ending === "Crlf" ? "CRLF" : meta?.line_ending === "Mixed" ? t("status.mixed") : "LF"}
         </span>
+        {fontSize !== 14 && (
+          <span className="status-item" title={t("statusbar.zoom")}>
+            {Math.round(fontSize / 14 * 100)}%
+          </span>
+        )}
         <span className="status-item" onClick={onOpenSettings} title={t("statusbar.settings")}>⚙</span>
         <EditorToolbar isRecordingMacro={isRecordingMacro} onToggleMacro={handleToggleMacro} onToggleDiff={handleToggleDiff} onExport={onExport} />
         <span className="status-version" title={t("statusbar.versionTitle", { version: __APP_VERSION__ })}>v{__APP_VERSION__}</span>

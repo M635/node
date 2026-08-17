@@ -281,6 +281,7 @@ pub fn build_menu(app_handle: &AppHandle, lang: &str) -> tauri::Result<()> {
                 tr(lang, "切换文档...", "Switch Document..."),
             )?,
             &m("toggle_word_wrap", tr(lang, "自动换行", "Word Wrap"))?,
+            &m("toggle_ruler", tr(lang, "显示标尺", "Show Ruler"))?,
             &m("zoom_in", tr(lang, "放大", "Zoom In"))?,
             &m("zoom_out", tr(lang, "缩小", "Zoom Out"))?,
             &m("zoom_reset", tr(lang, "重置缩放", "Reset Zoom"))?,

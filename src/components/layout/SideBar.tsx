@@ -56,6 +56,28 @@ export function SideBar({ onOpenFile }: SideBarProps) {
     }
   }, [loadDirectory]);
 
+  useEffect(() => {
+    let active = true;
+    const handler = (e: Event) => {
+      const detail = (e as CustomEvent).detail;
+      if (detail?.path && active) {
+        setRootPath(detail.path as string);
+        setLoading(true);
+        loadDirectory(detail.path as string).then((nodes) => {
+          if (active) {
+            setTree(nodes);
+            setLoading(false);
+          }
+        });
+      }
+    };
+    window.addEventListener("markpt:open-folder", handler);
+    return () => {
+      active = false;
+      window.removeEventListener("markpt:open-folder", handler);
+    };
+  }, [loadDirectory]);
+
   const findNode = (nodes: FileNode[], indexPath: number[]): FileNode | null => {
     let current: FileNode | null = null;
     let level = nodes;
