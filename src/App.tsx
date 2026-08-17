@@ -37,6 +37,7 @@ import { SnippetsPanel } from "./components/dialog/SnippetsPanel";
 import { PluginManager } from "./components/dialog/PluginManager";
 import { RunCommandDialog } from "./components/dialog/RunCommandDialog";
 import { RunMacroDialog } from "./components/dialog/RunMacroDialog";
+import { SessionManager } from "./components/dialog/SessionManager";
 import { TextTransform } from "./services/text/textTransform";
 import { FormatService } from "./services/text/formatService";
 import { CharConvert } from "./services/text/charConvert";
@@ -58,7 +59,7 @@ import { exportAsTxt, exportAsHtml, exportAsRtf } from "./services/tauri/exportS
 import { getLanguageFromPath } from "./services/monaco/languages";
 import { getFileName } from "./utils/fileUtils";
 import { detectIndent } from "./utils/indentDetect";
-import { saveSession, loadSession, type SessionData } from "./services/session/sessionService";
+import { saveSession, loadSession, saveNamedSession, loadNamedSession, type SessionData } from "./services/session/sessionService";
 import type { EncodingType } from "./types/file";
 
 export default function App() {
@@ -104,6 +105,7 @@ export default function App() {
   const [showPluginManager, setShowPluginManager] = useState(false);
   const [showRunCommand, setShowRunCommand] = useState(false);
   const [showRunMacro, setShowRunMacro] = useState(false);
+  const [showSessionManager, setShowSessionManager] = useState(false);
   const [postItMode, setPostItMode] = useState(false);
   const [alwaysOnTop, setAlwaysOnTop] = useState(false);
   const prevSizeRef = useRef<{ w: number; h: number } | null>(null);
@@ -780,6 +782,7 @@ export default function App() {
     onOpenWithEncoding: handleOpenWithEncoding,
     onToggleBom: handleToggleBom,
     onSaveAll: handleSaveAll,
+    onSessionManager: () => setShowSessionManager(true),
     onCopyDirectory: handleCopyDirectory,
     onCopyFileName: handleCopyFileName,
     onClipboardHistory: () => setShowClipboardHistory(true),
@@ -1118,6 +1121,45 @@ export default function App() {
       )}
       {showRunMacro && (
         <RunMacroDialog onClose={() => setShowRunMacro(false)} onRun={handleRunMacro} />
+      )}
+      {showSessionManager && (
+        <SessionManager
+          onLoadSession={(data) => {
+            useFileStore.getState().closeAllTabs();
+            for (const tab of data.tabs) {
+              if (tab.path) {
+                openFileByPath(tab.path);
+              } else {
+                openTab({
+                  id: generateId(), path: "", name: tab.name, content: tab.content || "",
+                  meta: null, is_dirty: tab.is_dirty, is_large_file: false, readonly: false,
+                  encoding: (tab.encoding as EncodingType) || "UTF-8",
+                  language: tab.language || "plaintext",
+                  cursor_position: { line: tab.cursor_line || 1, column: tab.cursor_column || 1 },
+                  scroll_position: tab.scroll_position || 0, is_new: true,
+                  is_locked: false, tab_color: null,
+                });
+              }
+            }
+          }}
+          onSaveCurrent={async (name) => {
+            await saveNamedSession(name, {
+              tabs: tabs.map((t) => ({
+                path: t.path, name: t.name, content: t.content,
+                is_new: t.is_new, is_dirty: t.is_dirty,
+                cursor_line: t.cursor_position.line, cursor_column: t.cursor_position.column,
+                scroll_position: t.scroll_position, encoding: t.encoding, language: t.language || "plaintext",
+              })),
+              active_tab_path: activeTab?.path || null,
+              active_tab_id: activeTabId,
+              sidebar_visible: showSidebar,
+              window_width: window.innerWidth,
+              window_height: window.innerHeight,
+              saved_at: Date.now(),
+            });
+          }}
+          onClose={() => setShowSessionManager(false)}
+        />
       )}
       {showAbout && (
         <div className="dialog-overlay" onClick={() => setShowAbout(false)}>

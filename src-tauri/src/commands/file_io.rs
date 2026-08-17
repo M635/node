@@ -88,6 +88,18 @@ pub fn write_text_file(path: String, content: String) -> Result<(), String> {
 }
 
 #[tauri::command]
+pub fn create_dir(path: String) -> Result<(), String> {
+    fs::create_dir_all(&path).map_err(|e| friendly("创建目录", &e))?;
+    Ok(())
+}
+
+#[tauri::command]
+pub fn delete_file(path: String) -> Result<(), String> {
+    fs::remove_file(&path).map_err(|e| friendly("删除文件", &e))?;
+    Ok(())
+}
+
+#[tauri::command]
 pub fn create_file(path: String) -> Result<(), String> {
     let path_ref = Path::new(&path);
     if let Some(parent) = path_ref.parent() {

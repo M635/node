@@ -473,6 +473,14 @@ const translations: Record<string, Record<Language, string>> = {
   "fnList.empty": { zh: "未找到符号", en: "No symbols found" },
   "fnList.line": { zh: "第 {n} 行", en: "Line {n}" },
 
+  "session.manager": { zh: "会话管理", en: "Session Manager" },
+  "session.namePlaceholder": { zh: "会话名称...", en: "Session name..." },
+  "session.saveCurrent": { zh: "保存当前", en: "Save Current" },
+  "session.noSessions": { zh: "暂无保存的会话", en: "No saved sessions" },
+  "session.tabs": { zh: "个标签", en: "tabs" },
+  "session.load": { zh: "加载", en: "Load" },
+  "session.delete": { zh: "删除", en: "Delete" },
+
   "snip.add": { zh: "新增", en: "Add New" },
   "snip.trigger": { zh: "触发词", en: "Trigger" },
   "snip.desc": { zh: "描述", en: "Description" },
