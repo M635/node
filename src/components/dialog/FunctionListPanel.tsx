@@ -7,6 +7,8 @@ interface FunctionSymbol {
   line: number;
   type: "function" | "class" | "method" | "variable" | "interface" | "enum";
   detail?: string;
+  indent: number;
+  children: FunctionSymbol[];
 }
 
 interface FunctionListPanelProps {
@@ -83,9 +85,33 @@ const FUNCTION_PATTERNS: Record<string, RegExp[]> = {
   ],
 };
 
+function buildTree(symbols: FunctionSymbol[]): FunctionSymbol[] {
+  const root: FunctionSymbol[] = [];
+  const stack: FunctionSymbol[] = [];
+
+  for (const sym of symbols) {
+    while (stack.length > 0 && stack[stack.length - 1].indent >= sym.indent) {
+      stack.pop();
+    }
+
+    const isContainer = sym.type === "class" || sym.type === "interface" || sym.type === "enum";
+    if (stack.length > 0 && isContainer === false) {
+      stack[stack.length - 1].children.push(sym);
+    } else {
+      root.push(sym);
+    }
+
+    if (isContainer) {
+      stack.push(sym);
+    }
+  }
+
+  return root;
+}
+
 export function FunctionListPanel({ editor, onClose }: FunctionListPanelProps) {
   const { t } = useI18n();
-  const [symbols, setSymbols] = useState<FunctionSymbol[]>([]);
+  const [tree, setTree] = useState<FunctionSymbol[]>([]);
   const [filter, setFilter] = useState("");
   const containerRef = useRef<HTMLDivElement>(null);
 
@@ -107,23 +133,19 @@ export function FunctionListPanel({ editor, onClose }: FunctionListPanelProps) {
         if (match && match[1]) {
           const name = match[1];
           let type: FunctionSymbol["type"] = "function";
-          if (line.includes("class ")) type = "class";
-          else if (line.includes("interface ")) type = "interface";
+          if (line.includes("class ") || line.includes("struct ")) type = "class";
+          else if (line.includes("interface ") || line.includes("trait ") || line.includes("protocol ")) type = "interface";
           else if (line.includes("enum ")) type = "enum";
-          else if (line.includes("struct ")) type = "class";
-          else if (line.includes("trait ") || line.includes("protocol ")) type = "interface";
-          result.push({ name, line: i, type, detail: t("fnList.line", { n: i }) });
+          else if (line.includes("namespace ") || line.includes("module ")) type = "class";
+          const indent = line.length - line.trimStart().length;
+          result.push({ name, line: i, type, indent, children: [], detail: t("fnList.line", { n: i }) });
           break;
         }
       }
     }
 
-    setSymbols(result);
+    setTree(buildTree(result));
   }, [editor, t]);
-
-  const filtered = filter
-    ? symbols.filter((s) => s.name.toLowerCase().includes(filter.toLowerCase()))
-    : symbols;
 
   const handleJump = (line: number) => {
     if (editor) {
@@ -145,6 +167,25 @@ export function FunctionListPanel({ editor, onClose }: FunctionListPanelProps) {
     return icons[type] || "ƒ";
   };
 
+  const flattenWithFilter = (nodes: FunctionSymbol[], filterText: string): { sym: FunctionSymbol; depth: number }[] => {
+    const lower = filterText.toLowerCase();
+    const result: { sym: FunctionSymbol; depth: number }[] = [];
+    const walk = (nodes: FunctionSymbol[], depth: number) => {
+      for (const node of nodes) {
+        if (!filterText || node.name.toLowerCase().includes(lower)) {
+          result.push({ sym: node, depth });
+        }
+        if (node.children.length > 0) {
+          walk(node.children, depth + 1);
+        }
+      }
+    };
+    walk(nodes, 0);
+    return result;
+  };
+
+  const flatList = flattenWithFilter(tree, filter);
+
   return (
     <div className="function-list-panel" ref={containerRef}>
       <div className="function-list-header">
@@ -160,13 +201,14 @@ export function FunctionListPanel({ editor, onClose }: FunctionListPanelProps) {
         <button className="dialog-close" onClick={onClose}>×</button>
       </div>
       <div className="function-list-body">
-        {filtered.length === 0 ? (
+        {flatList.length === 0 ? (
           <div className="function-list-empty">{t("fnList.empty")}</div>
         ) : (
-          filtered.map((sym, idx) => (
+          flatList.map(({ sym, depth }, idx) => (
             <div
               key={`${sym.line}-${idx}`}
               className="function-list-item"
+              style={{ paddingLeft: `${12 + depth * 16}px` }}
               onClick={() => handleJump(sym.line)}
               title={sym.detail}
             >
