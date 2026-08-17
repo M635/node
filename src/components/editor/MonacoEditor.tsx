@@ -781,20 +781,27 @@ export function MonacoEditor({
     onContentChange?.(value || "");
   }, [onContentChange]);
 
-  const [ctxMenu, setCtxMenu] = useState<{ x: number; y: number } | null>(null);
+  const [ctxMenu, setCtxMenu] = useState<{ x: number; y: number; items: ContextMenuItem[] } | null>(null);
 
   const closeContextMenu = useCallback(() => setCtxMenu(null), []);
 
-  const contextMenuItems: ContextMenuItem[] = useCallback(() => {
+  const handleContextMenu = useCallback((e: React.MouseEvent) => {
+    const target = e.target as HTMLElement;
+    if (target.closest(".find-widget") || target.closest(".suggest-widget") || target.closest(".hover-widget")) {
+      return;
+    }
     const editor = editorRef.current;
     const monaco = monacoRef.current;
-    if (!editor || !monaco) return [];
+    if (!editor || !monaco) return;
+    e.preventDefault();
     const mod = /Mac|iPod|iPhone|iPad/.test(navigator.platform || navigator.userAgent) ? "Cmd" : "Ctrl";
+    const focus = () => editor.focus();
     const doCopy = async () => {
       const sel = editor.getSelection();
       if (!sel) return;
       const text = editor.getModel()?.getValueInRange(sel) || "";
       if (text) await clipboardWrite(text);
+      focus();
     };
     const doCut = async () => {
       const sel = editor.getSelection();
@@ -806,6 +813,7 @@ export function MonacoEditor({
         await clipboardWrite(text);
         editor.executeEdits("cut", [{ range: sel, text: "" }]);
       }
+      focus();
     };
     const doPaste = async () => {
       const text = await clipboardRead();
@@ -813,41 +821,40 @@ export function MonacoEditor({
       const sel = editor.getSelection();
       if (!sel) return;
       editor.executeEdits("paste", [{ range: sel, text, forceMoveMarkers: true }]);
+      focus();
     };
     const insertDateTime = () => {
       const now = new Date();
       const text = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}-${String(now.getDate()).padStart(2, "0")} ${String(now.getHours()).padStart(2, "0")}:${String(now.getMinutes()).padStart(2, "0")}:${String(now.getSeconds()).padStart(2, "0")}`;
       const pos = editor.getPosition();
       if (pos) editor.executeEdits("insert-datetime", [{ range: new monaco.Range(pos.lineNumber, pos.column, pos.lineNumber, pos.column), text }]);
+      focus();
     };
     const selectAll = () => {
       const model = editor.getModel();
       if (model) editor.setSelection(new monaco.Range(1, 1, model.getLineCount(), model.getLineMaxColumn(model.getLineCount()) + 1));
+      focus();
     };
+    const run = (fn: () => void) => () => { fn(); focus(); };
     const items: ContextMenuItem[] = [
-      { label: t("monaco.cut"), onClick: doCut },
+      { label: t("monaco.cut"), onClick: doCut, disabled: readonly },
       { label: t("monaco.copy"), onClick: doCopy },
-      { label: t("monaco.paste"), onClick: doPaste },
+      { label: t("monaco.paste"), onClick: doPaste, disabled: readonly },
       { label: "", onClick: () => {}, divider: true },
-      { label: t("search.find"), onClick: () => useSearchStore.getState().toggleSearchPanel() },
-      { label: t("search.replace"), onClick: () => useSearchStore.getState().toggleReplacePanel() },
-      { label: t("toolbar.gotoLine").replace(/ \([^)]*\)$/, ""), onClick: () => window.dispatchEvent(new CustomEvent("markpt:goto-line")) },
+      { label: t("search.find"), onClick: run(() => useSearchStore.getState().toggleSearchPanel()) },
+      { label: t("search.replace"), onClick: run(() => useSearchStore.getState().toggleReplacePanel()) },
+      { label: t("toolbar.gotoLine").replace(/ \([^)]*\)$/, ""), onClick: run(() => window.dispatchEvent(new CustomEvent("markpt:goto-line"))) },
       { label: "", onClick: () => {}, divider: true },
-      { label: t("action.toggleComment"), onClick: () => EditOperations.toggleLineComment(editor, monaco) },
-      { label: t("action.formatDocument"), onClick: () => { editor.getAction("editor.action.formatDocument")?.run(); } },
-      { label: t("action.deleteLine"), onClick: () => EditOperations.deleteCurrentLine(editor, monaco) },
-      { label: t("action.duplicateLine"), onClick: () => EditOperations.duplicateCurrentLine(editor) },
+      { label: t("action.toggleComment"), onClick: run(() => EditOperations.toggleLineComment(editor, monaco)), disabled: readonly },
+      { label: t("action.formatDocument"), onClick: run(() => { editor.getAction("editor.action.formatDocument")?.run(); }), disabled: readonly },
+      { label: t("action.deleteLine"), onClick: run(() => EditOperations.deleteCurrentLine(editor, monaco)), disabled: readonly },
+      { label: t("action.duplicateLine"), onClick: run(() => EditOperations.duplicateCurrentLine(editor)), disabled: readonly },
       { label: "", onClick: () => {}, divider: true },
-      { label: t("dialog.insertDateTime"), onClick: insertDateTime },
+      { label: t("dialog.insertDateTime"), onClick: insertDateTime, disabled: readonly },
       { label: `${t("action.selectAll")} (${mod}+A)`, onClick: selectAll },
     ];
-    return items;
-  }, [t])();
-
-  const handleContextMenu = useCallback((e: React.MouseEvent) => {
-    e.preventDefault();
-    setCtxMenu({ x: e.clientX, y: e.clientY });
-  }, []);
+    setCtxMenu({ x: e.clientX, y: e.clientY, items });
+  }, [t, readonly]);
 
   const options: Monaco.editor.IStandaloneEditorConstructionOptions = {
     readOnly: readonly,
@@ -915,7 +922,7 @@ export function MonacoEditor({
         }
       />
       {ctxMenu && (
-        <ContextMenu x={ctxMenu.x} y={ctxMenu.y} items={contextMenuItems} onClose={closeContextMenu} />
+        <ContextMenu x={ctxMenu.x} y={ctxMenu.y} items={ctxMenu.items} onClose={closeContextMenu} />
       )}
     </div>
   );
