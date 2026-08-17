@@ -129,6 +129,7 @@ pub fn run() {
             commands::file_watcher::unwatch_all,
             commands::search::find_in_files,
             commands::search::search_in_file,
+            commands::search::replace_in_files,
             commands::export::export_as_txt,
             commands::export::export_as_html,
             commands::export::export_as_rtf,

@@ -357,6 +357,11 @@ pub fn build_menu(app_handle: &AppHandle, lang: &str) -> tauri::Result<()> {
                 tr(lang, "用 UTF-16BE 编码", "Encode as UTF-16BE"),
             )?,
             &m("encode_ascii", tr(lang, "用 ASCII 编码", "Encode as ASCII"))?,
+            &m("encode_big5", tr(lang, "用 Big5 编码", "Encode as Big5"))?,
+            &m("encode_shiftjis", tr(lang, "用 Shift-JIS 编码", "Encode as Shift-JIS"))?,
+            &m("encode_euckr", tr(lang, "用 EUC-KR 编码", "Encode as EUC-KR"))?,
+            &m("encode_iso88591", tr(lang, "用 ISO-8859-1 编码", "Encode as ISO-8859-1"))?,
+            &m("encode_windows1252", tr(lang, "用 Windows-1252 编码", "Encode as Windows-1252"))?,
             &m("convert_utf8", tr(lang, "转换为 UTF-8", "Convert to UTF-8"))?,
             &m(
                 "convert_utf8_bom",
@@ -375,6 +380,11 @@ pub fn build_menu(app_handle: &AppHandle, lang: &str) -> tauri::Result<()> {
                 "convert_utf16be",
                 tr(lang, "转换为 UTF-16BE", "Convert to UTF-16BE"),
             )?,
+            &m("convert_big5", tr(lang, "转换为 Big5", "Convert to Big5"))?,
+            &m("convert_shiftjis", tr(lang, "转换为 Shift-JIS", "Convert to Shift-JIS"))?,
+            &m("convert_euckr", tr(lang, "转换为 EUC-KR", "Convert to EUC-KR"))?,
+            &m("convert_iso88591", tr(lang, "转换为 ISO-8859-1", "Convert to ISO-8859-1"))?,
+            &m("convert_windows1252", tr(lang, "转换为 Windows-1252", "Convert to Windows-1252"))?,
         ],
     )?;
 

@@ -46,6 +46,11 @@ pub fn decode_bytes(bytes: &[u8], encoding: &Encoding) -> String {
         Encoding::Gbk | Encoding::Gb2312 => encoding_rs::GBK,
         Encoding::Utf16Le => encoding_rs::UTF_16LE,
         Encoding::Utf16Be => encoding_rs::UTF_16BE,
+        Encoding::Big5 => encoding_rs::BIG5,
+        Encoding::ShiftJis => encoding_rs::SHIFT_JIS,
+        Encoding::EucKr => encoding_rs::EUC_KR,
+        Encoding::Iso88591 => encoding_rs::WINDOWS_1252,
+        Encoding::Windows1252 => encoding_rs::WINDOWS_1252,
     };
 
     let source = if matches!(encoding, Encoding::Utf8Bom) && bytes.len() >= 3 {
@@ -66,6 +71,11 @@ pub fn encode_string(text: &str, encoding: &Encoding) -> Vec<u8> {
         Encoding::Gbk | Encoding::Gb2312 => encoding_rs::GBK,
         Encoding::Utf16Le => encoding_rs::UTF_16LE,
         Encoding::Utf16Be => encoding_rs::UTF_16BE,
+        Encoding::Big5 => encoding_rs::BIG5,
+        Encoding::ShiftJis => encoding_rs::SHIFT_JIS,
+        Encoding::EucKr => encoding_rs::EUC_KR,
+        Encoding::Iso88591 => encoding_rs::WINDOWS_1252,
+        Encoding::Windows1252 => encoding_rs::WINDOWS_1252,
     };
 
     let (cow, _, _) = enc.encode(text);

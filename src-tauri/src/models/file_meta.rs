@@ -9,6 +9,11 @@ pub enum Encoding {
     Utf16Le,
     Utf16Be,
     Ascii,
+    Big5,
+    ShiftJis,
+    EucKr,
+    Iso88591,
+    Windows1252,
     Unknown,
 }
 
@@ -22,6 +27,11 @@ impl Encoding {
             Encoding::Utf16Le => "UTF-16LE",
             Encoding::Utf16Be => "UTF-16BE",
             Encoding::Ascii => "ASCII",
+            Encoding::Big5 => "Big5",
+            Encoding::ShiftJis => "Shift-JIS",
+            Encoding::EucKr => "EUC-KR",
+            Encoding::Iso88591 => "ISO-8859-1",
+            Encoding::Windows1252 => "Windows-1252",
             Encoding::Unknown => "Unknown",
         }
     }
@@ -35,6 +45,11 @@ impl Encoding {
             "UTF-16LE" => Encoding::Utf16Le,
             "UTF-16BE" => Encoding::Utf16Be,
             "ASCII" => Encoding::Ascii,
+            "BIG5" => Encoding::Big5,
+            "SHIFT-JIS" | "SHIFTJIS" => Encoding::ShiftJis,
+            "EUC-KR" | "EUCKR" => Encoding::EucKr,
+            "ISO-8859-1" | "ISO8859-1" => Encoding::Iso88591,
+            "WINDOWS1" | "WINDOWS-1252" | "WINDOWS1252" => Encoding::Windows1252,
             _ => Encoding::Unknown,
         }
     }
@@ -86,4 +101,11 @@ pub struct SearchSummary {
     pub files_matched: u64,
     pub results: Vec<SearchResult>,
     pub truncated: bool,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct ReplaceSummary {
+    pub files_modified: u64,
+    pub total_replacements: u64,
+    pub modified_files: Vec<String>,
 }

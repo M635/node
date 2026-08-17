@@ -50,8 +50,13 @@ pub fn get_supported_encodings() -> Vec<String> {
         "UTF-8-BOM".to_string(),
         "GBK".to_string(),
         "GB2312".to_string(),
+        "Big5".to_string(),
+        "Shift-JIS".to_string(),
+        "EUC-KR".to_string(),
         "UTF-16LE".to_string(),
         "UTF-16BE".to_string(),
+        "ISO-8859-1".to_string(),
+        "Windows-1252".to_string(),
         "ASCII".to_string(),
     ]
 }
