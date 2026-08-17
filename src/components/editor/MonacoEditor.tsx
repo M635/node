@@ -138,6 +138,8 @@ export function MonacoEditor({
     fontSize, fontFamily, tabSize, insertSpaces, wordWrap,
     showLineNumbers, showWhitespace, showMinimap, folding,
     bracketPairColorization, autoIndent, showIndentGuides, showRuler,
+    smartHighlightEnabled, smartHighlightMinLength, smartHighlightMaxMatches,
+    matchHighlightEnabled, matchHighlightPattern,
   } = useSettingStore();
   const { searchQuery, replaceQuery, isRegex, caseSensitive } = useSearchStore();
   const { t } = useI18n();
@@ -634,11 +636,44 @@ export function MonacoEditor({
     if (!editor || !monaco) return;
 
     let smartDecorations: string[] = [];
+    let matchDecorations: string[] = [];
+
+    const applyMatchHighlight = () => {
+      const model = editor.getModel();
+      if (!model) return;
+      if (!matchHighlightEnabled || !matchHighlightPattern) {
+        matchDecorations = editor.deltaDecorations(matchDecorations, []);
+        return;
+      }
+      const matches: { range: Monaco.IRange; options: Monaco.editor.IModelDecorationOptions }[] = [];
+      let regex: RegExp;
+      try { regex = new RegExp(matchHighlightPattern, "gi"); } catch { return; }
+      const lineCount = model.getLineCount();
+      for (let i = 1; i <= lineCount && matches.length < smartHighlightMaxMatches; i++) {
+        const line = model.getLineContent(i);
+        let m;
+        while ((m = regex.exec(line)) !== null && matches.length < smartHighlightMaxMatches) {
+          matches.push({
+            range: new monaco.Range(i, m.index + 1, i, m.index + m[0].length + 1),
+            options: { inlineClassName: "markpt-match-highlight", stickiness: 1 },
+          });
+          if (m.index === regex.lastIndex) regex.lastIndex++;
+        }
+      }
+      matchDecorations = editor.deltaDecorations(matchDecorations, matches);
+    };
+
+    applyMatchHighlight();
+
     const handler = editor.onDidChangeCursorPosition((e) => {
       const model = editor.getModel();
       if (!model) return;
+      if (!smartHighlightEnabled) {
+        smartDecorations = editor.deltaDecorations(smartDecorations, []);
+        return;
+      }
       const word = model.getWordAtPosition(e.position);
-      if (!word || word.word.length < 2) {
+      if (!word || word.word.length < smartHighlightMinLength) {
         smartDecorations = editor.deltaDecorations(smartDecorations, []);
         return;
       }
@@ -647,10 +682,10 @@ export function MonacoEditor({
       let regex: RegExp;
       try { regex = new RegExp(`\\b${word.word.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}\\b`, flags); } catch { return; }
       const lineCount = model.getLineCount();
-      for (let i = 1; i <= lineCount && matches.length < 500; i++) {
+      for (let i = 1; i <= lineCount && matches.length < smartHighlightMaxMatches; i++) {
         const line = model.getLineContent(i);
         let m;
-        while ((m = regex.exec(line)) !== null && matches.length < 500) {
+        while ((m = regex.exec(line)) !== null && matches.length < smartHighlightMaxMatches) {
           matches.push({
             range: new monaco.Range(i, m.index + 1, i, m.index + m[0].length + 1),
             options: { inlineClassName: "markpt-smart-highlight", stickiness: 1 },
@@ -662,7 +697,7 @@ export function MonacoEditor({
     });
 
     return () => handler.dispose();
-  }, []);
+  }, [smartHighlightEnabled, smartHighlightMinLength, smartHighlightMaxMatches, matchHighlightEnabled, matchHighlightPattern]);
 
   // 代码片段 Tab 展开
   useEffect(() => {

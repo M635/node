@@ -24,6 +24,11 @@ export function SettingsDialog({ onClose }: SettingsDialogProps) {
     trimTrailingWhitespaceOnSave,
     ensureFinalNewline,
     autoDetectIndent,
+    smartHighlightEnabled,
+    smartHighlightMinLength,
+    smartHighlightMaxMatches,
+    matchHighlightEnabled,
+    matchHighlightPattern,
     setFontSize,
     setFontFamily,
     setTabSize,
@@ -39,6 +44,11 @@ export function SettingsDialog({ onClose }: SettingsDialogProps) {
     setTrimTrailingWhitespaceOnSave,
     setEnsureFinalNewline,
     setAutoDetectIndent,
+    setSmartHighlightEnabled,
+    setSmartHighlightMinLength,
+    setSmartHighlightMaxMatches,
+    setMatchHighlightEnabled,
+    setMatchHighlightPattern,
     resetToDefaults,
   } = useSettingStore();
   const { language, setLanguage, t } = useI18n();
@@ -170,6 +180,59 @@ export function SettingsDialog({ onClose }: SettingsDialogProps) {
                 type="checkbox"
                 checked={autoDetectIndent}
                 onChange={(e) => setAutoDetectIndent(e.target.checked)}
+              />
+            </div>
+          </div>
+
+          <div className="settings-section">
+            <h3>{t("dialog.settings.highlight")}</h3>
+            <div className="settings-row">
+              <label>{t("dialog.settings.smartHighlight")}</label>
+              <input
+                type="checkbox"
+                checked={smartHighlightEnabled}
+                onChange={(e) => setSmartHighlightEnabled(e.target.checked)}
+              />
+            </div>
+            <div className="settings-row">
+              <label>{t("dialog.settings.smartHighlightMinLen")}</label>
+              <input
+                type="number"
+                min={1}
+                max={10}
+                value={smartHighlightMinLength}
+                onChange={(e) => setSmartHighlightMinLength(parseInt(e.target.value) || 2)}
+                style={{ width: 60 }}
+              />
+            </div>
+            <div className="settings-row">
+              <label>{t("dialog.settings.smartHighlightMax")}</label>
+              <input
+                type="number"
+                min={10}
+                max={5000}
+                step={10}
+                value={smartHighlightMaxMatches}
+                onChange={(e) => setSmartHighlightMaxMatches(parseInt(e.target.value) || 500)}
+                style={{ width: 80 }}
+              />
+            </div>
+            <div className="settings-row">
+              <label>{t("dialog.settings.matchHighlight")}</label>
+              <input
+                type="checkbox"
+                checked={matchHighlightEnabled}
+                onChange={(e) => setMatchHighlightEnabled(e.target.checked)}
+              />
+            </div>
+            <div className="settings-row">
+              <label>{t("dialog.settings.matchHighlightPattern")}</label>
+              <input
+                type="text"
+                value={matchHighlightPattern}
+                onChange={(e) => setMatchHighlightPattern(e.target.value)}
+                placeholder="e.g. TODO|FIXME|HACK"
+                style={{ width: 200 }}
               />
             </div>
           </div>

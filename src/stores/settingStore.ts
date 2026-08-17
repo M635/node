@@ -23,6 +23,11 @@ interface SettingStore {
   showIndentGuides: boolean;
   showRuler: boolean;
   customShortcuts: Record<string, string>;
+  smartHighlightEnabled: boolean;
+  smartHighlightMinLength: number;
+  smartHighlightMaxMatches: number;
+  matchHighlightEnabled: boolean;
+  matchHighlightPattern: string;
 
   setFontSize: (size: number) => void;
   setFontFamily: (family: string) => void;
@@ -46,6 +51,11 @@ interface SettingStore {
   setCustomShortcut: (action: string, shortcut: string) => void;
   resetCustomShortcut: (action: string) => void;
   resetAllCustomShortcuts: () => void;
+  setSmartHighlightEnabled: (enabled: boolean) => void;
+  setSmartHighlightMinLength: (length: number) => void;
+  setSmartHighlightMaxMatches: (max: number) => void;
+  setMatchHighlightEnabled: (enabled: boolean) => void;
+  setMatchHighlightPattern: (pattern: string) => void;
   resetToDefaults: () => void;
 }
 
@@ -72,6 +82,11 @@ interface PersistedSettings {
   showIndentGuides?: boolean;
   showRuler?: boolean;
   customShortcuts?: Record<string, string>;
+  smartHighlightEnabled?: boolean;
+  smartHighlightMinLength?: number;
+  smartHighlightMaxMatches?: number;
+  matchHighlightEnabled?: boolean;
+  matchHighlightPattern?: string;
 }
 
 /** 读取已保存的设置；失败或不可用时返回空对象（使用默认值）。 */
@@ -110,6 +125,11 @@ function persistSettings(state: SettingStore): void {
       showIndentGuides: state.showIndentGuides,
       showRuler: state.showRuler,
       customShortcuts: state.customShortcuts,
+      smartHighlightEnabled: state.smartHighlightEnabled,
+      smartHighlightMinLength: state.smartHighlightMinLength,
+      smartHighlightMaxMatches: state.smartHighlightMaxMatches,
+      matchHighlightEnabled: state.matchHighlightEnabled,
+      matchHighlightPattern: state.matchHighlightPattern,
     };
     localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
   } catch {
@@ -140,6 +160,11 @@ export const useSettingStore = create<SettingStore>((set) => ({
   showIndentGuides: saved.showIndentGuides ?? true,
   showRuler: saved.showRuler ?? false,
   customShortcuts: saved.customShortcuts ?? {},
+  smartHighlightEnabled: saved.smartHighlightEnabled ?? true,
+  smartHighlightMinLength: saved.smartHighlightMinLength ?? 2,
+  smartHighlightMaxMatches: saved.smartHighlightMaxMatches ?? 500,
+  matchHighlightEnabled: saved.matchHighlightEnabled ?? false,
+  matchHighlightPattern: saved.matchHighlightPattern ?? "",
 
   setFontSize: (size) => set({ fontSize: size }),
   setFontFamily: (family) => set({ fontFamily: family }),
@@ -176,6 +201,11 @@ export const useSettingStore = create<SettingStore>((set) => ({
       return { customShortcuts: next };
     }),
   resetAllCustomShortcuts: () => set({ customShortcuts: {} }),
+  setSmartHighlightEnabled: (enabled) => set({ smartHighlightEnabled: enabled }),
+  setSmartHighlightMinLength: (length) => set({ smartHighlightMinLength: length }),
+  setSmartHighlightMaxMatches: (max) => set({ smartHighlightMaxMatches: max }),
+  setMatchHighlightEnabled: (enabled) => set({ matchHighlightEnabled: enabled }),
+  setMatchHighlightPattern: (pattern) => set({ matchHighlightPattern: pattern }),
   resetToDefaults: () =>
     set({
       fontSize: defaultEditorConfig.fontSize,
