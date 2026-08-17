@@ -113,6 +113,7 @@ export function useKeyboardShortcuts(handlers: ShortcutHandlers): void {
 
   useEffect(() => {
     let unlisten: UnlistenFn | null = null;
+    let active = true;
 
     (async () => {
       unlisten = await listen<string>("menu-event", (event) => {
@@ -282,6 +283,7 @@ export function useKeyboardShortcuts(handlers: ShortcutHandlers): void {
           case "window_list": h.onWindowList?.(); break;
         }
       });
+      if (!active) { unlisten(); unlisten = null; }
     })();
 
     const handleCustomEvent = (e: Event) => {
@@ -317,6 +319,7 @@ export function useKeyboardShortcuts(handlers: ShortcutHandlers): void {
     events.forEach((evt) => window.addEventListener(evt, handleCustomEvent));
 
     return () => {
+      active = false;
       if (unlisten) unlisten();
       events.forEach((evt) => window.removeEventListener(evt, handleCustomEvent));
     };

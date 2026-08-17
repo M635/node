@@ -825,12 +825,14 @@ export default function App() {
   handleQuitRef.current = handleQuit;
   useEffect(() => {
     let unlisten: (() => void) | null = null;
+    let active = true;
     (async () => {
       unlisten = await listen("window-close-requested", () => {
         handleQuitRef.current();
       });
+      if (!active) { unlisten(); unlisten = null; }
     })();
-    return () => { if (unlisten) unlisten(); };
+    return () => { active = false; if (unlisten) unlisten(); };
   }, []);
 
   // 启动时同步语言与原生菜单

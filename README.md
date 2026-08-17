@@ -2,6 +2,12 @@
 
 对标 Notepad++ 的跨平台轻量化文本编辑器，基于 Tauri + Rust + TypeScript + Monaco Editor 构建。
 
+## v2.8.8 更新内容
+
+### 监听器竞态与依赖修复
+- 修复 App.tsx 和 useKeyboardShortcuts 的 Tauri listen() 竞态泄漏：添加 active flag，StrictMode 下不再泄漏
+- 修复 MonacoEditor edit-action useEffect 缺少 t 依赖：语言切换后过滤提示文本正确更新
+
 ## v2.8.7 更新内容
 
 ### 防御性修复

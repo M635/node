@@ -282,7 +282,7 @@ export function MonacoEditor({
     };
     window.addEventListener("markpt:edit-action", handler);
     return () => window.removeEventListener("markpt:edit-action", handler);
-  }, []);
+  }, [t]);
 
   // 撤销/重做
   useEffect(() => {
