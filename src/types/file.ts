@@ -35,6 +35,8 @@ export interface FileTab {
   cursor_position: { line: number; column: number };
   scroll_position: number;
   is_new: boolean;
+  is_locked: boolean;
+  tab_color: string | null;
 }
 
 export interface FileOpenResult {

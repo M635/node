@@ -123,6 +123,7 @@ export default function App() {
         readonly: result.meta.readonly, encoding: result.meta.encoding,
         language: getLanguageFromPath(path),
         cursor_position: { line: 1, column: 1 }, scroll_position: 0, is_new: false,
+        is_locked: false, tab_color: null,
       });
       addRecentFile(path);
       if (useSettingStore.getState().autoDetectIndent) {
@@ -141,6 +142,7 @@ export default function App() {
       is_dirty: false, is_large_file: false, readonly: false,
       encoding: "UTF-8", language: "plaintext",
       cursor_position: { line: 1, column: 1 }, scroll_position: 0, is_new: true,
+      is_locked: false, tab_color: null,
     });
   }, [openTab, t]);
 
@@ -209,6 +211,7 @@ export default function App() {
         encoding: encodings[encIdx] as EncodingType,
         language: getLanguageFromPath(path),
         cursor_position: { line: 1, column: 1 }, scroll_position: 0, is_new: false,
+        is_locked: false, tab_color: null,
       });
       addRecentFile(path);
     } catch (err) {
@@ -892,6 +895,7 @@ export default function App() {
                 cursor_position: { line: tab.cursor_line || 1, column: tab.cursor_column || 1 },
                 scroll_position: tab.scroll_position || 0,
                 is_new: true,
+                is_locked: false, tab_color: null,
               });
             } else {
               const result = await openFileService(tab.path);
@@ -904,6 +908,7 @@ export default function App() {
                 language: tab.language,
                 cursor_position: { line: tab.cursor_line, column: tab.cursor_column },
                 scroll_position: tab.scroll_position, is_new: false,
+                is_locked: false, tab_color: null,
               });
             }
           } catch { /* ignore */ }

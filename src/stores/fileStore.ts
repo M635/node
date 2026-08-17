@@ -18,6 +18,10 @@ interface FileStore {
   reorderTabs: (fromIndex: number, toIndex: number) => void;
   sortTabs: (by: "name" | "path" | "type" | "size") => void;
   addRecentFile: (path: string) => void;
+  cloneTab: (id: string) => void;
+  lockTab: (id: string) => void;
+  unlockTab: (id: string) => void;
+  setTabColor: (id: string, color: string | null) => void;
   getActiveTab: () => FileTab | null;
   getTabByPath: (path: string) => FileTab | null;
 }
@@ -45,6 +49,8 @@ export const useFileStore = create<FileStore>((set, get) => ({
 
   closeTab: (id) =>
     set((state) => {
+      const tab = state.tabs.find((t) => t.id === id);
+      if (tab?.is_locked) return state;
       const idx = state.tabs.findIndex((t) => t.id === id);
       const newTabs = state.tabs.filter((t) => t.id !== id);
       let newActive = state.activeTabId;
@@ -125,6 +131,37 @@ export const useFileStore = create<FileStore>((set, get) => ({
         path,
         ...state.recentFiles.filter((p) => p !== path),
       ].slice(0, 20),
+    })),
+
+  cloneTab: (id) =>
+    set((state) => {
+      const tab = state.tabs.find((t) => t.id === id);
+      if (!tab) return state;
+      const cloned: FileTab = {
+        ...tab,
+        id: generateId(),
+        is_dirty: true,
+        is_locked: false,
+        tab_color: null,
+      };
+      const idx = state.tabs.findIndex((t) => t.id === id);
+      const newTabs = [...state.tabs.slice(0, idx + 1), cloned, ...state.tabs.slice(idx + 1)];
+      return { tabs: newTabs, activeTabId: cloned.id };
+    }),
+
+  lockTab: (id) =>
+    set((state) => ({
+      tabs: state.tabs.map((t) => (t.id === id ? { ...t, is_locked: true } : t)),
+    })),
+
+  unlockTab: (id) =>
+    set((state) => ({
+      tabs: state.tabs.map((t) => (t.id === id ? { ...t, is_locked: false } : t)),
+    })),
+
+  setTabColor: (id, color) =>
+    set((state) => ({
+      tabs: state.tabs.map((t) => (t.id === id ? { ...t, tab_color: color } : t)),
     })),
 
   getActiveTab: () => {

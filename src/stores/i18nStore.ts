@@ -122,6 +122,10 @@ const translations: Record<string, Record<Language, string>> = {
   "tab.closeAll": { zh: "关闭全部", en: "Close All" },
   "tab.duplicate": { zh: "创建副本", en: "Duplicate" },
   "tab.duplicateName": { zh: "{name} 副本", en: "{name} Copy" },
+  "tab.clone": { zh: "克隆标签", en: "Clone Tab" },
+  "tab.lock": { zh: "锁定标签", en: "Lock Tab" },
+  "tab.unlock": { zh: "解锁标签", en: "Unlock Tab" },
+  "tab.color": { zh: "标签颜色", en: "Tab Color" },
   "tab.copyPath": { zh: "复制路径", en: "Copy Path" },
   "tab.copyName": { zh: "复制文件名", en: "Copy Filename" },
 

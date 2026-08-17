@@ -41,6 +41,7 @@ const languageColors: Record<string, string> = {
 };
 
 function getTabColor(tab: FileTab): string | undefined {
+  if (tab.tab_color) return tab.tab_color;
   if (tab.is_new) return undefined;
   return languageColors[tab.language];
 }
@@ -77,7 +78,8 @@ export function TabItem({
         <span className="tab-color-dot" style={{ background: color }} />
       )}
       <span className="tab-icon">
-        {tab.readonly && "🔒"}
+        {tab.is_locked && "🔒"}
+        {tab.readonly && !tab.is_locked && "🔐"}
         {tab.is_large_file && "📦"}
       </span>
       <span className="tab-name">{tab.name || title}</span>
@@ -89,6 +91,8 @@ export function TabItem({
           onClose();
         }}
         title={t("common.close")}
+        disabled={tab.is_locked}
+        style={tab.is_locked ? { cursor: "not-allowed", opacity: 0.3 } : undefined}
       >
         ×
       </button>
