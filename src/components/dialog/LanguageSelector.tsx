@@ -1,6 +1,7 @@
 import { useState, useMemo } from "react";
 import * as Monaco from "monaco-editor";
 import { useI18n } from "../../stores/i18nStore";
+import { useEscapeClose } from "../../hooks/useEscapeClose";
 
 interface LanguageSelectorProps {
   currentLanguage: string;
@@ -112,6 +113,7 @@ const LANGUAGE_GROUPS: { groupKey: string; languages: { id: string; name: string
 
 export function LanguageSelector({ currentLanguage, onSelect, onClose }: LanguageSelectorProps) {
   const { t } = useI18n();
+  useEscapeClose(onClose);
   const [filter, setFilter] = useState("");
 
   const filtered = useMemo(() => {

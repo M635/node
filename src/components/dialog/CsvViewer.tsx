@@ -2,6 +2,7 @@ import { useState, useMemo, useCallback } from "react";
 import { save } from "@tauri-apps/plugin-dialog";
 import { invoke } from "@tauri-apps/api/core";
 import { useI18n } from "../../stores/i18nStore";
+import { useEscapeClose } from "../../hooks/useEscapeClose";
 
 interface CsvViewerProps {
   content: string;
@@ -12,6 +13,7 @@ type Delimiter = "comma" | "tab" | "semicolon" | "pipe";
 
 export function CsvViewer({ content, onClose }: CsvViewerProps) {
   const { t } = useI18n();
+  useEscapeClose(onClose);
   const [delimiter, setDelimiter] = useState<Delimiter>("comma");
   const [hasHeader, setHasHeader] = useState(true);
 

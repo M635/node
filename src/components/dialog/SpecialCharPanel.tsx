@@ -1,6 +1,7 @@
 import { useState, useMemo } from "react";
 import { InsertUtils } from "../../services/text/insertUtils";
 import { useI18n } from "../../stores/i18nStore";
+import { useEscapeClose } from "../../hooks/useEscapeClose";
 
 interface SpecialCharPanelProps {
   onInsert: (char: string) => void;
@@ -19,6 +20,7 @@ const CATEGORY_KEYS: Record<string, string> = {
 
 export function SpecialCharPanel({ onInsert, onClose }: SpecialCharPanelProps) {
   const { t } = useI18n();
+  useEscapeClose(onClose);
   const [filter, setFilter] = useState("");
   const allChars = useMemo(() => InsertUtils.specialCharacters(), []);
 

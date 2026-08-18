@@ -34,7 +34,10 @@ export function MultiDocSearch({ onClose }: MultiDocSearchProps) {
       return;
     }
 
+    const MAX_RESULTS = 2000;
     const searchResults: SearchResult[] = [];
+    let totalMatches = 0;
+    outer:
     for (const tab of tabs) {
       const matches: SearchResult["matches"] = [];
       const lines = tab.content.split("\n");
@@ -51,6 +54,8 @@ export function MultiDocSearch({ onClose }: MultiDocSearchProps) {
             preview: (previewStart > 0 ? "..." : "") + lines[i].slice(previewStart, previewEnd) + (previewEnd < lines[i].length ? "..." : ""),
           });
           if (match.index === regex.lastIndex) regex.lastIndex++;
+          totalMatches++;
+          if (totalMatches >= MAX_RESULTS) break outer;
         }
       }
       if (matches.length > 0) {

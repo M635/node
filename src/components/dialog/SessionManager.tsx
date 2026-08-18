@@ -6,6 +6,7 @@ import {
   loadNamedSession,
   type SessionData,
 } from "../../services/session/sessionService";
+import { useEscapeClose } from "../../hooks/useEscapeClose";
 
 interface SessionManagerProps {
   onLoadSession: (data: SessionData) => void;
@@ -21,6 +22,7 @@ interface SessionInfo {
 
 export function SessionManager({ onLoadSession, onSaveCurrent, onClose }: SessionManagerProps) {
   const { t } = useI18n();
+  useEscapeClose(onClose);
   const [sessions, setSessions] = useState<SessionInfo[]>([]);
   const [newName, setNewName] = useState("");
   const [loading, setLoading] = useState(false);

@@ -1,4 +1,5 @@
 import { useI18n } from "../../stores/i18nStore";
+import { useEscapeClose } from "../../hooks/useEscapeClose";
 
 interface ShortcutsHelpProps {
   onClose: () => void;
@@ -6,6 +7,7 @@ interface ShortcutsHelpProps {
 
 export function ShortcutsHelp({ onClose }: ShortcutsHelpProps) {
   const { t } = useI18n();
+  useEscapeClose(onClose);
   const mod = /Mac|iPod|iPhone|iPad/.test(navigator.platform || navigator.userAgent) ? "Cmd" : "Ctrl";
 
   const SHORTCUTS: { category: string; keys: { key: string; desc: string }[] }[] = [

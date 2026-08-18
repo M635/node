@@ -1,4 +1,5 @@
 import { useI18n } from "../../stores/i18nStore";
+import { useEscapeClose } from "../../hooks/useEscapeClose";
 
 interface ReloadConfirmDialogProps {
   fileName: string;
@@ -12,6 +13,7 @@ export function ReloadConfirmDialog({
   onIgnore,
 }: ReloadConfirmDialogProps) {
   const { t } = useI18n();
+  useEscapeClose(onIgnore);
 
   return (
     <div className="dialog-overlay">

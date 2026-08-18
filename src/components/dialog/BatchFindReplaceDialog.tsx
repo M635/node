@@ -1,6 +1,7 @@
 import { useState, useCallback } from "react";
 import { useFileStore } from "../../stores/fileStore";
 import { useI18n } from "../../stores/i18nStore";
+import { useEscapeClose } from "../../hooks/useEscapeClose";
 
 interface BatchFindReplaceProps {
   onClose: () => void;
@@ -16,6 +17,7 @@ interface BatchRule {
 export function BatchFindReplace({ onClose }: BatchFindReplaceProps) {
   const { tabs } = useFileStore();
   const { t } = useI18n();
+  useEscapeClose(onClose);
   const [rules, setRules] = useState<BatchRule[]>([
     { id: "1", find: "", replace: "", enabled: true },
   ]);

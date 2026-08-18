@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { useI18n } from "../../stores/i18nStore";
+import { useEscapeClose } from "../../hooks/useEscapeClose";
 
 interface CharacterStats {
   chars: number;
@@ -20,6 +21,7 @@ interface CharacterStatsDialogProps {
 
 export function CharacterStatsDialog({ content, selectedChars, selectedLines, onClose }: CharacterStatsDialogProps) {
   const { t } = useI18n();
+  useEscapeClose(onClose);
   const [stats, setStats] = useState<CharacterStats | null>(null);
 
   useEffect(() => {

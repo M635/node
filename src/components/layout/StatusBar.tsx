@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import type { FileTab } from "../../types/file";
 import { formatFileSize } from "../../utils/fileUtils";
 import { getEncodingDisplayName } from "../../utils/encodingUtils";
@@ -40,15 +40,18 @@ export function StatusBar({
   }, []);
 
   useEffect(() => {
-    if (activeTab?.content) {
-      const content = activeTab.content;
-      setCharCount(content.length);
-      const words = content.trim().split(/\s+/).filter((w) => w.length > 0);
-      setWordCount(words.length);
-    } else {
+    if (!activeTab?.content) {
       setCharCount(0);
       setWordCount(0);
+      return;
     }
+    const content = activeTab.content;
+    setCharCount(content.length);
+    const timer = setTimeout(() => {
+      const words = content.trim().split(/\s+/).filter((w) => w.length > 0);
+      setWordCount(words.length);
+    }, 300);
+    return () => clearTimeout(timer);
   }, [activeTab?.content]);
 
   const handleToggleMacro = () => {

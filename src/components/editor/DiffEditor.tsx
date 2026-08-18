@@ -1,4 +1,4 @@
-import { useState, useCallback, useRef } from "react";
+import { useState, useCallback, useRef, useEffect } from "react";
 import { DiffEditor } from "@monaco-editor/react";
 import type { editor as MonacoEditorNS } from "monaco-editor";
 import { useEditorStore } from "../../stores/editorStore";
@@ -21,12 +21,19 @@ export function DiffEditorView({
   const { fontSize, fontFamily, showLineNumbers } = useSettingStore();
   const { t } = useI18n();
   const diffEditorRef = useRef<MonacoEditorNS.IDiffEditor | null>(null);
+  const mountTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const [diffLineChanges, setDiffLineChanges] = useState<number[]>([]);
   const [currentDiffIdx, setCurrentDiffIdx] = useState(-1);
 
   const handleMount = useCallback((editor: MonacoEditorNS.IDiffEditor) => {
     diffEditorRef.current = editor;
-    setTimeout(() => collectDiffLines(), 200);
+    mountTimerRef.current = setTimeout(() => collectDiffLines(), 200);
+  }, []);
+
+  useEffect(() => {
+    return () => {
+      if (mountTimerRef.current) clearTimeout(mountTimerRef.current);
+    };
   }, []);
 
   const collectDiffLines = useCallback(() => {

@@ -1,6 +1,7 @@
 import { useState, useCallback } from "react";
 import { InsertUtils } from "../../services/text/insertUtils";
 import { useI18n } from "../../stores/i18nStore";
+import { useEscapeClose } from "../../hooks/useEscapeClose";
 
 interface ColorPickerDialogProps {
   onInsert: (color: string) => void;
@@ -9,6 +10,7 @@ interface ColorPickerDialogProps {
 
 export function ColorPickerDialog({ onInsert, onClose }: ColorPickerDialogProps) {
   const { t } = useI18n();
+  useEscapeClose(onClose);
   const [r, setR] = useState(0);
   const [g, setG] = useState(122);
   const [b, setB] = useState(255);

@@ -1,6 +1,7 @@
 import { useEffect, useState, useRef } from "react";
 import * as Monaco from "monaco-editor";
 import { useI18n } from "../../stores/i18nStore";
+import { useEscapeClose } from "../../hooks/useEscapeClose";
 
 interface FunctionSymbol {
   name: string;
@@ -111,6 +112,7 @@ function buildTree(symbols: FunctionSymbol[]): FunctionSymbol[] {
 
 export function FunctionListPanel({ editor, onClose }: FunctionListPanelProps) {
   const { t } = useI18n();
+  useEscapeClose(onClose);
   const [tree, setTree] = useState<FunctionSymbol[]>([]);
   const [filter, setFilter] = useState("");
   const containerRef = useRef<HTMLDivElement>(null);

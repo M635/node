@@ -1,6 +1,7 @@
 import { useState, useCallback, useEffect, useRef } from "react";
 import { useI18n } from "../../stores/i18nStore";
 import { useSettingStore } from "../../stores/settingStore";
+import { useEscapeClose } from "../../hooks/useEscapeClose";
 
 interface ShortcutMapperProps {
   onClose: () => void;
@@ -53,6 +54,7 @@ function keyEventToShortcut(e: KeyboardEvent): string {
 
 export function ShortcutMapper({ onClose }: ShortcutMapperProps) {
   const { t } = useI18n();
+  useEscapeClose(onClose);
   const { customShortcuts, setCustomShortcut, resetCustomShortcut, resetAllCustomShortcuts } = useSettingStore();
   const [capturingAction, setCapturingAction] = useState<string | null>(null);
   const captureRef = useRef<HTMLDivElement>(null);

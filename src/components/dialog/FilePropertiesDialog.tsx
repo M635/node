@@ -1,8 +1,9 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import { invoke } from "@tauri-apps/api/core";
 import { useI18n } from "../../stores/i18nStore";
 import { describeError } from "../../utils/errors";
 import type { FileTab } from "../../types/file";
+import { useEscapeClose } from "../../hooks/useEscapeClose";
 
 interface FilePropertiesDialogProps {
   tab: FileTab;
@@ -21,6 +22,7 @@ interface FileInfo {
 
 export function FilePropertiesDialog({ tab, onClose }: FilePropertiesDialogProps) {
   const { t } = useI18n();
+  useEscapeClose(onClose);
   const [fileInfo, setFileInfo] = useState<FileInfo | null>(null);
 
   useEffect(() => {
@@ -42,9 +44,13 @@ export function FilePropertiesDialog({ tab, onClose }: FilePropertiesDialogProps
     return `${(bytes / (1024 * 1024 * 1024)).toFixed(2)} GB`;
   };
 
-  const lineCount = tab.content.split("\n").length;
-  const wordCount = (tab.content.match(/\S+/g) || []).length;
-  const charCount = tab.content.length;
+  const { lineCount, wordCount, charCount, byteSize } = useMemo(() => {
+    const lines = tab.content.split("\n").length;
+    const words = (tab.content.match(/\S+/g) || []).length;
+    const chars = tab.content.length;
+    const bytes = new TextEncoder().encode(tab.content).length;
+    return { lineCount: lines, wordCount: words, charCount: chars, byteSize: bytes };
+  }, [tab.content]);
 
   return (
     <div className="dialog-overlay" onClick={onClose}>
@@ -101,7 +107,7 @@ export function FilePropertiesDialog({ tab, onClose }: FilePropertiesDialogProps
               </div>
               <div className="prop-item">
                 <span className="prop-label">{t("props.byteSize")}</span>
-                <span className="prop-value">{formatSize(new TextEncoder().encode(tab.content).length)}</span>
+                <span className="prop-value">{formatSize(byteSize)}</span>
               </div>
             </div>
           </div>

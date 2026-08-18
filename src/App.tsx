@@ -1148,7 +1148,7 @@ pre { white-space: pre-wrap; tab-size: ${useSettingStore.getState().tabSize}; }
       )}
       {showFunctionList && (
         <FunctionListPanel
-          editor={(window as any).monaco?.editor?.getEditors?.()[0] || null}
+          editor={(window as any).monaco?.editor?.getEditors?.().find((e: any) => e.hasTextFocus()) || (window as any).monaco?.editor?.getEditors?.()[0] || null}
           onClose={() => setShowFunctionList(false)}
         />
       )}

@@ -1,5 +1,6 @@
 import { useState, useMemo } from "react";
 import { useI18n } from "../../stores/i18nStore";
+import { useEscapeClose } from "../../hooks/useEscapeClose";
 
 interface RegexTesterProps {
   onClose: () => void;
@@ -13,6 +14,7 @@ interface TestMatch {
 
 export function RegexTester({ onClose }: RegexTesterProps) {
   const { t } = useI18n();
+  useEscapeClose(onClose);
   const [pattern, setPattern] = useState("");
   const [flags, setFlags] = useState("g");
   const [testText, setTestText] = useState("");

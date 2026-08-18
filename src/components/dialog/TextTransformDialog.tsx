@@ -1,6 +1,7 @@
 import { useState, useCallback } from "react";
 import { TextTransform } from "../../services/text/textTransform";
 import { useI18n } from "../../stores/i18nStore";
+import { useEscapeClose } from "../../hooks/useEscapeClose";
 
 interface TextTransformDialogProps {
   content: string;
@@ -43,6 +44,7 @@ const TRANSFORM_LABEL_KEYS: Record<TransformType, string> = {
 
 export function TextTransformDialog({ content, onApply, onClose }: TextTransformDialogProps) {
   const { t } = useI18n();
+  useEscapeClose(onClose);
   const [selected, setSelected] = useState<TransformType | null>(null);
   const [result, setResult] = useState("");
   const [hashResult, setHashResult] = useState("");

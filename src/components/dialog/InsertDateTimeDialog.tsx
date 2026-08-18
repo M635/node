@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { InsertUtils } from "../../services/text/insertUtils";
 import { useI18n } from "../../stores/i18nStore";
+import { useEscapeClose } from "../../hooks/useEscapeClose";
 
 interface InsertDateTimeDialogProps {
   onInsert: (text: string) => void;
@@ -9,6 +10,7 @@ interface InsertDateTimeDialogProps {
 
 export function InsertDateTimeDialog({ onInsert, onClose }: InsertDateTimeDialogProps) {
   const { t } = useI18n();
+  useEscapeClose(onClose);
   const [customFormat, setCustomFormat] = useState("YYYY-MM-DD HH:mm:ss");
 
   const formats: { label: string; value: string }[] = [
