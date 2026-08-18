@@ -70,6 +70,28 @@ export function buildEditorContextMenu(opts: {
     { label: t("action.toLowerCase"), onClick: run(() => EditOperations.toLowerCase(editor)), disabled: readonly || !hasSelection },
     { label: t("action.trimTrailing"), onClick: run(() => EditOperations.trimTrailingWhitespace(editor)), disabled: readonly },
     { label: "", onClick: () => {}, divider: true },
+    { label: t("tt.base64Encode"), onClick: run(() => {
+      const s = editor.getSelection(); if (!s) return;
+      const text = editor.getModel()?.getValueInRange(s) || "";
+      const encoded = btoa(unescape(encodeURIComponent(text)));
+      editor.executeEdits("base64-encode", [{ range: s, text: encoded }]);
+    }), disabled: readonly || !hasSelection },
+    { label: t("tt.base64Decode"), onClick: run(() => {
+      const s = editor.getSelection(); if (!s) return;
+      const text = editor.getModel()?.getValueInRange(s) || "";
+      try { const decoded = decodeURIComponent(escape(atob(text))); editor.executeEdits("base64-decode", [{ range: s, text: decoded }]); } catch {}
+    }), disabled: readonly || !hasSelection },
+    { label: t("tt.urlEncode"), onClick: run(() => {
+      const s = editor.getSelection(); if (!s) return;
+      const text = editor.getModel()?.getValueInRange(s) || "";
+      editor.executeEdits("url-encode", [{ range: s, text: encodeURIComponent(text) }]);
+    }), disabled: readonly || !hasSelection },
+    { label: t("tt.urlDecode"), onClick: run(() => {
+      const s = editor.getSelection(); if (!s) return;
+      const text = editor.getModel()?.getValueInRange(s) || "";
+      try { editor.executeEdits("url-decode", [{ range: s, text: decodeURIComponent(text) }]); } catch {}
+    }), disabled: readonly || !hasSelection },
+    { label: "", onClick: () => {}, divider: true },
     { label: t("dialog.insertDateTime"), onClick: run(() => {
       const now = new Date();
       const text = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}-${String(now.getDate()).padStart(2, "0")} ${String(now.getHours()).padStart(2, "0")}:${String(now.getMinutes()).padStart(2, "0")}:${String(now.getSeconds()).padStart(2, "0")}`;
