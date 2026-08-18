@@ -602,6 +602,10 @@ const translations: Record<string, Record<Language, string>> = {
   "print.footer": { zh: "页脚", en: "Footer" },
   "print.print": { zh: "打印", en: "Print" },
   "print.lineCount": { zh: "共 {n} 行", en: "{n} lines" },
+
+  "bookmark.empty": { zh: "暂无书签", en: "No bookmarks" },
+  "bookmark.total": { zh: "共 {n} 个书签", en: "{n} bookmarks total" },
+  "bookmark.list": { zh: "书签列表", en: "Bookmark List" },
 };
 
 interface I18nStore {

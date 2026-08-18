@@ -39,6 +39,7 @@ import { RunCommandDialog } from "./components/dialog/RunCommandDialog";
 import { RunMacroDialog } from "./components/dialog/RunMacroDialog";
 import { SessionManager } from "./components/dialog/SessionManager";
 import { PrintPreviewDialog } from "./components/dialog/PrintPreviewDialog";
+import { BookmarkListPanel } from "./components/dialog/BookmarkListPanel";
 import { TextTransform } from "./services/text/textTransform";
 import { FormatService } from "./services/text/formatService";
 import { CharConvert } from "./services/text/charConvert";
@@ -108,6 +109,7 @@ export default function App() {
   const [showRunMacro, setShowRunMacro] = useState(false);
   const [showSessionManager, setShowSessionManager] = useState(false);
   const [showPrintPreview, setShowPrintPreview] = useState(false);
+  const [showBookmarkList, setShowBookmarkList] = useState(false);
   const [showRecentFolders, setShowRecentFolders] = useState(false);
   const recentFolders = useSettingStore((s) => s.recentFolders);
   const [postItMode, setPostItMode] = useState(false);
@@ -713,6 +715,10 @@ export default function App() {
         e.preventDefault();
         window.dispatchEvent(new CustomEvent("markpt:prev-bookmark"));
       }
+      if ((e.metaKey || e.ctrlKey) && e.altKey && e.key === "b") {
+        e.preventDefault();
+        setShowBookmarkList(true);
+      }
     };
     window.addEventListener("keydown", handler);
     return () => window.removeEventListener("keydown", handler);
@@ -1262,6 +1268,9 @@ export default function App() {
       )}
       {showPrintPreview && activeTab && (
         <PrintPreviewDialog tab={activeTab} onClose={() => setShowPrintPreview(false)} />
+      )}
+      {showBookmarkList && (
+        <BookmarkListPanel onClose={() => setShowBookmarkList(false)} />
       )}
       {showRecentFolders && (
         <div className="dialog-overlay" onClick={() => setShowRecentFolders(false)}>
