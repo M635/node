@@ -24,13 +24,14 @@ interface MainLayoutProps {
   onSplitVertical: () => void;
   onLanguageSelector: () => void;
   onCompareStart: () => void;
+  onPrint: () => void;
   selectionInfo: { chars: number; lines: number } | null;
 }
 
 export function MainLayout({
   children, onNewTab, onCloseTab, onSave, onSaveAll, onOpenFile, onGotoLine, onExport,
   onOpenEncoding, onOpenSettings, onFunctionList, onSplitHorizontal, onSplitVertical,
-  onLanguageSelector, onCompareStart, selectionInfo,
+  onLanguageSelector, onCompareStart, onPrint, selectionInfo,
 }: MainLayoutProps) {
   const { tabs, activeTabId } = useFileStore();
   const { isSearchPanelOpen, isFindInFilesOpen, toggleSearchPanel, toggleReplacePanel, toggleFindInFiles } = useSearchStore();
@@ -47,7 +48,7 @@ export function MainLayout({
   const handleZoomReset = () => dispatch("markpt:zoom-reset");
   const handleToggleWordWrap = () => useSettingStore.getState().setWordWrap(!useSettingStore.getState().wordWrap);
   const handleToggleLineNumbers = () => useSettingStore.getState().setShowLineNumbers(!useSettingStore.getState().showLineNumbers);
-  const handlePrint = () => window.print();
+  const handlePrint = onPrint;
   const handleCompareClear = () => dispatch("markpt:compare-clear");
   const handleCompareSyncScroll = () => dispatch("markpt:compare-sync-scroll");
 

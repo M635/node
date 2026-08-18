@@ -38,6 +38,7 @@ import { PluginManager } from "./components/dialog/PluginManager";
 import { RunCommandDialog } from "./components/dialog/RunCommandDialog";
 import { RunMacroDialog } from "./components/dialog/RunMacroDialog";
 import { SessionManager } from "./components/dialog/SessionManager";
+import { PrintPreviewDialog } from "./components/dialog/PrintPreviewDialog";
 import { TextTransform } from "./services/text/textTransform";
 import { FormatService } from "./services/text/formatService";
 import { CharConvert } from "./services/text/charConvert";
@@ -106,6 +107,7 @@ export default function App() {
   const [showRunCommand, setShowRunCommand] = useState(false);
   const [showRunMacro, setShowRunMacro] = useState(false);
   const [showSessionManager, setShowSessionManager] = useState(false);
+  const [showPrintPreview, setShowPrintPreview] = useState(false);
   const [showRecentFolders, setShowRecentFolders] = useState(false);
   const recentFolders = useSettingStore((s) => s.recentFolders);
   const [postItMode, setPostItMode] = useState(false);
@@ -117,6 +119,12 @@ export default function App() {
   useEffect(() => { setIsDark(themeResult.isDark); }, [themeResult.isDark, setIsDark]);
 
   const activeTab = getActiveTab();
+
+  const handlePrint = useCallback(() => {
+    const tab = getActiveTab();
+    if (!tab) return;
+    setShowPrintPreview(true);
+  }, []);
 
   const openFileByPath = useCallback(async (path: string) => {
     try {
@@ -868,28 +876,7 @@ export default function App() {
     onSaveAll: handleSaveAll,
     onSessionManager: () => setShowSessionManager(true),
     onRecentFolders: () => setShowRecentFolders(true),
-    onPrint: () => {
-      const tab = getActiveTab();
-      if (!tab) return;
-      const html = `<!DOCTYPE html>
-<html><head><meta charset="UTF-8"><title>${tab.name}</title>
-<style>
-body { font-family: 'Courier New', monospace; font-size: 12px; line-height: 1.5; margin: 20px; }
-h1 { font-size: 16px; margin-bottom: 10px; }
-pre { white-space: pre-wrap; tab-size: ${useSettingStore.getState().tabSize}; }
-.meta { color: #666; font-size: 10px; margin-bottom: 20px; }
-</style></head><body>
-<h1>${tab.name}</h1>
-<div class="meta">${tab.path || t("common.unnamed")} | ${tab.encoding} | ${tab.content.split("\n").length} ${t("statusbar.line")}</div>
-<pre>${tab.content.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;")}</pre>
-</body></html>`;
-      const printWindow = window.open("", "_blank");
-      if (printWindow) {
-        printWindow.document.write(html);
-        printWindow.document.close();
-        printWindow.print();
-      }
-    },
+    onPrint: handlePrint,
     onCopyDirectory: handleCopyDirectory,
     onCopyFileName: handleCopyFileName,
     onClipboardHistory: () => setShowClipboardHistory(true),
@@ -1068,6 +1055,7 @@ pre { white-space: pre-wrap; tab-size: ${useSettingStore.getState().tabSize}; }
           onSplitVertical={() => setSplitMode(splitMode === "vertical" ? null : "vertical")}
           onLanguageSelector={() => setShowLanguageSelector(true)}
           onCompareStart={handleToggleDiff}
+          onPrint={handlePrint}
           selectionInfo={selectionInfo}
         >
           {activeTab ? (
@@ -1271,6 +1259,9 @@ pre { white-space: pre-wrap; tab-size: ${useSettingStore.getState().tabSize}; }
           }}
           onClose={() => setShowSessionManager(false)}
         />
+      )}
+      {showPrintPreview && activeTab && (
+        <PrintPreviewDialog tab={activeTab} onClose={() => setShowPrintPreview(false)} />
       )}
       {showRecentFolders && (
         <div className="dialog-overlay" onClick={() => setShowRecentFolders(false)}>

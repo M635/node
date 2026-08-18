@@ -590,6 +590,18 @@ const translations: Record<string, Record<Language, string>> = {
   "monaco.paste": { zh: "粘贴", en: "Paste" },
 
   "errors.unknown": { zh: "操作失败，请重试", en: "Operation failed, please retry" },
+
+  "print.preview": { zh: "打印预览", en: "Print Preview" },
+  "print.fontSize": { zh: "字号", en: "Font Size" },
+  "print.margin": { zh: "边距", en: "Margin" },
+  "print.orientation": { zh: "方向", en: "Orientation" },
+  "print.portrait": { zh: "纵向", en: "Portrait" },
+  "print.landscape": { zh: "横向", en: "Landscape" },
+  "print.lineNumbers": { zh: "打印行号", en: "Print Line Numbers" },
+  "print.header": { zh: "页眉", en: "Header" },
+  "print.footer": { zh: "页脚", en: "Footer" },
+  "print.print": { zh: "打印", en: "Print" },
+  "print.lineCount": { zh: "共 {n} 行", en: "{n} lines" },
 };
 
 interface I18nStore {
