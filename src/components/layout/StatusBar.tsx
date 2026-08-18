@@ -15,7 +15,7 @@ interface StatusBarProps {
   onExport: (format: "txt" | "html" | "rtf") => void;
   onOpenEncoding: () => void;
   onOpenSettings: () => void;
-  selectionInfo: { chars: number; lines: number; words: number } | null;
+  selectionInfo: { chars: number; lines: number; words: number; matchCount: number } | null;
 }
 
 export function StatusBar({
@@ -94,6 +94,7 @@ export function StatusBar({
         {selectionInfo && (
           <span className="status-item" title={t("statusbar.selectionTitle")}>
             {t("status.selected")} {selectionInfo.chars} {t("status.chars")}, {selectionInfo.words} {t("status.words")}, {selectionInfo.lines} {t("statusbar.line")}
+            {selectionInfo.matchCount > 1 && ` (${selectionInfo.matchCount} ${t("editor.match")})`}
           </span>
         )}
         <span className="status-item" title={t("statusbar.wordCharTitle", { words: wordCount, chars: charCount })}>

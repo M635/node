@@ -25,7 +25,7 @@ interface MainLayoutProps {
   onLanguageSelector: () => void;
   onCompareStart: () => void;
   onPrint: () => void;
-  selectionInfo: { chars: number; lines: number; words: number } | null;
+  selectionInfo: { chars: number; lines: number; words: number; matchCount: number } | null;
 }
 
 export function MainLayout({
