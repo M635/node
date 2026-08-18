@@ -122,6 +122,10 @@ export function buildEditorContextMenu(opts: {
       editor.executeEdits("java-unescape", [{ range: s, text: unescaped }]);
     }), disabled: readonly || !hasSelection },
     { label: "", onClick: () => {}, divider: true },
+    { label: t("action.sortAsc"), onClick: run(() => EditOperations.sortLinesAscending(editor)), disabled: readonly || !hasSelection },
+    { label: t("action.sortDesc"), onClick: run(() => EditOperations.sortLinesDescending(editor)), disabled: readonly || !hasSelection },
+    { label: t("action.removeDuplicates"), onClick: run(() => EditOperations.removeDuplicateLines(editor)), disabled: readonly || !hasSelection },
+    { label: "", onClick: () => {}, divider: true },
     { label: t("dialog.insertDateTime"), onClick: run(() => {
       const now = new Date();
       const text = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}-${String(now.getDate()).padStart(2, "0")} ${String(now.getHours()).padStart(2, "0")}:${String(now.getMinutes()).padStart(2, "0")}:${String(now.getSeconds()).padStart(2, "0")}`;
