@@ -156,6 +156,19 @@ export function buildEditorContextMenu(opts: {
       const text = editor.getModel()?.getValueInRange(s) || "";
       editor.executeEdits("split-line", [{ range: s, text: text.replace(/\s+/g, "\n") }]);
     }), disabled: readonly || !hasSelection },
+    { label: t("action.tabsToSpaces") || "Tab → Space", onClick: run(() => {
+      const s = editor.getSelection(); if (!s) return;
+      const text = editor.getModel()?.getValueInRange(s) || "";
+      const tabSize = (editor.getModel()?.getOptions() as any)?.tabSize || 4;
+      editor.executeEdits("tabs-to-spaces", [{ range: s, text: text.replace(/\t/g, " ".repeat(tabSize)) }]);
+    }), disabled: readonly || !hasSelection },
+    { label: t("action.spacesToTabs") || "Space → Tab", onClick: run(() => {
+      const s = editor.getSelection(); if (!s) return;
+      const text = editor.getModel()?.getValueInRange(s) || "";
+      const tabSize = (editor.getModel()?.getOptions() as any)?.tabSize || 4;
+      const re = new RegExp(` {${tabSize}}`, "g");
+      editor.executeEdits("spaces-to-tabs", [{ range: s, text: text.replace(re, "\t") }]);
+    }), disabled: readonly || !hasSelection },
     { label: "", onClick: () => {}, divider: true },
     { label: t("dialog.insertDateTime"), onClick: run(() => {
       const now = new Date();
