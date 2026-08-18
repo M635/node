@@ -1,4 +1,4 @@
-import { useState, useRef, useCallback, type CSSProperties } from "react";
+import { useState, useRef, useCallback, useEffect, type CSSProperties } from "react";
 import Editor, { type OnMount, type OnChange } from "@monaco-editor/react";
 import * as Monaco from "monaco-editor";
 import { useSettingStore } from "../../stores/settingStore";
@@ -31,6 +31,9 @@ export function SplitEditor({
   const monacoRef = useRef<typeof Monaco | null>(null);
   const syncScrollRef = useRef(true);
   const [syncScroll, setSyncScroll] = useState(true);
+  const [splitRatio, setSplitRatio] = useState(0.5);
+  const draggingRef = useRef(false);
+  const containerRef = useRef<HTMLDivElement>(null);
   const [ctxMenu, setCtxMenu] = useState<{ x: number; y: number; items: ContextMenuItem[] } | null>(null);
   const { isDark } = useEditorStore();
   const { t } = useI18n();
@@ -44,8 +47,8 @@ export function SplitEditor({
 
     editor.onDidScrollChange(() => {
       if (!syncScrollRef.current || !editor2Ref.current) return;
-      const scrollTop = editor.getScrollTop();
-      editor2Ref.current.setScrollTop(scrollTop);
+      editor2Ref.current.setScrollTop(editor.getScrollTop());
+      editor2Ref.current.setScrollLeft(editor.getScrollLeft());
     });
   }, []);
 
@@ -57,8 +60,8 @@ export function SplitEditor({
 
     editor.onDidScrollChange(() => {
       if (!syncScrollRef.current || !editor1Ref.current) return;
-      const scrollTop = editor.getScrollTop();
-      editor1Ref.current.setScrollTop(scrollTop);
+      editor1Ref.current.setScrollTop(editor.getScrollTop());
+      editor1Ref.current.setScrollLeft(editor.getScrollLeft());
     });
   }, []);
 
@@ -81,6 +84,32 @@ export function SplitEditor({
     setCtxMenu({ x: e.clientX, y: e.clientY, items });
   };
 
+  const handleDividerMouseDown = useCallback((e: React.MouseEvent) => {
+    e.preventDefault();
+    draggingRef.current = true;
+    const container = containerRef.current;
+    if (!container) return;
+    const rect = container.getBoundingClientRect();
+    const isHorizontal = orientation === "horizontal";
+
+    const onMouseMove = (ev: MouseEvent) => {
+      if (!draggingRef.current) return;
+      const ratio = isHorizontal
+        ? (ev.clientX - rect.left) / rect.width
+        : (ev.clientY - rect.top) / rect.height;
+      setSplitRatio(Math.min(0.8, Math.max(0.2, ratio)));
+    };
+    const onMouseUp = () => {
+      draggingRef.current = false;
+      document.removeEventListener("mousemove", onMouseMove);
+      document.removeEventListener("mouseup", onMouseUp);
+      document.body.style.cursor = "";
+    };
+    document.body.style.cursor = isHorizontal ? "col-resize" : "row-resize";
+    document.addEventListener("mousemove", onMouseMove);
+    document.addEventListener("mouseup", onMouseUp);
+  }, [orientation]);
+
   const options: Monaco.editor.IStandaloneEditorConstructionOptions = {
     fontSize, fontFamily,
     lineHeight: Math.round(fontSize * 1.4),
@@ -100,8 +129,8 @@ export function SplitEditor({
     : { display: "flex", flexDirection: "column", height: "100%", width: "100%" };
 
   return (
-    <div className="split-editor-container" style={containerStyle}>
-      <div className="split-editor-pane" style={{ flex: 1, position: "relative" }} onContextMenu={(e) => handleContextMenu(e, editor1Ref.current, false)}>
+    <div className="split-editor-container" style={containerStyle} ref={containerRef}>
+      <div className="split-editor-pane" style={{ flex: splitRatio, position: "relative", overflow: "hidden" }} onContextMenu={(e) => handleContextMenu(e, editor1Ref.current, false)}>
         <Editor
           height="100%"
           width="100%"
@@ -113,8 +142,14 @@ export function SplitEditor({
           onChange={handleChange1}
         />
       </div>
-      <div className="split-divider" style={orientation === "horizontal" ? { width: "4px", cursor: "col-resize", background: isDark ? "#333" : "#ccc" } : { height: "4px", cursor: "row-resize", background: isDark ? "#333" : "#ccc" }} />
-      <div className="split-editor-pane" style={{ flex: 1, position: "relative" }} onContextMenu={(e) => handleContextMenu(e, editor2Ref.current, true)}>
+      <div
+        className="split-divider"
+        onMouseDown={handleDividerMouseDown}
+        style={orientation === "horizontal"
+          ? { width: "4px", cursor: "col-resize", background: isDark ? "#333" : "#ccc", flexShrink: 0 }
+          : { height: "4px", cursor: "row-resize", background: isDark ? "#333" : "#ccc", flexShrink: 0 }}
+      />
+      <div className="split-editor-pane" style={{ flex: 1 - splitRatio, position: "relative", overflow: "hidden" }} onContextMenu={(e) => handleContextMenu(e, editor2Ref.current, true)}>
         <div className="split-editor-toolbar">
           <label className="sync-scroll-toggle">
             <input type="checkbox" checked={syncScroll} onChange={(e) => { const v = e.target.checked; syncScrollRef.current = v; setSyncScroll(v); }} />
