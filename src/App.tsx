@@ -107,6 +107,7 @@ export default function App() {
   const [showRunMacro, setShowRunMacro] = useState(false);
   const [showSessionManager, setShowSessionManager] = useState(false);
   const [showRecentFolders, setShowRecentFolders] = useState(false);
+  const recentFolders = useSettingStore((s) => s.recentFolders);
   const [postItMode, setPostItMode] = useState(false);
   const [alwaysOnTop, setAlwaysOnTop] = useState(false);
   const prevSizeRef = useRef<{ w: number; h: number } | null>(null);
@@ -388,18 +389,6 @@ export default function App() {
   const handleAbout = useCallback(() => {
     setShowAbout(true);
   }, []);
-
-  useEffect(() => {
-    const interval = setInterval(() => {
-      const tab = getActiveTab();
-      if (tab?.is_dirty && tab.path && !tab.is_new && !tab.readonly) {
-        saveFileService(tab.path, tab.content, tab.encoding).then(() => {
-          markClean(tab.id);
-        }).catch(() => {});
-      }
-    }, 30000);
-    return () => clearInterval(interval);
-  }, [getActiveTab, markClean]);
 
   const handleCloseTab = useCallback(async (id: string) => {
     const tab = tabs.find((t) => t.id === id);
@@ -688,10 +677,6 @@ export default function App() {
         e.preventDefault();
         setShowTextTransform(true);
       }
-      if ((e.metaKey || e.ctrlKey) && e.key === "Tab") {
-        e.preventDefault();
-        setShowDocSwitcher(true);
-      }
       if ((e.metaKey || e.ctrlKey) && (e.key === "=" || e.key === "+")) {
         e.preventDefault();
         window.dispatchEvent(new CustomEvent("markpt:zoom-in"));
@@ -768,7 +753,9 @@ export default function App() {
             const start = el.selectionStart ?? 0;
             const end = el.selectionEnd ?? 0;
             const newValue = el.value.substring(0, start) + text + el.value.substring(end);
-            el.value = newValue;
+            const proto = tag === "textarea" ? HTMLTextAreaElement.prototype : HTMLInputElement.prototype;
+            const nativeSetter = Object.getOwnPropertyDescriptor(proto, "value")?.set;
+            nativeSetter?.call(el, newValue);
             el.setSelectionRange(start + text.length, start + text.length);
             el.dispatchEvent(new Event("input", { bubbles: true }));
           }
@@ -790,7 +777,9 @@ export default function App() {
           if (selectedText) {
             await writeText(selectedText);
             const newValue = el!.value.substring(0, start) + el!.value.substring(end);
-            el!.value = newValue;
+            const proto = tag === "textarea" ? HTMLTextAreaElement.prototype : HTMLInputElement.prototype;
+            const nativeSetter = Object.getOwnPropertyDescriptor(proto, "value")?.set;
+            nativeSetter?.call(el!, newValue);
             el!.setSelectionRange(start, start);
             el!.dispatchEvent(new Event("input", { bubbles: true }));
           }
@@ -1243,6 +1232,10 @@ pre { white-space: pre-wrap; tab-size: ${useSettingStore.getState().tabSize}; }
       {showSessionManager && (
         <SessionManager
           onLoadSession={(data) => {
+            const dirtyTabs = useFileStore.getState().tabs.filter(t => t.is_dirty);
+            if (dirtyTabs.length > 0) {
+              if (!window.confirm(t("session.confirmDiscard"))) return;
+            }
             useFileStore.getState().closeAllTabs();
             for (const tab of data.tabs) {
               if (tab.path) {
@@ -1287,10 +1280,10 @@ pre { white-space: pre-wrap; tab-size: ${useSettingStore.getState().tabSize}; }
               <button className="dialog-close" onClick={() => setShowRecentFolders(false)}>×</button>
             </div>
             <div className="dialog-body">
-              {useSettingStore.getState().recentFolders.length === 0 ? (
+              {recentFolders.length === 0 ? (
                 <div className="sidebar-empty">{t("sidebar.noRecentFolders")}</div>
               ) : (
-                useSettingStore.getState().recentFolders.map((folder) => (
+                recentFolders.map((folder) => (
                   <div
                     key={folder}
                     className="tab-list-item"

@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, useCallback } from "react";
+import { useState, useEffect, useRef, useMemo } from "react";
 import { useI18n } from "../../stores/i18nStore";
 
 interface HexViewerProps {
@@ -16,13 +16,10 @@ export function HexViewer({ content, onClose }: HexViewerProps) {
   const [gotoOffset, setGotoOffset] = useState("");
   const containerRef = useRef<HTMLDivElement>(null);
 
-  const bytes = useCallback(() => {
+  const allBytes = useMemo(() => {
     const encoder = new TextEncoder();
-    const allBytes = encoder.encode(content.slice(0, MAX_BYTES));
-    return allBytes;
+    return encoder.encode(content.slice(0, MAX_BYTES));
   }, [content]);
-
-  const allBytes = bytes();
   const totalBytes = allBytes.length;
   const linesPerPage = 200;
   const bytesPerPage = linesPerPage * BYTES_PER_LINE;

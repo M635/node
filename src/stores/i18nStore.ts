@@ -5,6 +5,13 @@ export type Language = "zh" | "en";
 
 const LANGUAGE_STORAGE_KEY = "markpt:language";
 
+const IS_MAC = /Mac|iPod|iPhone|iPad/.test(
+  typeof navigator !== "undefined"
+    ? navigator.platform || navigator.userAgent
+    : "",
+);
+const MOD_KEY = IS_MAC ? "Cmd" : "Ctrl";
+
 const translations: Record<string, Record<Language, string>> = {
   "app.title": { zh: "MarkPT", en: "MarkPT" },
   "app.subtitle": { zh: "轻量化文本编辑器", en: "Lightweight Text Editor" },
@@ -487,6 +494,7 @@ const translations: Record<string, Record<Language, string>> = {
   "session.tabs": { zh: "个标签", en: "tabs" },
   "session.load": { zh: "加载", en: "Load" },
   "session.delete": { zh: "删除", en: "Delete" },
+  "session.confirmDiscard": { zh: "有未保存的修改，确定要丢弃并加载新会话吗？", en: "You have unsaved changes. Discard and load new session?" },
 
   "snip.add": { zh: "新增", en: "Add New" },
   "snip.trigger": { zh: "触发词", en: "Trigger" },
@@ -624,8 +632,7 @@ export const useI18n = create<I18nStore>((set, get) => ({
   },
   t: (key, params, fallback) => {
     const { language } = get();
-    const mod = /Mac|iPod|iPhone|iPad/.test(navigator.platform || navigator.userAgent) ? "Cmd" : "Ctrl";
-    const allParams = { mod, ...params };
+    const allParams = { mod: MOD_KEY, ...params };
     const entry = translations[key];
     if (!entry) return interpolate(fallback ?? key, allParams);
     return interpolate(entry[language] || entry.zh || fallback || key, allParams);

@@ -207,6 +207,10 @@ export function MonacoEditor({
     return () => {
       mountCleanupRef.current?.();
       mountCleanupRef.current = null;
+      for (const d of actionDisposablesRef.current) {
+        try { d.dispose(); } catch { /* 忽略已释放 */ }
+      }
+      actionDisposablesRef.current.length = 0;
     };
   }, []);
 
