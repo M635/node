@@ -145,6 +145,18 @@ export function buildEditorContextMenu(opts: {
       editor.executeEdits("to-kebab", [{ range: s, text: kebab }]);
     }), disabled: readonly || !hasSelection },
     { label: "", onClick: () => {}, divider: true },
+    { label: t("action.reverseLines"), onClick: run(() => EditOperations.reverseLineOrder(editor)), disabled: readonly || !hasSelection },
+    { label: t("action.mergeLines"), onClick: run(() => {
+      const s = editor.getSelection(); if (!s) return;
+      const text = editor.getModel()?.getValueInRange(s) || "";
+      editor.executeEdits("merge-lines", [{ range: s, text: text.replace(/\n/g, " ") }]);
+    }), disabled: readonly || !hasSelection },
+    { label: t("action.splitLine"), onClick: run(() => {
+      const s = editor.getSelection(); if (!s) return;
+      const text = editor.getModel()?.getValueInRange(s) || "";
+      editor.executeEdits("split-line", [{ range: s, text: text.replace(/\s+/g, "\n") }]);
+    }), disabled: readonly || !hasSelection },
+    { label: "", onClick: () => {}, divider: true },
     { label: t("dialog.insertDateTime"), onClick: run(() => {
       const now = new Date();
       const text = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}-${String(now.getDate()).padStart(2, "0")} ${String(now.getHours()).padStart(2, "0")}:${String(now.getMinutes()).padStart(2, "0")}:${String(now.getSeconds()).padStart(2, "0")}`;
