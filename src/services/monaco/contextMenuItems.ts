@@ -104,6 +104,11 @@ export function buildEditorContextMenu(opts: {
       textarea.innerHTML = text;
       editor.executeEdits("html-decode", [{ range: s, text: textarea.value }]);
     }), disabled: readonly || !hasSelection },
+    { label: t("action.formatJson"), onClick: run(() => {
+      const s = editor.getSelection(); if (!s) return;
+      const text = editor.getModel()?.getValueInRange(s) || "";
+      try { const parsed = JSON.parse(text); editor.executeEdits("format-json", [{ range: s, text: JSON.stringify(parsed, null, 2) }]); } catch {}
+    }), disabled: readonly || !hasSelection },
     { label: "", onClick: () => {}, divider: true },
     { label: t("dialog.insertDateTime"), onClick: run(() => {
       const now = new Date();

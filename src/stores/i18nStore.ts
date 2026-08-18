@@ -68,6 +68,7 @@ const translations: Record<string, Record<Language, string>> = {
   "action.reverseLines": { zh: "反转行序", en: "Reverse Line Order" },
   "action.removeDuplicates": { zh: "去重复行", en: "Remove Duplicate Lines" },
   "action.formatDocument": { zh: "格式化文档", en: "Format Document" },
+  "action.formatJson": { zh: "格式化 JSON", en: "Format JSON" },
   "action.mergeLines": { zh: "合并行为空格", en: "Merge Lines (Space)" },
   "action.mergeLinesComma": { zh: "合并行为逗号", en: "Merge Lines (Comma)" },
   "action.splitLine": { zh: "拆分行", en: "Split Line" },
