@@ -109,6 +109,18 @@ export function buildEditorContextMenu(opts: {
       const text = editor.getModel()?.getValueInRange(s) || "";
       try { const parsed = JSON.parse(text); editor.executeEdits("format-json", [{ range: s, text: JSON.stringify(parsed, null, 2) }]); } catch {}
     }), disabled: readonly || !hasSelection },
+    { label: t("tt.javaEscape"), onClick: run(() => {
+      const s = editor.getSelection(); if (!s) return;
+      const text = editor.getModel()?.getValueInRange(s) || "";
+      const escaped = text.replace(/\\/g, "\\\\").replace(/"/g, '\\"').replace(/\n/g, "\\n").replace(/\r/g, "\\r").replace(/\t/g, "\\t");
+      editor.executeEdits("java-escape", [{ range: s, text: escaped }]);
+    }), disabled: readonly || !hasSelection },
+    { label: t("tt.javaUnescape"), onClick: run(() => {
+      const s = editor.getSelection(); if (!s) return;
+      const text = editor.getModel()?.getValueInRange(s) || "";
+      const unescaped = text.replace(/\\n/g, "\n").replace(/\\r/g, "\r").replace(/\\t/g, "\t").replace(/\\"/g, '"').replace(/\\\\/g, "\\");
+      editor.executeEdits("java-unescape", [{ range: s, text: unescaped }]);
+    }), disabled: readonly || !hasSelection },
     { label: "", onClick: () => {}, divider: true },
     { label: t("dialog.insertDateTime"), onClick: run(() => {
       const now = new Date();
