@@ -66,6 +66,10 @@ export function buildEditorContextMenu(opts: {
     { label: t("action.deleteLine"), onClick: run(() => EditOperations.deleteCurrentLine(editor, monaco)), disabled: readonly },
     { label: t("action.duplicateLine"), onClick: run(() => EditOperations.duplicateCurrentLine(editor)), disabled: readonly },
     { label: "", onClick: () => {}, divider: true },
+    { label: t("action.toUpperCase"), onClick: run(() => EditOperations.toUpperCase(editor)), disabled: readonly || !hasSelection },
+    { label: t("action.toLowerCase"), onClick: run(() => EditOperations.toLowerCase(editor)), disabled: readonly || !hasSelection },
+    { label: t("action.trimTrailing"), onClick: run(() => EditOperations.trimTrailingWhitespace(editor)), disabled: readonly },
+    { label: "", onClick: () => {}, divider: true },
     { label: t("dialog.insertDateTime"), onClick: run(() => {
       const now = new Date();
       const text = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}-${String(now.getDate()).padStart(2, "0")} ${String(now.getHours()).padStart(2, "0")}:${String(now.getMinutes()).padStart(2, "0")}:${String(now.getSeconds()).padStart(2, "0")}`;
