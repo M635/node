@@ -3,6 +3,7 @@ import { useSearchStore } from "../../stores/searchStore";
 import { useFileStore } from "../../stores/fileStore";
 import { useI18n } from "../../stores/i18nStore";
 import { searchInFile } from "../../services/tauri/searchService";
+import type { SearchResult } from "../../types/command";
 
 export function SearchPanel() {
   const {
@@ -55,7 +56,7 @@ export function SearchPanel() {
     addSearchHistory(searchQuery);
 
     const tab = getActiveTab();
-    if (!tab || !tab.path) return;
+    if (!tab) return;
 
     const seq = ++searchSeqRef.current;
     setIsSearching(true);
@@ -64,12 +65,36 @@ export function SearchPanel() {
       if (wholeWord && !isRegex) {
         pattern = `\\b${pattern}\\b`;
       }
-      const summary = await searchInFile(
-        tab.path,
-        pattern,
-        isRegex || wholeWord,
-        caseSensitive
-      );
+
+      let summary;
+      if (tab.path) {
+        summary = await searchInFile(
+          tab.path,
+          pattern,
+          isRegex || wholeWord,
+          caseSensitive
+        );
+      } else {
+        // 新建文件无 path，在内存内容中搜索
+        const flags = caseSensitive ? "g" : "gi";
+        let regex: RegExp;
+        try {
+          regex = isRegex || wholeWord
+            ? new RegExp(pattern, flags)
+            : new RegExp(pattern.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"), flags);
+        } catch { return; }
+        const lines = tab.content.split("\n");
+        const results: SearchResult[] = [];
+        for (let i = 0; i < lines.length; i++) {
+          regex.lastIndex = 0;
+          let m;
+          while ((m = regex.exec(lines[i])) !== null) {
+            results.push({ path: "", line_number: i + 1, line_content: lines[i], match_start: m.index, match_end: m.index + m[0].length });
+            if (m.index === regex.lastIndex) regex.lastIndex++;
+          }
+        }
+        summary = { total_matches: results.length, files_matched: results.length > 0 ? 1 : 0, results, truncated: false };
+      }
       if (seq !== searchSeqRef.current) return;
       setResults(summary);
     } catch (err) {

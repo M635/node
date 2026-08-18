@@ -108,21 +108,22 @@ export const useSearchStore = create<SearchStore>((set, get) => ({
       searchTruncated: false,
     }),
   setSearching: (searching) => set({ isSearching: searching }),
-  nextMatch: () =>
-    set((s) => ({
-      currentMatchIndex:
-        s.searchResults.length > 0
-          ? (s.currentMatchIndex + 1) % s.searchResults.length
-          : 0,
-    })),
-  prevMatch: () =>
-    set((s) => ({
-      currentMatchIndex:
-        s.searchResults.length > 0
-          ? (s.currentMatchIndex - 1 + s.searchResults.length) %
-            s.searchResults.length
-          : 0,
-    })),
+  nextMatch: () => {
+    const s = get();
+    if (s.searchResults.length === 0) return;
+    const newIdx = (s.currentMatchIndex + 1) % s.searchResults.length;
+    set({ currentMatchIndex: newIdx });
+    const r = s.searchResults[newIdx];
+    if (r) window.dispatchEvent(new CustomEvent("markpt:goto-search-match", { detail: { line: r.line_number, column: r.match_start + 1 } }));
+  },
+  prevMatch: () => {
+    const s = get();
+    if (s.searchResults.length === 0) return;
+    const newIdx = (s.currentMatchIndex - 1 + s.searchResults.length) % s.searchResults.length;
+    set({ currentMatchIndex: newIdx });
+    const r = s.searchResults[newIdx];
+    if (r) window.dispatchEvent(new CustomEvent("markpt:goto-search-match", { detail: { line: r.line_number, column: r.match_start + 1 } }));
+  },
   addSearchHistory: (query) =>
     set((s) => ({
       searchHistory: [

@@ -85,9 +85,59 @@ function registerEditorActions(
     ed.executeEdits("paste", [{ range: sel, text, forceMoveMarkers: true }]);
   };
 
-  add({ id: "markpt-clipboard-copy", label: t("toolbar.copy"), keybindings: [monaco.KeyMod.CtrlCmd | monaco.KeyCode.KeyC], run: (ed) => { if (!ed.hasTextFocus()) return; doCopy(ed as Monaco.editor.IStandaloneCodeEditor); } });
-  add({ id: "markpt-clipboard-cut", label: t("toolbar.cut"), keybindings: [monaco.KeyMod.CtrlCmd | monaco.KeyCode.KeyX], run: (ed) => { if (!ed.hasTextFocus()) return; doCut(ed as Monaco.editor.IStandaloneCodeEditor); } });
-  add({ id: "markpt-clipboard-paste", label: t("toolbar.paste"), keybindings: [monaco.KeyMod.CtrlCmd | monaco.KeyCode.KeyV], run: (ed) => { if (!ed.hasTextFocus()) return; doPaste(ed as Monaco.editor.IStandaloneCodeEditor); } });
+  const pasteToFocusedInput = async () => {
+    const el = document.activeElement as HTMLInputElement | HTMLTextAreaElement | null;
+    const tag = el?.tagName?.toLowerCase();
+    if (tag !== "input" && tag !== "textarea") return false;
+    try {
+      const text = await clipboardRead();
+      if (text && el) {
+        const start = el.selectionStart ?? 0;
+        const end = el.selectionEnd ?? 0;
+        const newValue = el.value.substring(0, start) + text + el.value.substring(end);
+        const proto = tag === "textarea" ? HTMLTextAreaElement.prototype : HTMLInputElement.prototype;
+        const nativeSetter = Object.getOwnPropertyDescriptor(proto, "value")?.set;
+        nativeSetter?.call(el, newValue);
+        el.setSelectionRange(start + text.length, start + text.length);
+        el.dispatchEvent(new Event("input", { bubbles: true }));
+      }
+    } catch { /* ignore */ }
+    return true;
+  };
+
+  const copyFromFocusedInput = async () => {
+    const el = document.activeElement as HTMLInputElement | HTMLTextAreaElement | null;
+    const tag = el?.tagName?.toLowerCase();
+    if (tag !== "input" && tag !== "textarea") return false;
+    const start = el!.selectionStart ?? 0;
+    const end = el!.selectionEnd ?? 0;
+    const selectedText = el!.value.substring(start, end);
+    if (selectedText) await clipboardWrite(selectedText);
+    return true;
+  };
+
+  const cutFromFocusedInput = async () => {
+    const el = document.activeElement as HTMLInputElement | HTMLTextAreaElement | null;
+    const tag = el?.tagName?.toLowerCase();
+    if (tag !== "input" && tag !== "textarea") return false;
+    const start = el!.selectionStart ?? 0;
+    const end = el!.selectionEnd ?? 0;
+    const selectedText = el!.value.substring(start, end);
+    if (selectedText) {
+      await clipboardWrite(selectedText);
+      const newValue = el!.value.substring(0, start) + el!.value.substring(end);
+      const proto = tag === "textarea" ? HTMLTextAreaElement.prototype : HTMLInputElement.prototype;
+      const nativeSetter = Object.getOwnPropertyDescriptor(proto, "value")?.set;
+      nativeSetter?.call(el!, newValue);
+      el!.setSelectionRange(start, start);
+      el!.dispatchEvent(new Event("input", { bubbles: true }));
+    }
+    return true;
+  };
+
+  add({ id: "markpt-clipboard-copy", label: t("toolbar.copy"), keybindings: [monaco.KeyMod.CtrlCmd | monaco.KeyCode.KeyC], run: async (ed) => { if (await copyFromFocusedInput()) return; doCopy(ed as Monaco.editor.IStandaloneCodeEditor); } });
+  add({ id: "markpt-clipboard-cut", label: t("toolbar.cut"), keybindings: [monaco.KeyMod.CtrlCmd | monaco.KeyCode.KeyX], run: async (ed) => { if (await cutFromFocusedInput()) return; doCut(ed as Monaco.editor.IStandaloneCodeEditor); } });
+  add({ id: "markpt-clipboard-paste", label: t("toolbar.paste"), keybindings: [monaco.KeyMod.CtrlCmd | monaco.KeyCode.KeyV], run: async (ed) => { if (await pasteToFocusedInput()) return; doPaste(ed as Monaco.editor.IStandaloneCodeEditor); } });
 
   add({ id: "markpt-context-find", label: t("search.find"), keybindings: [monaco.KeyMod.CtrlCmd | monaco.KeyCode.KeyF], run: () => { useSearchStore.getState().toggleSearchPanel(); } });
   add({ id: "markpt-context-replace", label: t("search.replace"), keybindings: [monaco.KeyMod.CtrlCmd | monaco.KeyCode.KeyH], run: () => { useSearchStore.getState().toggleReplacePanel(); } });
@@ -444,10 +494,20 @@ export function MonacoEditor({
     window.addEventListener("markpt:editor-copy", copyHandler);
     window.addEventListener("markpt:editor-cut", cutHandler);
     window.addEventListener("markpt:editor-paste", pasteHandler);
+
+    const gotoSearchMatch = (e: Event) => {
+      const { line, column } = (e as CustomEvent).detail;
+      if (!editorRef.current) return;
+      editorRef.current.revealLineInCenter(line);
+      editorRef.current.setPosition({ lineNumber: line, column });
+    };
+    window.addEventListener("markpt:goto-search-match", gotoSearchMatch);
+
     return () => {
       window.removeEventListener("markpt:editor-copy", copyHandler);
       window.removeEventListener("markpt:editor-cut", cutHandler);
       window.removeEventListener("markpt:editor-paste", pasteHandler);
+      window.removeEventListener("markpt:goto-search-match", gotoSearchMatch);
     };
   }, []);
 
