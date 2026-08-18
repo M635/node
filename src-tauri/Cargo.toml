@@ -1,6 +1,6 @@
 [package]
 name = "markpt"
-version = "2.12.6"
+version = "2.12.7"
 description = "macOS 轻量化文本编辑器"
 authors = ["MarkPT"]
 edition = "2021"

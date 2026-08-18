@@ -126,6 +126,25 @@ export function buildEditorContextMenu(opts: {
     { label: t("action.sortDesc"), onClick: run(() => EditOperations.sortLinesDescending(editor)), disabled: readonly || !hasSelection },
     { label: t("action.removeDuplicates"), onClick: run(() => EditOperations.removeDuplicateLines(editor)), disabled: readonly || !hasSelection },
     { label: "", onClick: () => {}, divider: true },
+    { label: t("tt.toCamelCase") || "camelCase", onClick: run(() => {
+      const s = editor.getSelection(); if (!s) return;
+      const text = editor.getModel()?.getValueInRange(s) || "";
+      const camel = text.replace(/[_\-\s]+(.)|^(.)/g, (_, c1, c2) => (c1 || c2 || "").toUpperCase()).replace(/^./, c => c.toLowerCase());
+      editor.executeEdits("to-camel", [{ range: s, text: camel }]);
+    }), disabled: readonly || !hasSelection },
+    { label: t("tt.toSnakeCase") || "snake_case", onClick: run(() => {
+      const s = editor.getSelection(); if (!s) return;
+      const text = editor.getModel()?.getValueInRange(s) || "";
+      const snake = text.replace(/([A-Z])/g, "_$1").replace(/[\-\s]+/g, "_").replace(/_+/g, "_").replace(/^_|_$/g, "").toLowerCase();
+      editor.executeEdits("to-snake", [{ range: s, text: snake }]);
+    }), disabled: readonly || !hasSelection },
+    { label: t("tt.toKebabCase") || "kebab-case", onClick: run(() => {
+      const s = editor.getSelection(); if (!s) return;
+      const text = editor.getModel()?.getValueInRange(s) || "";
+      const kebab = text.replace(/([A-Z])/g, "-$1").replace(/[_\s]+/g, "-").replace(/-+/g, "-").replace(/^-|-$/g, "").toLowerCase();
+      editor.executeEdits("to-kebab", [{ range: s, text: kebab }]);
+    }), disabled: readonly || !hasSelection },
+    { label: "", onClick: () => {}, divider: true },
     { label: t("dialog.insertDateTime"), onClick: run(() => {
       const now = new Date();
       const text = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}-${String(now.getDate()).padStart(2, "0")} ${String(now.getHours()).padStart(2, "0")}:${String(now.getMinutes()).padStart(2, "0")}:${String(now.getSeconds()).padStart(2, "0")}`;
