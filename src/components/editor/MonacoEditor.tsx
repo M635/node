@@ -85,9 +85,9 @@ function registerEditorActions(
     ed.executeEdits("paste", [{ range: sel, text, forceMoveMarkers: true }]);
   };
 
-  add({ id: "markpt-clipboard-copy", label: t("toolbar.copy"), keybindings: [monaco.KeyMod.CtrlCmd | monaco.KeyCode.KeyC], run: (ed) => { doCopy(ed as Monaco.editor.IStandaloneCodeEditor); } });
-  add({ id: "markpt-clipboard-cut", label: t("toolbar.cut"), keybindings: [monaco.KeyMod.CtrlCmd | monaco.KeyCode.KeyX], run: (ed) => { doCut(ed as Monaco.editor.IStandaloneCodeEditor); } });
-  add({ id: "markpt-clipboard-paste", label: t("toolbar.paste"), keybindings: [monaco.KeyMod.CtrlCmd | monaco.KeyCode.KeyV], run: (ed) => { doPaste(ed as Monaco.editor.IStandaloneCodeEditor); } });
+  add({ id: "markpt-clipboard-copy", label: t("toolbar.copy"), keybindings: [monaco.KeyMod.CtrlCmd | monaco.KeyCode.KeyC], run: (ed) => { if (!ed.hasTextFocus()) return; doCopy(ed as Monaco.editor.IStandaloneCodeEditor); } });
+  add({ id: "markpt-clipboard-cut", label: t("toolbar.cut"), keybindings: [monaco.KeyMod.CtrlCmd | monaco.KeyCode.KeyX], run: (ed) => { if (!ed.hasTextFocus()) return; doCut(ed as Monaco.editor.IStandaloneCodeEditor); } });
+  add({ id: "markpt-clipboard-paste", label: t("toolbar.paste"), keybindings: [monaco.KeyMod.CtrlCmd | monaco.KeyCode.KeyV], run: (ed) => { if (!ed.hasTextFocus()) return; doPaste(ed as Monaco.editor.IStandaloneCodeEditor); } });
 
   add({ id: "markpt-context-find", label: t("search.find"), keybindings: [monaco.KeyMod.CtrlCmd | monaco.KeyCode.KeyF], run: () => { useSearchStore.getState().toggleSearchPanel(); } });
   add({ id: "markpt-context-replace", label: t("search.replace"), keybindings: [monaco.KeyMod.CtrlCmd | monaco.KeyCode.KeyH], run: () => { useSearchStore.getState().toggleReplacePanel(); } });

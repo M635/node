@@ -1,6 +1,6 @@
 {
   "name": "markpt",
-  "version": "2.13.0",
+  "version": "2.13.1",
   "description": "macOS 轻量化文本编辑器，对标 Notepad++",
   "type": "module",
   "scripts": {
