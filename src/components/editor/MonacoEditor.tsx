@@ -179,6 +179,21 @@ export function MonacoEditor({
     });
 
     editor.onMouseDown((e) => {
+      if (e.event.rightButton) {
+        const line = e.target.position?.lineNumber;
+        if (line && (e.target.type === Monaco.editor.MouseTargetType.GUTTER_LINE_NUMBERS || e.target.type === Monaco.editor.MouseTargetType.GUTTER_GLYPH_MARGIN)) {
+          gutterRightClickRef.current = true;
+          const tFunc = useI18n.getState().t;
+          const items: ContextMenuItem[] = [
+            { label: tFunc("editor.bookmark"), onClick: () => useEditorStore.getState().toggleBookmark(tabId, line) },
+            { label: tFunc("dialog.gotoLine"), onClick: () => { editor.revealLineInCenter(line); editor.setPosition({ lineNumber: line, column: 1 }); } },
+            { label: tFunc("toolbar.copy"), onClick: () => { const model = editor.getModel(); if (model) { const text = model.getLineContent(line); clipboardWrite(text); } } },
+            { label: tFunc("action.deleteLine"), onClick: () => { editor.setPosition({ lineNumber: line, column: 1 }); EditOperations.deleteCurrentLine(editor, monaco); } },
+          ];
+          setCtxMenu({ x: e.event.posx, y: e.event.posy, items });
+        }
+        return;
+      }
       if (e.target.type === Monaco.editor.MouseTargetType.GUTTER_GLYPH_MARGIN) {
         const line = e.target.position?.lineNumber;
         if (line) {
@@ -900,10 +915,16 @@ export function MonacoEditor({
   }, [onContentChange]);
 
   const [ctxMenu, setCtxMenu] = useState<{ x: number; y: number; items: ContextMenuItem[] } | null>(null);
+  const gutterRightClickRef = useRef(false);
 
   const closeContextMenu = useCallback(() => setCtxMenu(null), []);
 
   const handleContextMenu = useCallback((e: React.MouseEvent) => {
+    if (gutterRightClickRef.current) {
+      gutterRightClickRef.current = false;
+      e.preventDefault();
+      return;
+    }
     const target = e.target as HTMLElement;
     if (target.closest(".find-widget") || target.closest(".suggest-widget") || target.closest(".hover-widget")) {
       return;
