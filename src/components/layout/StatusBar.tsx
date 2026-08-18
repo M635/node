@@ -22,7 +22,7 @@ export function StatusBar({
   activeTab, onSave, onOpenFile, onGotoLine, onExport, onOpenEncoding, onOpenSettings, selectionInfo,
 }: StatusBarProps) {
   const { isRecordingMacro, startMacroRecording, stopMacroRecording } = useEditorStore();
-  const { fontSize, tabSize, insertSpaces, setTabSize, setInsertSpaces } = useSettingStore();
+  const { fontSize, tabSize, insertSpaces, setTabSize, setInsertSpaces, wordWrap, setWordWrap } = useSettingStore();
   const { t } = useI18n();
   // 插入/覆盖模式用布尔值表示，展示文案由语言包决定
   const [overwrite, setOverwrite] = useState(false);
@@ -108,6 +108,13 @@ export function StatusBar({
         {readonly && <span className="status-item readonly-badge">{t("status.readonly")}</span>}
         <span className="status-item" title={t("statusbar.insertMode")}>
           {overwrite ? t("status.overwrite") : t("status.insert")}
+        </span>
+        <span
+          className={`status-item clickable ${wordWrap ? "active" : ""}`}
+          onClick={() => setWordWrap(!wordWrap)}
+          title={t("toolbar.wordWrap")}
+        >
+          {wordWrap ? "↩" : "→"}
         </span>
       </div>
       <div className="status-right">

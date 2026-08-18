@@ -1528,3 +1528,5 @@
 .tab-size-option:hover { background: var(--hover-bg, rgba(0,0,0,0.05)); }
 .tab-size-option.active { color: var(--mac-accent, #007aff); font-weight: 600; }
 .tab-size-divider { height: 1px; background: var(--border-color, #ccc); margin: 4px 0; }
+.status-item.clickable { cursor: pointer; user-select: none; }
+.status-item.clickable.active { color: var(--mac-accent, #007aff); }
