@@ -22,7 +22,7 @@ export function StatusBar({
   activeTab, onSave, onOpenFile, onGotoLine, onExport, onOpenEncoding, onOpenSettings, selectionInfo,
 }: StatusBarProps) {
   const { isRecordingMacro, startMacroRecording, stopMacroRecording } = useEditorStore();
-  const { fontSize, tabSize, insertSpaces, setTabSize, setInsertSpaces, wordWrap, setWordWrap } = useSettingStore();
+  const { fontSize, tabSize, insertSpaces, setTabSize, setInsertSpaces, wordWrap, setWordWrap, showLineNumbers, setShowLineNumbers } = useSettingStore();
   const { t } = useI18n();
   // 插入/覆盖模式用布尔值表示，展示文案由语言包决定
   const [overwrite, setOverwrite] = useState(false);
@@ -116,6 +116,13 @@ export function StatusBar({
           title={t("toolbar.wordWrap")}
         >
           {wordWrap ? "↩" : "→"}
+        </span>
+        <span
+          className={`status-item clickable ${showLineNumbers ? "active" : ""}`}
+          onClick={() => setShowLineNumbers(!showLineNumbers)}
+          title={t("toolbar.lineNumbers")}
+        >
+          {showLineNumbers ? "#" : "·"}
         </span>
       </div>
       <div className="status-right">
