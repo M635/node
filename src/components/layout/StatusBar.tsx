@@ -22,12 +22,13 @@ export function StatusBar({
   activeTab, onSave, onOpenFile, onGotoLine, onExport, onOpenEncoding, onOpenSettings, selectionInfo,
 }: StatusBarProps) {
   const { isRecordingMacro, startMacroRecording, stopMacroRecording } = useEditorStore();
-  const { fontSize } = useSettingStore();
+  const { fontSize, tabSize, insertSpaces, setTabSize, setInsertSpaces } = useSettingStore();
   const { t } = useI18n();
   // 插入/覆盖模式用布尔值表示，展示文案由语言包决定
   const [overwrite, setOverwrite] = useState(false);
   const [wordCount, setWordCount] = useState(0);
   const [charCount, setCharCount] = useState(0);
+  const [showTabMenu, setShowTabMenu] = useState(false);
 
   useEffect(() => {
     const handler = (e: KeyboardEvent) => {
@@ -115,6 +116,35 @@ export function StatusBar({
         </span>
         <span className="status-item" title={t("statusbar.eol")}>
           {meta?.line_ending === "Crlf" ? "CRLF" : meta?.line_ending === "Mixed" ? t("status.mixed") : "LF"}
+        </span>
+        <span className="status-item tab-size-indicator" onClick={() => setShowTabMenu((v) => !v)} title={t("toolbar.tabWidth", { n: tabSize })}>
+          {insertSpaces ? t("toolbar.spaces") : t("toolbar.tabs")}: {tabSize}
+          {showTabMenu && (
+            <div className="tab-size-menu" onClick={(e) => e.stopPropagation()}>
+              {[2, 4, 8].map((size) => (
+                <div
+                  key={size}
+                  className={`tab-size-option ${tabSize === size ? "active" : ""}`}
+                  onClick={() => { setTabSize(size); setShowTabMenu(false); }}
+                >
+                  {size}
+                </div>
+              ))}
+              <div className="tab-size-divider" />
+              <div
+                className={`tab-size-option ${insertSpaces ? "active" : ""}`}
+                onClick={() => { setInsertSpaces(true); setShowTabMenu(false); }}
+              >
+                {t("toolbar.spaces")}
+              </div>
+              <div
+                className={`tab-size-option ${!insertSpaces ? "active" : ""}`}
+                onClick={() => { setInsertSpaces(false); setShowTabMenu(false); }}
+              >
+                {t("toolbar.tabs")}
+              </div>
+            </div>
+          )}
         </span>
         {fontSize !== 14 && (
           <span className="status-item" title={t("statusbar.zoom")}>

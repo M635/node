@@ -1521,3 +1521,10 @@
 .bookmark-remove-btn { background: none; border: none; cursor: pointer; color: #999; font-size: 16px; padding: 0 4px; line-height: 1; }
 .bookmark-remove-btn:hover { color: #e74c3c; }
 .bookmark-list-summary { padding-top: 8px; border-top: 1px solid var(--border-color, #ccc); font-size: 12px; color: #999; text-align: center; }
+
+.tab-size-indicator { position: relative; cursor: pointer; user-select: none; }
+.tab-size-menu { position: absolute; bottom: 100%; right: 0; background: var(--mac-bg, #fff); border: 1px solid var(--border-color, #ccc); border-radius: 4px; box-shadow: 0 -2px 8px rgba(0,0,0,0.15); padding: 4px 0; min-width: 80px; z-index: 1000; }
+.tab-size-option { padding: 4px 12px; cursor: pointer; font-size: 13px; }
+.tab-size-option:hover { background: var(--hover-bg, rgba(0,0,0,0.05)); }
+.tab-size-option.active { color: var(--mac-accent, #007aff); font-weight: 600; }
+.tab-size-divider { height: 1px; background: var(--border-color, #ccc); margin: 4px 0; }
