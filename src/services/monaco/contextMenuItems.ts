@@ -91,6 +91,19 @@ export function buildEditorContextMenu(opts: {
       const text = editor.getModel()?.getValueInRange(s) || "";
       try { editor.executeEdits("url-decode", [{ range: s, text: decodeURIComponent(text) }]); } catch {}
     }), disabled: readonly || !hasSelection },
+    { label: t("tt.htmlEntityEncode"), onClick: run(() => {
+      const s = editor.getSelection(); if (!s) return;
+      const text = editor.getModel()?.getValueInRange(s) || "";
+      const encoded = text.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#39;");
+      editor.executeEdits("html-encode", [{ range: s, text: encoded }]);
+    }), disabled: readonly || !hasSelection },
+    { label: t("tt.htmlEntityDecode"), onClick: run(() => {
+      const s = editor.getSelection(); if (!s) return;
+      const text = editor.getModel()?.getValueInRange(s) || "";
+      const textarea = document.createElement("textarea");
+      textarea.innerHTML = text;
+      editor.executeEdits("html-decode", [{ range: s, text: textarea.value }]);
+    }), disabled: readonly || !hasSelection },
     { label: "", onClick: () => {}, divider: true },
     { label: t("dialog.insertDateTime"), onClick: run(() => {
       const now = new Date();
