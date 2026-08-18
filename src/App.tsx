@@ -648,6 +648,10 @@ export default function App() {
 
   useEffect(() => {
     const handler = (e: KeyboardEvent) => {
+      const activeEl = document.activeElement;
+      const tag = activeEl?.tagName?.toLowerCase();
+      const inInput = tag === "input" || tag === "textarea" || (activeEl as HTMLElement)?.isContentEditable;
+      if (inInput && !(e.key === "Escape" || (e.metaKey || e.ctrlKey) && e.shiftKey && e.key === "F")) return;
       if ((e.metaKey || e.ctrlKey) && e.key === "p") {
         e.preventDefault();
         setShowCommandPalette((v) => !v);
@@ -737,9 +741,65 @@ export default function App() {
     onToggleDiff: handleToggleDiff,
     onEncoding: () => setShowEncodingDialog(true),
     onSettings: () => setShowSettingsDialog(true),
-    onCopy: () => window.dispatchEvent(new CustomEvent("markpt:editor-copy")),
-    onPaste: () => window.dispatchEvent(new CustomEvent("markpt:editor-paste")),
-    onCut: () => window.dispatchEvent(new CustomEvent("markpt:editor-cut")),
+    onCopy: async () => {
+      const el = document.activeElement as HTMLInputElement | HTMLTextAreaElement | null;
+      const tag = el?.tagName?.toLowerCase();
+      if (tag === "input" || tag === "textarea") {
+        try {
+          const { writeText } = await import("@tauri-apps/plugin-clipboard-manager");
+          const start = el!.selectionStart ?? 0;
+          const end = el!.selectionEnd ?? 0;
+          const selectedText = el!.value.substring(start, end);
+          if (selectedText) await writeText(selectedText);
+        } catch { /* ignore */ }
+        return;
+      }
+      if ((el as HTMLElement)?.isContentEditable) return;
+      window.dispatchEvent(new CustomEvent("markpt:editor-copy"));
+    },
+    onPaste: async () => {
+      const el = document.activeElement as HTMLInputElement | HTMLTextAreaElement | null;
+      const tag = el?.tagName?.toLowerCase();
+      if (tag === "input" || tag === "textarea") {
+        try {
+          const { readText } = await import("@tauri-apps/plugin-clipboard-manager");
+          const text = await readText();
+          if (text && el) {
+            const start = el.selectionStart ?? 0;
+            const end = el.selectionEnd ?? 0;
+            const newValue = el.value.substring(0, start) + text + el.value.substring(end);
+            el.value = newValue;
+            el.setSelectionRange(start + text.length, start + text.length);
+            el.dispatchEvent(new Event("input", { bubbles: true }));
+          }
+        } catch { /* ignore */ }
+        return;
+      }
+      if ((el as HTMLElement)?.isContentEditable) return;
+      window.dispatchEvent(new CustomEvent("markpt:editor-paste"));
+    },
+    onCut: async () => {
+      const el = document.activeElement as HTMLInputElement | HTMLTextAreaElement | null;
+      const tag = el?.tagName?.toLowerCase();
+      if (tag === "input" || tag === "textarea") {
+        try {
+          const { writeText } = await import("@tauri-apps/plugin-clipboard-manager");
+          const start = el!.selectionStart ?? 0;
+          const end = el!.selectionEnd ?? 0;
+          const selectedText = el!.value.substring(start, end);
+          if (selectedText) {
+            await writeText(selectedText);
+            const newValue = el!.value.substring(0, start) + el!.value.substring(end);
+            el!.value = newValue;
+            el!.setSelectionRange(start, start);
+            el!.dispatchEvent(new Event("input", { bubbles: true }));
+          }
+        } catch { /* ignore */ }
+        return;
+      }
+      if ((el as HTMLElement)?.isContentEditable) return;
+      window.dispatchEvent(new CustomEvent("markpt:editor-cut"));
+    },
     onToggleSidebar: () => setShowSidebar((v) => !v),
     onCommandPalette: () => setShowCommandPalette(true),
     onShortcutsHelp: () => setShowShortcutsHelp(true),
