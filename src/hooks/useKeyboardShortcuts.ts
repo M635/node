@@ -227,6 +227,7 @@ export function useKeyboardShortcuts(handlers: ShortcutHandlers): void {
           case "char_to_camel": h.onCharConvert?.("to-camel"); break;
           case "char_to_pascal": h.onCharConvert?.("to-pascal"); break;
           case "char_to_kebab": h.onCharConvert?.("to-kebab"); break;
+          case "char_to_constant": h.onCharConvert?.("to-constant"); break;
           case "save_copy": h.onSaveCopy?.(); break;
           case "open_with_encoding": h.onOpenWithEncoding?.(); break;
           case "toggle_bom": h.onToggleBom?.(); break;

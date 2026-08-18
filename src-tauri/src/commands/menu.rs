@@ -251,6 +251,7 @@ pub fn build_menu(app_handle: &AppHandle, lang: &str) -> tauri::Result<()> {
                     &m("char_to_camel", tr(lang, "转 camelCase", "To camelCase"))?,
                     &m("char_to_pascal", tr(lang, "转 PascalCase", "To PascalCase"))?,
                     &m("char_to_kebab", tr(lang, "转 kebab-case", "To kebab-case"))?,
+                    &m("char_to_constant", tr(lang, "转 CONSTANT_CASE", "To CONSTANT_CASE"))?,
                 ],
             )?,
         ],
