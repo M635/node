@@ -66,6 +66,11 @@ export function TabItem({
     <div
       className={`tab-item ${active ? "active" : ""} ${dragOver ? "drag-over" : ""} ${tab.readonly ? "readonly" : ""}`}
       onClick={onClick}
+      onDoubleClick={(e) => {
+        if (!tab.is_locked && !(e.target as HTMLElement).closest(".tab-close")) {
+          onClose();
+        }
+      }}
       onDragStart={onDragStart}
       onDragOver={onDragOver}
       onDrop={onDrop}
