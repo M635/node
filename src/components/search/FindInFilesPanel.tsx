@@ -1,4 +1,4 @@
-import { useState, useCallback } from "react";
+import { useState, useCallback, useRef } from "react";
 import { open } from "@tauri-apps/plugin-dialog";
 import { useSearchStore } from "../../stores/searchStore";
 import { useI18n } from "../../stores/i18nStore";
@@ -22,6 +22,7 @@ export function FindInFilesPanel() {
   const [directory, setDirectory] = useState("");
   const [extensions, setExtensions] = useState("");
   const [isSearching, setIsSearching] = useState(false);
+  const searchSeqRef = useRef(0);
 
   const handleSelectDirectory = async () => {
     const selected = await open({ directory: true });
@@ -33,6 +34,7 @@ export function FindInFilesPanel() {
   const handleSearch = useCallback(async () => {
     if (!searchQuery || !directory) return;
 
+    const seq = ++searchSeqRef.current;
     setIsSearching(true);
     try {
       const extList = extensions
@@ -45,13 +47,14 @@ export function FindInFilesPanel() {
         caseSensitive,
         extList
       );
+      if (seq !== searchSeqRef.current) return;
       setResults(summary);
     } catch (err) {
-      // 用户可见提示走中文弹窗，原始错误进调试日志
+      if (seq !== searchSeqRef.current) return;
       console.debug("[MarkPT][调试] 全局搜索失败:", err);
       alert(`${t("search.findInFiles")}：${describeError(err)}`);
     } finally {
-      setIsSearching(false);
+      if (seq === searchSeqRef.current) setIsSearching(false);
     }
   }, [searchQuery, directory, extensions, isRegex, caseSensitive, setResults, t]);
 

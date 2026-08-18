@@ -44,6 +44,7 @@ export function SearchPanel() {
   const [showReplaceHistory, setShowReplaceHistory] = useState(false);
   const searchInputRef = useRef<HTMLInputElement>(null);
   const replaceInputRef = useRef<HTMLInputElement>(null);
+  const searchSeqRef = useRef(0);
 
   const handleSearch = useCallback(async () => {
     if (!searchQuery) {
@@ -56,6 +57,7 @@ export function SearchPanel() {
     const tab = getActiveTab();
     if (!tab || !tab.path) return;
 
+    const seq = ++searchSeqRef.current;
     setIsSearching(true);
     try {
       let pattern = searchQuery;
@@ -68,11 +70,13 @@ export function SearchPanel() {
         isRegex || wholeWord,
         caseSensitive
       );
+      if (seq !== searchSeqRef.current) return;
       setResults(summary);
     } catch (err) {
+      if (seq !== searchSeqRef.current) return;
       console.debug("[MarkPT][调试] 搜索失败:", err);
     } finally {
-      setIsSearching(false);
+      if (seq === searchSeqRef.current) setIsSearching(false);
     }
   }, [
     searchQuery, isRegex, caseSensitive, wholeWord,

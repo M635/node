@@ -564,7 +564,7 @@ export default function App() {
           try {
             await saveFileService(tab.path, tab.content, tab.encoding);
             store.markClean(tab.id);
-          } catch { /* ignore */ }
+          } catch (err) { console.error("[MarkPT] 自动保存失败:", tab.path, err); }
         }
       }
     }, autoSaveInterval * 1000);
@@ -581,7 +581,7 @@ export default function App() {
           try {
             const backupPath = tab.path + ".bak";
             await invoke("write_text_file", { path: backupPath, content: tab.content });
-          } catch { /* ignore */ }
+          } catch (err) { console.error("[MarkPT] 自动备份失败:", tab.path, err); }
         }
       }
     }, 60000);
@@ -977,8 +977,10 @@ export default function App() {
 
   // 会话恢复（启动时）
   useEffect(() => {
+    let active = true;
     (async () => {
       const session = await loadSession();
+      if (!active) return;
       if (session && session.tabs.length > 0) {
         for (const tab of session.tabs) {
           try {
@@ -1022,8 +1024,10 @@ export default function App() {
         }
         setShowSidebar(session.sidebar_visible);
       }
+      if (!active) return;
       setSessionRestored(true);
     })();
+    return () => { active = false; };
   }, []);
 
   const platformClass = typeof navigator !== "undefined" && /Mac/.test(navigator.platform) ? "platform-mac" : "platform-win";
