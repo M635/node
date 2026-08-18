@@ -219,3 +219,35 @@ pub struct FileInfo {
     pub modified: u64,
     pub accessed: u64,
 }
+
+#[derive(serde::Serialize)]
+pub struct FileHashes {
+    pub md5: String,
+    pub sha1: String,
+}
+
+#[tauri::command]
+pub fn compute_file_hashes(path: String) -> Result<FileHashes, String> {
+    use md5::{Md5, Digest};
+    use sha1::Sha1;
+    use std::io::Read;
+
+    let file = fs::File::open(&path).map_err(|e| friendly("计算文件哈希", &e))?;
+    let mut reader = std::io::BufReader::new(file);
+
+    let mut md5 = Md5::new();
+    let mut sha1 = Sha1::new();
+
+    let mut buf = [0u8; 8192];
+    loop {
+        let n = reader.read(&mut buf).map_err(|e| friendly("读取文件", &e))?;
+        if n == 0 { break; }
+        md5.update(&buf[..n]);
+        sha1.update(&buf[..n]);
+    }
+
+    Ok(FileHashes {
+        md5: hex::encode(md5.finalize()),
+        sha1: hex::encode(sha1.finalize()),
+    })
+}

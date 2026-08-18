@@ -116,6 +116,7 @@ pub fn run() {
             commands::file_io::get_file_meta,
             commands::file_io::list_directory,
             commands::file_io::get_file_info,
+            commands::file_io::compute_file_hashes,
             commands::large_file::open_large_file,
             commands::large_file::read_chunk,
             commands::large_file::read_tail,

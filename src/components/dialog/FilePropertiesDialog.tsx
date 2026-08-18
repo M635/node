@@ -20,16 +20,25 @@ interface FileInfo {
   is_file: boolean;
 }
 
+interface FileHashes {
+  md5: string;
+  sha1: string;
+}
+
 export function FilePropertiesDialog({ tab, onClose }: FilePropertiesDialogProps) {
   const { t } = useI18n();
   useEscapeClose(onClose);
   const [fileInfo, setFileInfo] = useState<FileInfo | null>(null);
+  const [hashes, setHashes] = useState<FileHashes | null>(null);
 
   useEffect(() => {
     if (!tab.path) return;
     invoke<FileInfo>("get_file_info", { path: tab.path })
       .then(setFileInfo)
       .catch((err) => console.debug("[MarkPT][调试] 读取文件信息失败:", describeError(err)));
+    invoke<FileHashes>("compute_file_hashes", { path: tab.path })
+      .then(setHashes)
+      .catch((err) => console.debug("[MarkPT][调试] 计算文件哈希失败:", describeError(err)));
   }, [tab.path]);
 
   const formatDate = (timestamp: number) => {
@@ -135,6 +144,21 @@ export function FilePropertiesDialog({ tab, onClose }: FilePropertiesDialogProps
                 <div className="prop-item">
                   <span className="prop-label">{t("props.permission")}</span>
                   <span className="prop-value">{fileInfo.readonly ? t("props.readonly") : t("props.readWrite")}</span>
+                </div>
+              </div>
+            </div>
+          )}
+          {hashes && (
+            <div className="props-section">
+              <h4>{t("props.hashes")}</h4>
+              <div className="props-grid">
+                <div className="prop-item">
+                  <span className="prop-label">MD5</span>
+                  <span className="prop-value" style={{ fontFamily: "monospace", fontSize: "11px", wordBreak: "break-all" }}>{hashes.md5}</span>
+                </div>
+                <div className="prop-item">
+                  <span className="prop-label">SHA1</span>
+                  <span className="prop-value" style={{ fontFamily: "monospace", fontSize: "11px", wordBreak: "break-all" }}>{hashes.sha1}</span>
                 </div>
               </div>
             </div>

@@ -370,6 +370,7 @@ const translations: Record<string, Record<Language, string>> = {
   "props.accessed": { zh: "访问时间", en: "Accessed" },
   "props.permission": { zh: "权限", en: "Permission" },
   "props.readWrite": { zh: "可读写", en: "Read-write" },
+  "props.hashes": { zh: "文件哈希", en: "File Hashes" },
 
   "docSwitcher.hint": { zh: "↑↓ 选择 · Enter 确认 · Esc 取消", en: "↑↓ Select · Enter Confirm · Esc Cancel" },
   "docSwitcher.empty": { zh: "没有打开的文档", en: "No open documents" },
