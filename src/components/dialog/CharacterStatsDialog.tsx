@@ -16,10 +16,11 @@ interface CharacterStatsDialogProps {
   content: string;
   selectedChars: number;
   selectedLines: number;
+  selectedWords: number;
   onClose: () => void;
 }
 
-export function CharacterStatsDialog({ content, selectedChars, selectedLines, onClose }: CharacterStatsDialogProps) {
+export function CharacterStatsDialog({ content, selectedChars, selectedLines, selectedWords, onClose }: CharacterStatsDialogProps) {
   const { t } = useI18n();
   useEscapeClose(onClose);
   const [stats, setStats] = useState<CharacterStats | null>(null);
@@ -36,10 +37,10 @@ export function CharacterStatsDialog({ content, selectedChars, selectedLines, on
       words,
       lines,
       selected_chars: selectedChars,
-      selected_words: selectedChars > 0 ? Math.ceil(selectedChars / 5) : 0,
+      selected_words: selectedWords,
       selected_lines: selectedLines,
     });
-  }, [content, selectedChars, selectedLines]);
+  }, [content, selectedChars, selectedLines, selectedWords]);
 
   return (
     <div className="dialog-overlay" onClick={onClose}>

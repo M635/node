@@ -116,7 +116,7 @@ interface MonacoEditorProps {
   readonly?: boolean;
   onContentChange?: (value: string) => void;
   onCursorChange?: (line: number, column: number) => void;
-  onSelectionChange?: (chars: number, lines: number) => void;
+  onSelectionChange?: (chars: number, lines: number, words: number) => void;
 }
 
 export function MonacoEditor({
@@ -163,11 +163,12 @@ export function MonacoEditor({
       const selection = e.selection;
       if (selection.startLineNumber === selection.endLineNumber &&
           selection.startColumn === selection.endColumn) {
-        onSelectionChange?.(0, 0);
+        onSelectionChange?.(0, 0, 0);
       } else {
         const text = editor.getModel()?.getValueInRange(selection) || "";
         const lines = Math.abs(selection.endLineNumber - selection.startLineNumber) + 1;
-        onSelectionChange?.(text.length, lines);
+        const words = text.trim().split(/\s+/).filter((w) => w.length > 0).length;
+        onSelectionChange?.(text.length, lines, words);
       }
     });
 

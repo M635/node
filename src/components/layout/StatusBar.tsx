@@ -15,7 +15,7 @@ interface StatusBarProps {
   onExport: (format: "txt" | "html" | "rtf") => void;
   onOpenEncoding: () => void;
   onOpenSettings: () => void;
-  selectionInfo: { chars: number; lines: number } | null;
+  selectionInfo: { chars: number; lines: number; words: number } | null;
 }
 
 export function StatusBar({
@@ -92,7 +92,7 @@ export function StatusBar({
         </span>
         {selectionInfo && (
           <span className="status-item" title={t("statusbar.selectionTitle")}>
-            {t("status.selected")} {selectionInfo.chars} {t("status.chars")}, {selectionInfo.lines} {t("statusbar.line")}
+            {t("status.selected")} {selectionInfo.chars} {t("status.chars")}, {selectionInfo.words} {t("status.words")}, {selectionInfo.lines} {t("statusbar.line")}
           </span>
         )}
         <span className="status-item" title={t("statusbar.wordCharTitle", { words: wordCount, chars: charCount })}>

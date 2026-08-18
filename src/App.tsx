@@ -84,7 +84,7 @@ export default function App() {
   const [sessionRestored, setSessionRestored] = useState(false);
   const [diffContent, setDiffContent] = useState({ original: "", modified: "" });
   const [reloadDialog, setReloadDialog] = useState<string | null>(null);
-  const [selectionInfo, setSelectionInfo] = useState<{ chars: number; lines: number } | null>(null);
+  const [selectionInfo, setSelectionInfo] = useState<{ chars: number; lines: number; words: number } | null>(null);
   const [showCharStats, setShowCharStats] = useState(false);
   const [showFunctionList, setShowFunctionList] = useState(false);
   const [showHexViewer, setShowHexViewer] = useState(false);
@@ -498,8 +498,8 @@ export default function App() {
     if (activeTabId) updateTab(activeTabId, { cursor_position: { line, column } });
   }, [activeTabId, updateTab]);
 
-  const handleSelectionChange = useCallback((chars: number, lines: number) => {
-    setSelectionInfo(chars > 0 ? { chars, lines } : null);
+  const handleSelectionChange = useCallback((chars: number, lines: number, words: number) => {
+    setSelectionInfo(chars > 0 ? { chars, lines, words } : null);
   }, []);
 
   const handleEncodingChange = useCallback(async (encoding: EncodingType) => {
@@ -1141,6 +1141,7 @@ export default function App() {
           content={activeTab.content}
           selectedChars={selectionInfo?.chars || 0}
           selectedLines={selectionInfo?.lines || 0}
+          selectedWords={selectionInfo?.words || 0}
           onClose={() => setShowCharStats(false)}
         />
       )}
