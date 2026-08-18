@@ -169,6 +169,20 @@ export function buildEditorContextMenu(opts: {
       const re = new RegExp(` {${tabSize}}`, "g");
       editor.executeEdits("spaces-to-tabs", [{ range: s, text: text.replace(re, "\t") }]);
     }), disabled: readonly || !hasSelection },
+    { label: t("tt.addLineNumbers"), onClick: run(() => {
+      const s = editor.getSelection(); if (!s) return;
+      const text = editor.getModel()?.getValueInRange(s) || "";
+      const lines = text.split("\n");
+      const width = String(lines.length).length;
+      const numbered = lines.map((line, i) => `${String(i + 1).padStart(width, " ")}. ${line}`).join("\n");
+      editor.executeEdits("add-line-numbers", [{ range: s, text: numbered }]);
+    }), disabled: readonly || !hasSelection },
+    { label: t("tt.removeLineNumbers"), onClick: run(() => {
+      const s = editor.getSelection(); if (!s) return;
+      const text = editor.getModel()?.getValueInRange(s) || "";
+      const removed = text.replace(/^\s*\d+\.\s/gm, "");
+      editor.executeEdits("remove-line-numbers", [{ range: s, text: removed }]);
+    }), disabled: readonly || !hasSelection },
     { label: "", onClick: () => {}, divider: true },
     { label: t("dialog.insertDateTime"), onClick: run(() => {
       const now = new Date();
